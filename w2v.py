@@ -5,6 +5,11 @@ import numpy as np
 import tensorflow as tf
 from stemmer import PorterStemmer
 import pickle
+import json
+import linecache
+import collections
+import numpy as np
+import random as rd
 
 class W2V:
     def __init__(self, path):
@@ -12,7 +17,7 @@ class W2V:
         self.path =  path
 
         self.cur_idx = 0
-        self.batch = 1000
+        self.batch = 2
         self.sample = 0.001
         self.vocab_size = 10000
 
@@ -24,7 +29,7 @@ class W2V:
 
         self.batch_size = 128
         self.embedding_size = 128  # Dimension of the embedding vector.
-        self.skip_window = 1  # How many words to consider left and right.
+        self.skip_window = 3  # How many words to consider left and right.
         self.num_skips = 2  # How many times to reuse an input to generate a label.
 
         self.valid_size = 16  # Random set of words to evaluate similarity on.
@@ -82,21 +87,14 @@ class W2V:
         f = open(filename, 'wb')
         pickle.dump({"word2idx":self.word2idx,"idx2word":self.idx2word,"word_count":self.word_count,"word_sample":self.word_sample,"total_count":self.total_count},f)
 
-
-
-
     def get_batch(self):
-        import json
-        import linecache
-        import collections
-        import numpy as np
-        import random as rd
+
 
         #global batch_index
 
         #calculate sample prob inside window
         sample_probs = []
-        sum = (1<<(1+self.skip_window)) - 1
+        sum = (1<<(self.skip_window)) - 1
         prob = 0
         for idx in range(self.skip_window,0,-1):
             prob += (1<<(idx-1)) / sum
@@ -108,7 +106,7 @@ class W2V:
 
         context_data = [] #list append is better than numpy append, so using list append first and then convert into numpy obj
         target_data = [] # same as above
-        for i in range(0, self.batch_size):
+        for i in range(1, self.batch_size):
             idx = self.batch_index + i
             line = linecache.getline(self.path, idx)
 
