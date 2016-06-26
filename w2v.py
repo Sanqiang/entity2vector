@@ -30,6 +30,12 @@ class W2V:
         self.batch_size = 128
         self.embedding_size = 128  # Dimension of the embedding vector.
         self.skip_window = 3  # How many words to consider left and right.
+        self.raw_sample_probs = [0.5, 0.3, 0.2]
+        self.sample_probs = []
+        sum = 0
+        for prob in self.raw_sample_probs:
+            sum += prob
+            self.sample_probs.append(sum)
         self.num_skips = 2  # How many times to reuse an input to generate a label.
 
         self.valid_size = 16  # Random set of words to evaluate similarity on.
@@ -58,6 +64,7 @@ class W2V:
 
         line_idx = 0
         text_data = ""
+
         with open(self.path, "r") as ins:
             for line in ins:
                 obj = json.loads(line)
@@ -93,12 +100,12 @@ class W2V:
         #global batch_index
 
         #calculate sample prob inside window
-        sample_probs = []
-        sum = (1<<(self.skip_window)) - 1
-        prob = 0
-        for idx in range(self.skip_window,0,-1):
-            prob += (1<<(idx-1)) / sum
-            sample_probs.append(prob)
+        #sample_probs = []
+        #sum = (1<<(self.skip_window)) - 1
+        #prob = 0
+        #for idx in range(self.skip_window,0,-1):
+        #    prob += (1<<(idx-1)) / sum
+        #    sample_probs.append(prob)
 
         #prepare buffer
         span = 2 * self.skip_window + 1  # [ skip_window target skip_window ]
@@ -108,7 +115,8 @@ class W2V:
         target_data = [] # same as above
         for i in range(1, self.batch_size):
             idx = self.batch_index + i
-            line = linecache.getline(self.path, idx)
+            #line = linecache.getline(self.path, idx)
+            line = '{ "reviewerID": "A2SUAM1J3GNN3B", "asin": "0000013714", "reviewerName": "J. McDonald", "helpful": [2, 3], "reviewText": "I bought this for my husband who plays the piano. He is having a wonderful time playing these old hymns. The music is at times hard to read because we think the book was published for singing from more than playing from. Great purchase though!", "overall": 5.0, "summary": "Heavenly Highway Hymns", "unixReviewTime": 1252800000, "reviewTime": "09 13, 2009" }'
 
             if line is None or len(line) == 0:
                 print("current idx,", idx, " current batch_idx, ", self.batch_index, " line: ", line)
@@ -133,16 +141,16 @@ class W2V:
                 for cnt_idx in range(0, int(self.skip_window/2)): #random pick up skip_window/2 context word
                     while context_word in avoid_context_word: #for avoid repeat sample
                         for rank_idx in range(0,self.skip_window): #from closest to farest
-                            if r <= sample_probs[rank_idx]:
-                                if rd.random >= 0.5:
+                            if r <= self.sample_probs[rank_idx]:
+                                if rd.random() >= 0.5:
                                     context_word = self.word2idx[buffer[self.skip_window - (rank_idx + 1)]]
                                 else:
                                     context_word = self.word2idx[buffer[self.skip_window + (rank_idx + 1)]]
                                 break
-                        if context_word not in avoid_context_word:
-                            avoid_context_word.append(context_word)
-                            context_data.append(context_word)
-                            target_data.append(target_word)
+                    if context_word not in avoid_context_word:
+                        avoid_context_word.append(context_word)
+                        context_data.append(context_word)
+                        target_data.append(target_word)
 
                 #for next word
                 buffer.append(self.stemmer.get_stem_word(text_data[word_idx]))
@@ -214,7 +222,7 @@ class W2V:
 
                 if step % 2000 == 0:
                     if step > 0:
-                        average_loss /= 2000
+                        average_loss /= 50
                     # The average loss is an estimate of the loss over the last 2000 batches.
                     print("Average loss at step ", step, ": ", average_loss)
                     filename = "_".join(["embedding",str(step)])
@@ -224,4 +232,9 @@ class W2V:
         return
 
 
+def main():
+    model = W2V("/Users/zhaosanqiang916/Data/reviews_Books.json")
+    model.train()
+
+main()
 
