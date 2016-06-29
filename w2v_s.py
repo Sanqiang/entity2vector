@@ -50,7 +50,6 @@ class W2V_c:
     def parse(self, sent):
         return  [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent)]
 
-
     def get_stat(self):
         import json
         import collections
@@ -92,7 +91,10 @@ class W2V_c:
         for word, cnt in self.word_count:
             if word not in self.word2idx:
                 self.word2idx[word] = 1+len(self.word2idx) #0 is discarded word
+        #populate idx2word
+        self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
 
+        #populate data
         with open(self.path, "r") as ins:
             for line in ins:
                 obj = json.loads(line)
@@ -113,14 +115,10 @@ class W2V_c:
 
                 self.data.append(obj)
 
-        for word,cnt in self.word_count:
-            self.word2idx[word] = 1+len(self.word2idx)
-        self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
-
         #calculate the sample
         #threshold_count = self.sample * self.total_count
         #for word in self.word_count:
-        #    word_probability = (sqrt(self.word_count[word] / threshold_count) + 1) * (threshold_count / self.word_count[word])
+        #    word_probability = (sqrt(self.w ord_count[word] / threshold_count) + 1) * (threshold_count / self.word_count[word])
         #    self.word_sample[word] = int(round(word_probability * 2**32))
         f = open(filename, 'wb')
         pickle.dump({"word2idx":self.word2idx,"idx2word":self.idx2word,"word_count":self.word_count,"word_sample":self.word_sample,"total_count":self.total_count, "data":self.data},f)
@@ -192,9 +190,15 @@ class W2V_c:
 
         with graph.as_default():
 
+            valid_size = 16  # Random set of words to evaluate similarity on.
+            valid_window = 100  # Only pick dev samples in the head of the distribution.
+            valid_examples = np.random.choice(valid_window, valid_size, replace=False)
+
+
             # Input data.
             train_inputs = tf.placeholder(tf.int32)
             train_labels = tf.placeholder(tf.int32)
+            valid_dataset = tf.constant(valid_examples, dtype=tf.int32)
 
             # Ops and variables pinned to the CPU because of missing GPU implementation
             with tf.device('/cpu:0'):
@@ -218,6 +222,14 @@ class W2V_c:
 
             # Construct the SGD optimizer using a learning rate of 1.0.
             optimizer = tf.train.GradientDescentOptimizer(1.0).minimize(loss)
+
+            # Compute the cosine similarity between minibatch examples and all embeddings.
+            norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, keep_dims=True))
+            normalized_embeddings = embeddings / norm
+            valid_embeddings = tf.nn.embedding_lookup(
+                normalized_embeddings, valid_dataset)
+            similarity = tf.matmul(
+                valid_embeddings, normalized_embeddings, transpose_b=True)
 
             saver = tf.train.Saver()
 
@@ -254,6 +266,19 @@ class W2V_c:
                     saver.save(session, filename)
                     average_loss = 0
 
+                # Note that this is expensive (~20% slowdown if computed every 500 steps)
+                if step % 10000 == 0:
+                    sim = similarity.eval()
+                    for i in range(valid_size):
+
+                        valid_word = self.idx2word[valid_examples[i]]
+                        top_k = 8  # number of nearest neighbors
+                        nearest = (-sim[i, :]).argsort()[1:top_k + 1]
+                        log_str = "Nearest to %s:" % valid_word
+                        for k in range(top_k):
+                            close_word = self.idx2word[nearest[k]]
+                            log_str = "%s %s," % (log_str, close_word)
+                        print(log_str)
         return
 
 
