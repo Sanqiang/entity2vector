@@ -27,7 +27,7 @@ class W2V_c:
 
         self.word_sample = {} #target word sample prob useless
 
-        self.batch_size = 128
+        self.batch_size = 5
         self.embedding_size = 128  # Dimension of the embedding vector.
         self.skip_window = 3  # How many words to consider left and right.
         self.raw_sample_probs = [0.5, 0.3, 0.2] #context word sample prob
@@ -85,9 +85,8 @@ class W2V_c:
                 if line_idx % 1000 == 0:
                     self.word_count += collections.Counter(self.parse(batch_text_data))
                     batch_text_data = ""
-                    break
         self.word_count += collections.Counter(self.parse(batch_text_data)) #not forget last batch
-        self.word_count = self.word_count.most_common(self.vocab_size)
+        self.word_count = self.word_count.most_common(self.vocab_size-1)
 
         #populate word2idx
         for word, cnt in self.word_count:
@@ -116,7 +115,7 @@ class W2V_c:
 
         for word,cnt in self.word_count:
             self.word2idx[word] = 1+len(self.word2idx)
-        #self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
+        self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
 
         #calculate the sample
         #threshold_count = self.sample * self.total_count
@@ -134,7 +133,7 @@ class W2V_c:
         context_data = [] #list append is better than numpy append, so using list append first and then convert into numpy obj
         target_data = [] # same as above
         for i in range(0, self.batch_size):
-            idx = self.batch_index + i
+            idx = (self.batch_index + i) % len(self.data)
             obj = self.data[idx]
 
             reviewerID = obj["reviewerID"]
@@ -142,23 +141,35 @@ class W2V_c:
             asin = obj["asin"]
             text_data = obj["text_data"]
 
-            for word_idx in range(0, len(text_data)):
-                while len(buffer) < span:
-                    buffer.append(text_data[word_idx])
+            word_idx = 0
+            while len(buffer) < span:
+                buffer.append(text_data[word_idx])
+                word_idx += 1
+                if word_idx >= len(text_data):
+                    break
 
-                target_word = buffer[self.skip_window]
+            for word_idx in range(word_idx, len(text_data)):
+
+                target_idx = int((len(buffer)+1)/2)
+                target_word = buffer[target_idx] #consider buffer is shorter than  self.skip_window
                 context_word = target_word
                 avoid_context_word = [target_word]
 
-                for cnt_idx in range(0, int(self.skip_window/2)): #random pick up skip_window/2 context word
-                    r = rd.random()
+                for cnt_idx in range(0, self.skip_window): #random pick up skip_window context word
+                    reset = self.skip_window * 5
                     while context_word in avoid_context_word: #for avoid repeat sample
+                        r = rd.random()
+                        reset -= 1
+                        if reset < 0:
+                            break
                         for rank_idx in range(0, self.skip_window): #from closest to farest
                             if r <= self.sample_probs[rank_idx]:
-                                if rd.random() >= 0.5:
-                                    context_word = buffer[self.skip_window - (rank_idx + 1)]
+                                if r >= 0.5:
+                                    if target_idx - (rank_idx + 1) > 0:
+                                        context_word = buffer[target_idx - (rank_idx + 1)]
                                 else:
-                                    context_word = buffer[self.skip_window + (rank_idx + 1)]
+                                    if target_idx + (rank_idx + 1) < len(buffer):
+                                        context_word = buffer[target_idx + (rank_idx + 1)]
                                 break
                     if context_word not in avoid_context_word:
                         avoid_context_word.append(context_word)
@@ -171,9 +182,9 @@ class W2V_c:
         #update global batch_index
         self.batch_index += self.batch_size
 
-        context_data = np.ndarray(shape=(len(context_data)), dtype=np.int32)
-        target_data = np.ndarray(shape=(len(target_data), 1), dtype=np.int32)
-        return context_data, target_data
+        context_data =  np.array(context_data) #np.ndarray(shape=(len(context_data)), dtype=np.int32)
+        target_data =  np.array(target_data)[np.newaxis] #np.ndarray(shape=(len(target_data), 1), dtype=np.int32)
+        return context_data, target_data.T
 
     def train(self):
         embedding_size = 128  # Dimension of the embedding vector.
@@ -226,6 +237,7 @@ class W2V_c:
             for step in range(self.num_steps):
 
                 batch_inputs, batch_labels = self.get_batch()
+                #print("current step", step)
                 feed_dict = {train_inputs: batch_inputs, train_labels: batch_labels}
 
                 # We perform one update step by evaluating the optimizer op (including it
@@ -246,7 +258,7 @@ class W2V_c:
 
 
 def main():
-    model = W2V_c("/home/sanqiang/Documents/data/Electronics_5.json")
+    model = W2V_c("/home/sanqiang/Documents/data/Amazon_Instant_Video_5.json")
     model.train()
 
 main()
