@@ -47,8 +47,16 @@ class W2V_c:
         self.batch_index = 0
 
 
+    def valid_word(self, word):
+        if len(word) > 3:
+            return True
+        for idx in range(0, len(word)):
+            if not str.isalpha(word[idx]):
+                return False
+        return True
+
     def parse(self, sent):
-        return  [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent)]
+        return [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)]
 
     def get_stat(self):
         import json
@@ -283,7 +291,7 @@ class W2V_c:
 
 
 def main():
-    model = W2V_c("/home/sanqiang/Documents/data/Amazon_Instant_Video_5.json")
+    model = W2V_c("/home/sanqiang/Documents/data/Electronics_5.json")
     model.train()
 
 main()
