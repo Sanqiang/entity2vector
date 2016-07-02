@@ -1,5 +1,7 @@
+import os.path
 import pickle
 import random as rd
+import sys
 from collections import defaultdict, Counter, deque
 from math import sqrt
 
@@ -8,14 +10,14 @@ import tensorflow as tf
 from nltk.tokenize import TweetTokenizer
 
 from stemmer import PorterStemmer
-from nltk.corpus import stopwords
 
 
 class W2V_c:
-    def __init__(self, path):
+    def __init__(self, path, folder):
         self.tknzr = TweetTokenizer()
         self.stemmer = PorterStemmer()
         self.path =  path
+        self.folder = folder
 
         self.sample = 0.001
         self.vocab_size = 10000
@@ -60,10 +62,8 @@ class W2V_c:
 
     def get_stat(self):
         import json
-        import collections
-        import os.path
 
-        filename = "stat"
+        filename =  "/".join((self.folder, "stat"))
         if os.path.exists(filename):
             f = open(filename, 'rb')
             obj = pickle.load(f)
@@ -90,9 +90,9 @@ class W2V_c:
                 batch_text_data = " ".join([batch_text_data, reviewText, summary])
                 line_idx += 1
                 if line_idx % 1000 == 0:
-                    self.word_count += collections.Counter(self.parse(batch_text_data))
+                    self.word_count += Counter(self.parse(batch_text_data))
                     batch_text_data = ""
-        self.word_count += collections.Counter(self.parse(batch_text_data)) #not forget last batch
+        self.word_count += Counter(self.parse(batch_text_data)) #not forget last batch
         self.word_count = self.word_count.most_common(self.vocab_size-1)
 
         #populate word2idx
@@ -130,6 +130,27 @@ class W2V_c:
         #    self.word_sample[word] = int(round(word_probability * 2**32))
         f = open(filename, 'wb')
         pickle.dump({"word2idx":self.word2idx,"idx2word":self.idx2word,"word_count":self.word_count,"word_sample":self.word_sample,"total_count":self.total_count, "data":self.data},f)
+
+    def get_model(self, folder):
+        if not os.path.exists(folder):
+            return 0, None
+        files = os.listdir(folder)
+        max_n_step = 0
+        max_file = ""
+        for file in files:
+            items = file.split("_")
+            if len(items) >= 2:
+                try:
+                    n_step = int(items[-1])
+                except ValueError:
+                    continue
+                if n_step > max_n_step:
+                    max_n_step = n_step
+                    max_file = file
+        if max_n_step > 0:
+            return max_n_step, "/".join((folder, max_file))
+        else:
+            return 0, None
 
     def get_batch(self):
         #prepare buffer
@@ -241,20 +262,23 @@ class W2V_c:
 
             saver = tf.train.Saver()
 
+
+
             init = tf.initialize_all_variables()
 
-        self.num_steps = 1000000
-
-
-
+        self.num_steps = sys.maxint
 
         with tf.Session(graph=graph) as session:
             # We must initialize all variables before we use them.
             init.run()
             print("Initialized")
 
+            model_step, model_file = self.get_model(self.folder)
+            if model_file is not None:
+                saver.restore(session, model_file)
+
             average_loss = 0
-            for step in range(self.num_steps):
+            for step in range(model_step, model_step + self.num_steps):
 
                 batch_inputs, batch_labels = self.get_batch()
                 #print("current step", step)
@@ -271,7 +295,7 @@ class W2V_c:
                     # The average loss is an estimate of the loss over the last 2000 batches.
                     print("Average loss at step ", step, ": ", average_loss)
                     filename = "_".join(["embedding",str(step)])
-                    saver.save(session, filename)
+                    saver.save(session, "/".join((self.folder ,filename)))
                     average_loss = 0
 
                 # Note that this is expensive (~20% slowdown if computed every 500 steps)
@@ -291,7 +315,8 @@ class W2V_c:
 
 
 def main():
-    model = W2V_c("/home/sanqiang/Documents/data/Electronics_5.json")
+    #model = W2V_c("/home/sanqiang/Documents/data/Electronics_5.json", "temp")
+    model = W2V_c("/home/sanqiang/Documents/data/Books_5.json", "amazon_book")
     model.train()
 
 main()
