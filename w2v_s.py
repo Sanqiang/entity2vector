@@ -19,6 +19,7 @@ class W2V_c:
         self.path =  path
         self.folder = folder
 
+        #word based
         self.sample = 0.001
         self.vocab_size = 10000
 
@@ -26,13 +27,19 @@ class W2V_c:
         self.word_count = Counter()
         self.word2idx = defaultdict(int)
         self.idx2word = {}
+        self.word_sample = {}  # target word sample prob useless
 
-        self.word_sample = {} #target word sample prob useless
+        #entity based
+        self.prod2idx = {}
+        self.idx2prod = {}
+        self.user2idx = {}
+        self.idx2user = {}
 
-        self.batch_size = 5
+        #train based
+        self.batch_size = 150
         self.embedding_size = 128  # Dimension of the embedding vector.
-        self.skip_window = 3  # How many words to consider left and right.
         self.raw_sample_probs = [0.5, 0.3, 0.2] #context word sample prob
+        self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
         self.sample_probs = []
         sum = 0
         for prob in self.raw_sample_probs:
@@ -73,6 +80,10 @@ class W2V_c:
             self.word_sample = obj["word_sample"]
             self.total_count = obj["total_count"]
             self.data = obj["data"]
+            self.idx2prod = obj["idx2prod"]
+            self.prod2idx = obj["prod2idx"]
+            self.idx2user = obj["idx2user"]
+            self.user2idx = obj["user2idx"]
             return
 
         line_idx = 0
@@ -87,18 +98,28 @@ class W2V_c:
                 reviewerID = obj["reviewerID"]
                 overall = obj["overall"]
                 asin = obj["asin"]
+
+                #word based
                 batch_text_data = " ".join([batch_text_data, reviewText, summary])
                 line_idx += 1
                 if line_idx % 1000 == 0:
                     self.word_count += Counter(self.parse(batch_text_data))
                     batch_text_data = ""
+
+                #entity based note since we know the vocab size we can append entity embedding after that (first loop over data)
+                if asin not in self.prod2idx:
+                    prod_idx = self.vocab_size + len(self.prod2idx) + 1
+                    self.prod2idx[asin] = prod_idx
+                    self.idx2prod[prod_idx] = asin
+
+        #out of loop word based
         self.word_count += Counter(self.parse(batch_text_data)) #not forget last batch
-        self.word_count = self.word_count.most_common(self.vocab_size-1)
+        self.word_count = self.word_count.most_common(self.vocab_size)
 
         #populate word2idx
         for word, cnt in self.word_count:
             if word not in self.word2idx:
-                self.word2idx[word] = 1+len(self.word2idx) #0 is discarded word
+                self.word2idx[word] = 1 + len(self.word2idx) #0 is discarded word
         #populate idx2word
         self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
 
@@ -120,8 +141,15 @@ class W2V_c:
                 #for save memory
                 obj.pop("reviewText")
                 obj.pop("summary")
+                obj.pop("overall")
 
                 self.data.append(obj)
+
+                #note that we know both vocab size and entity size, we can append user embedding after that (second loop over data)
+                if reviewerID not in self.user2idx:
+                    user_idx = 1 + len(self.user2idx) + len(self.prod2idx) + self.vocab_size
+                    self.user2idx[reviewerID] = user_idx
+                    self.idx2user[user_idx] = reviewerID
 
         #calculate the sample
         #threshold_count = self.sample * self.total_count
@@ -129,7 +157,9 @@ class W2V_c:
         #    word_probability = (sqrt(self.w ord_count[word] / threshold_count) + 1) * (threshold_count / self.word_count[word])
         #    self.word_sample[word] = int(round(word_probability * 2**32))
         f = open(filename, 'wb')
-        pickle.dump({"word2idx":self.word2idx,"idx2word":self.idx2word,"word_count":self.word_count,"word_sample":self.word_sample,"total_count":self.total_count, "data":self.data},f)
+        pickle_data = {"word2idx":self.word2idx,"idx2word":self.idx2word,"word_count":self.word_count,"word_sample":self.word_sample,"total_count":self.total_count, "data":self.data,
+                       "idx2user":self.idx2user,"user2idx":self.user2idx,"prod2idx":self.prod2idx,"idx2prod":self.idx2prod}
+        pickle.dump(pickle_data,f)
 
     def get_model(self, folder):
         if not os.path.exists(folder):
@@ -162,9 +192,8 @@ class W2V_c:
         for i in range(0, self.batch_size):
             idx = (self.batch_index + i) % len(self.data)
             obj = self.data[idx]
-
             reviewerID = obj["reviewerID"]
-            overall = obj["overall"]
+            #overall = obj["overall"]
             asin = obj["asin"]
             text_data = obj["text_data"]
 
@@ -203,6 +232,16 @@ class W2V_c:
                         context_data.append(context_word)
                         target_data.append(target_word)
 
+                    #add entity data
+                    if self.prod2idx[asin] > self.vocab_size + len(self.prod2idx) + len(self.user2idx):
+                        print("x")
+                    if self.user2idx[reviewerID] > self.vocab_size + len(self.prod2idx) + len(self.user2idx):
+                        print("x")
+                    context_data.append(self.prod2idx[asin])
+                    target_data.append(target_word)
+                    context_data.append(self.user2idx[reviewerID])
+                    target_data.append(target_word)
+
                 #for next word
                 buffer.append(text_data[word_idx])
 
@@ -213,15 +252,14 @@ class W2V_c:
         target_data =  np.array(target_data)[np.newaxis] #np.ndarray(shape=(len(target_data), 1), dtype=np.int32)
         return context_data, target_data.T
 
-    def train(self):
-        embedding_size = 128  # Dimension of the embedding vector.
+    def train(self, num_steps):
         graph = tf.Graph()
 
         with graph.as_default():
 
             valid_size = 16  # Random set of words to evaluate similarity on.
             valid_window = 100  # Only pick dev samples in the head of the distribution.
-            valid_examples = np.random.choice(valid_window, valid_size, replace=False)
+            valid_examples = 1 + np.random.choice(valid_window, valid_size, replace=False) #discard 0 which is discard word
 
 
             # Input data.
@@ -231,23 +269,24 @@ class W2V_c:
 
             # Ops and variables pinned to the CPU because of missing GPU implementation
             with tf.device('/cpu:0'):
+                embed_vocab_size = 1 + self.vocab_size + len(self.prod2idx) + len(self.user2idx)
                 # Look up embeddings for inputs.
                 embeddings = tf.Variable(
-                    tf.random_uniform([self.vocab_size, embedding_size], -1.0, 1.0), name = "emb")
+                    tf.random_uniform([embed_vocab_size, self.embedding_size], -1.0, 1.0), name = "emb")
                 embed = tf.nn.embedding_lookup(embeddings, train_inputs)
 
                 # Construct the variables for the NCE loss
                 nce_weights = tf.Variable(
-                    tf.truncated_normal([self.vocab_size, embedding_size],
-                                        stddev=1.0 / sqrt(embedding_size)))
-                nce_biases = tf.Variable(tf.zeros([self.vocab_size]))
+                    tf.truncated_normal([embed_vocab_size, self.embedding_size],
+                                        stddev=1.0 / sqrt(self.embedding_size)))
+                nce_biases = tf.Variable(tf.zeros([embed_vocab_size]))
 
             # Compute the average NCE loss for the batch.
             # tf.nce_loss automatically draws a new sample of the negative labels each
             # time we evaluate the loss.
             loss = tf.reduce_mean(
                 tf.nn.nce_loss(nce_weights, nce_biases, embed, train_labels,
-                               self.num_negative_sampled, self.vocab_size))
+                               self.num_negative_sampled, embed_vocab_size))
 
             # Construct the SGD optimizer using a learning rate of 1.0.
             optimizer = tf.train.GradientDescentOptimizer(1.0).minimize(loss)
@@ -262,11 +301,7 @@ class W2V_c:
 
             saver = tf.train.Saver()
 
-
-
             init = tf.initialize_all_variables()
-
-        self.num_steps = sys.maxint
 
         with tf.Session(graph=graph) as session:
             # We must initialize all variables before we use them.
@@ -278,7 +313,7 @@ class W2V_c:
                 saver.restore(session, model_file)
 
             average_loss = 0
-            for step in range(model_step, model_step + self.num_steps):
+            for step in range(model_step, model_step + num_steps):
 
                 batch_inputs, batch_labels = self.get_batch()
                 #print("current step", step)
@@ -295,7 +330,7 @@ class W2V_c:
                     # The average loss is an estimate of the loss over the last 2000 batches.
                     print("Average loss at step ", step, ": ", average_loss)
                     filename = "_".join(["embedding",str(step)])
-                    saver.save(session, "/".join((self.folder ,filename)))
+                    saver.save(session, "/".join((self.folder ,filename)), max_to_keep = sys.maxsize)
                     average_loss = 0
 
                 # Note that this is expensive (~20% slowdown if computed every 500 steps)
@@ -304,20 +339,21 @@ class W2V_c:
                     for i in range(valid_size):
 
                         valid_word = self.idx2word[valid_examples[i]]
-                        top_k = 8  # number of nearest neighbors
+                        top_k = 10  # number of nearest neighbors
                         nearest = (-sim[i, :]).argsort()[1:top_k + 1]
                         log_str = "Nearest to %s:" % valid_word
                         for k in range(top_k):
-                            close_word = self.idx2word[nearest[k]]
-                            log_str = "%s %s," % (log_str, close_word)
+                            if nearest[k] < self.vocab_size:
+                                close_word = self.idx2word[nearest[k]]
+                                log_str = "%s %s," % (log_str, close_word)
                         print(log_str)
         return
 
 
 def main():
-    #model = W2V_c("/home/sanqiang/Documents/data/Electronics_5.json", "temp")
-    model = W2V_c("/home/sanqiang/Documents/data/Books_5.json", "amazon_book")
-    model.train()
+    model = W2V_c("/home/sanqiang/Documents/data/Electronics_5.json", "amazon_electronics")
+    #model = W2V_c("/home/sanqiang/Documents/data/Amazon_Instant_Video_5.json", "amazon_instant_video")
+    model.train(sys.maxsize)
 
 main()
 
