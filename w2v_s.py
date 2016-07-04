@@ -299,7 +299,7 @@ class W2V_c:
             similarity = tf.matmul(
                 valid_embeddings, normalized_embeddings, transpose_b=True)
 
-            saver = tf.train.Saver()
+            saver = tf.train.Saver(max_to_keep = 2147483647)
 
             init = tf.initialize_all_variables()
 
@@ -330,7 +330,7 @@ class W2V_c:
                     # The average loss is an estimate of the loss over the last 2000 batches.
                     print("Average loss at step ", step, ": ", average_loss)
                     filename = "_".join(["embedding",str(step)])
-                    saver.save(session, "/".join((self.folder ,filename)), max_to_keep = sys.maxsize)
+                    saver.save(session, "/".join((self.folder ,filename)))
                     average_loss = 0
 
                 # Note that this is expensive (~20% slowdown if computed every 500 steps)
@@ -343,7 +343,7 @@ class W2V_c:
                         nearest = (-sim[i, :]).argsort()[1:top_k + 1]
                         log_str = "Nearest to %s:" % valid_word
                         for k in range(top_k):
-                            if nearest[k] < self.vocab_size:
+                            if nearest[k] in self.idx2word:
                                 close_word = self.idx2word[nearest[k]]
                                 log_str = "%s %s," % (log_str, close_word)
                         print(log_str)
