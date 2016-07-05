@@ -68,8 +68,6 @@ class W2V_c:
         return [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)]
 
     def get_stat(self):
-        import json
-
         filename =  "/".join((self.folder, "stat"))
         if os.path.exists(filename):
             f = open(filename, 'rb')
@@ -86,6 +84,7 @@ class W2V_c:
             self.user2idx = obj["user2idx"]
             return
 
+        import json
         line_idx = 0
         batch_text_data = ""
 
@@ -355,5 +354,5 @@ def main():
     #model = W2V_c("/home/sanqiang/Documents/data/Amazon_Instant_Video_5.json", "amazon_instant_video")
     model.train(sys.maxsize)
 
-main()
+#main()
 
