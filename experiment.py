@@ -14,6 +14,35 @@ from stemmer import PorterStemmer
 from w2v_s import W2V_c
 
 class Exp(W2V_c):
+    def split(self):
+        import json
+        import heapq
+        h = []
+        with open(self.path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                #reviewText = obj["reviewText"]
+                #summary = obj["summary"]
+                #reviewerID = obj["reviewerID"]
+                #overall = obj["overall"]
+                #asin = obj["asin"]
+                unixReviewTime = int(obj["unixReviewTime"])
+                heapq.heappush(h, unixReviewTime)
+        split = int(len(h) * 0.8)
+
+        f_train = open("/".join((self.folder, "train.json")))
+        f_test = open("/".join((self.folder, "test.json")))
+        with open(self.path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                unixReviewTime = int(obj["unixReviewTime"])
+                if unixReviewTime < split: # go to train
+                    f_train.write(line)
+                else:
+                    f_test.write(line)
+
+        return split
+
     def get_score_matrix(self):
         filename = "/".join((self.folder, "score"))
         if os.path.exists(filename):
@@ -113,4 +142,4 @@ class Exp(W2V_c):
             np.save(path, embed)
         return embed
 exp = Exp("/home/sanqiang/Documents/data/Electronics_5.json", "amazon_electronics")
-emb = exp.test()
+emb = exp.split()

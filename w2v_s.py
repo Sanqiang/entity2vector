@@ -1,3 +1,4 @@
+import json
 import os.path
 import pickle
 import random as rd
@@ -5,6 +6,7 @@ import sys
 from collections import defaultdict, Counter, deque
 from math import sqrt
 
+import nltk
 import numpy as np
 import tensorflow as tf
 from nltk.tokenize import TweetTokenizer
@@ -21,7 +23,7 @@ class W2V_c:
 
         #word based
         self.sample = 0.001
-        self.vocab_size = 10000
+        self.vocab_size = 30000
 
         self.total_count = 0
         self.word_count = Counter()
@@ -36,7 +38,7 @@ class W2V_c:
         self.idx2user = {}
 
         #train based
-        self.batch_size = 150
+        self.batch_size = 100
         self.embedding_size = 128  # Dimension of the embedding vector.
         self.raw_sample_probs = [0.5, 0.3, 0.2] #context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
@@ -51,10 +53,15 @@ class W2V_c:
 
         self.data = [] #data set obj
 
+        self.data_type = "yelp"
+        self.file_encoding = "utf-8"
+        # extension
+        self.pos_mode = True
+
         self.get_stat()
-
+        self.get_stat_pos()
         self.batch_index = 0
-
+        self.loop_index = 0
 
     def valid_word(self, word):
         if len(word) > 3:
@@ -67,10 +74,29 @@ class W2V_c:
     def parse(self, sent):
         return [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)]
 
+    #note that return format is title, text, user, prod, rating
+    def line_parser(self, line):
+        if self.data_type == "amz":
+            obj = json.loads(line)
+            reviewText = obj["reviewText"]
+            summary = obj["summary"]
+            reviewerID = obj["reviewerID"]
+            overall = obj["overall"]
+            asin = obj["asin"]
+            return summary, reviewText, reviewerID, asin, overall
+        elif self.data_type == "yelp":
+            obj = json.loads(line)
+            title = " "
+            text = obj["text"]
+            user = obj["user_id"]
+            prod = obj["business_id"]
+            rating = obj["stars"]
+            return title, text, user, prod, rating
+
     def get_stat(self):
         filename =  "/".join((self.folder, "stat"))
         if os.path.exists(filename):
-            f = open(filename, 'rb')
+            f = open(filename, 'rb', encoding=self.file_encoding)
             obj = pickle.load(f)
             self.word2idx = obj["word2idx"]
             self.idx2word = obj["idx2word"]
@@ -84,32 +110,27 @@ class W2V_c:
             self.user2idx = obj["user2idx"]
             return
 
-        import json
         line_idx = 0
         batch_text_data = ""
 
         #populate the count
-        with open(self.path, "r") as ins:
+        with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
-                obj = json.loads(line)
-                reviewText = obj["reviewText"]
-                summary = obj["summary"]
-                reviewerID = obj["reviewerID"]
-                overall = obj["overall"]
-                asin = obj["asin"]
-
+                title, text, user, prod, rating = self.line_parser(line)
+                if title is None:
+                    continue
                 #word based
-                batch_text_data = " ".join([batch_text_data, reviewText, summary])
+                batch_text_data = " ".join([batch_text_data, text, title])
                 line_idx += 1
                 if line_idx % 1000 == 0:
                     self.word_count += Counter(self.parse(batch_text_data))
                     batch_text_data = ""
 
                 #entity based note since we know the vocab size we can append entity embedding after that (first loop over data)
-                if asin not in self.prod2idx:
+                if prod not in self.prod2idx:
                     prod_idx = self.vocab_size + len(self.prod2idx) + 1
-                    self.prod2idx[asin] = prod_idx
-                    self.idx2prod[prod_idx] = asin
+                    self.prod2idx[prod] = prod_idx
+                    self.idx2prod[prod_idx] = prod
 
         #out of loop word based
         self.word_count += Counter(self.parse(batch_text_data)) #not forget last batch
@@ -125,30 +146,21 @@ class W2V_c:
         #populate data
         with open(self.path, "r") as ins:
             for line in ins:
-                obj = json.loads(line)
-                reviewText = obj["reviewText"]
-                summary = obj["summary"]
-                reviewerID = obj["reviewerID"]
-                overall = obj["overall"]
-                asin = obj["asin"]
-                text_data = self.parse(" ".join([reviewText, summary]))
+                title, text, user, prod, rating = self.line_parser(line)
+                text_data = self.parse(" ".join([text, title]))
                 text_data_idx = []
                 for word in text_data:
                     text_data_idx.append(self.word2idx[word])
 
-                obj["text_data"] = text_data_idx
-                #for save memory
-                obj.pop("reviewText")
-                obj.pop("summary")
-                obj.pop("overall")
+                obj = {"text_data":text_data_idx, "prod":prod, "user":user}
 
                 self.data.append(obj)
 
                 #note that we know both vocab size and entity size, we can append user embedding after that (second loop over data)
-                if reviewerID not in self.user2idx:
+                if user not in self.user2idx:
                     user_idx = 1 + len(self.user2idx) + len(self.prod2idx) + self.vocab_size
-                    self.user2idx[reviewerID] = user_idx
-                    self.idx2user[user_idx] = reviewerID
+                    self.user2idx[user] = user_idx
+                    self.idx2user[user_idx] = user
 
         #calculate the sample
         #threshold_count = self.sample * self.total_count
@@ -159,6 +171,33 @@ class W2V_c:
         pickle_data = {"word2idx":self.word2idx,"idx2word":self.idx2word,"word_count":self.word_count,"word_sample":self.word_sample,"total_count":self.total_count, "data":self.data,
                        "idx2user":self.idx2user,"user2idx":self.user2idx,"prod2idx":self.prod2idx,"idx2prod":self.idx2prod}
         pickle.dump(pickle_data,f)
+
+    def get_stat_pos(self):
+        filename = "/".join((self.folder, "stat_pos"))
+        if os.path.exists(filename):
+            pickle_data = pickle.load(filename)
+            self.interest_words = pickle_data["interest_words"]
+            return self.interest_words
+
+        import json
+        self.interest_words = []
+        self.interest_tag = ["NOUN","ADV","ADJ"]
+
+        with open(self.path, "r", encoding=self.file_encoding) as ins:
+            for line in ins:
+                title, ttext, user, prod, rating = self.line_parser(line)
+
+                text = " ".join((title, ttext))
+                tagded_pairs = nltk.pos_tag(self.tknzr.tokenize(text), tagset='universal')
+                for word,tag in tagded_pairs:
+                    if tag in self.interest_tag:
+                        stem_word = self.stemmer.get_stem_word(word)
+                        if stem_word in self.word2idx:
+                            self.interest_words.append(self.word2idx[stem_word])
+        f = open(filename, 'wb')
+        pickle_data = {"interest_words",self.interest_words}
+        pickle.dump(pickle_data, f)
+        return self.interest_words
 
     def get_model(self, folder):
         if not os.path.exists(folder):
@@ -190,10 +229,11 @@ class W2V_c:
         target_data = [] # same as above
         for i in range(0, self.batch_size):
             idx = (self.batch_index + i) % len(self.data)
+            self.loop_index = int((self.batch_index + i) / len(self.data))
             obj = self.data[idx]
-            reviewerID = obj["reviewerID"]
+            user = obj["user"]
             #overall = obj["overall"]
-            asin = obj["asin"]
+            prod = obj["prod"]
             text_data = obj["text_data"]
 
             word_idx = 0
@@ -232,14 +272,24 @@ class W2V_c:
                         target_data.append(target_word)
 
                     #add entity data
-                    if self.prod2idx[asin] > self.vocab_size + len(self.prod2idx) + len(self.user2idx):
+                    if self.prod2idx[prod] > self.vocab_size + len(self.prod2idx) + len(self.user2idx):
                         print("x")
-                    if self.user2idx[reviewerID] > self.vocab_size + len(self.prod2idx) + len(self.user2idx):
+                    if self.user2idx[user] > self.vocab_size + len(self.prod2idx) + len(self.user2idx):
                         print("x")
-                    context_data.append(self.prod2idx[asin])
+                    context_data.append(self.prod2idx[prod])
                     target_data.append(target_word)
-                    context_data.append(self.user2idx[reviewerID])
+                    context_data.append(self.user2idx[user])
                     target_data.append(target_word)
+
+                    if self.pos_mode:
+                        if target_word in self.interest_words:
+                            target_data.append(self.prod2idx[prod])
+                            context_data.append(target_word)
+                    else:
+                        target_data.append(self.prod2idx[prod])
+                        context_data.append(target_word)
+                        #target_data.append(self.user2idx[user])
+                        #context_data.append(target_word)
 
                 #for next word
                 buffer.append(text_data[word_idx])
@@ -327,7 +377,7 @@ class W2V_c:
                     if step > 0:
                         average_loss /= 50
                     # The average loss is an estimate of the loss over the last 2000 batches.
-                    print("Average loss at step ", step, ": ", average_loss)
+                    print("Average loss at step ", step, ": ", average_loss, " current loop", self.loop_index)
                     filename = "_".join(["embedding",str(step)])
                     saver.save(session, "/".join((self.folder ,filename)))
                     average_loss = 0
@@ -350,7 +400,7 @@ class W2V_c:
 
 
 def main():
-    model = W2V_c("/home/sanqiang/Documents/data/Electronics_5.json", "amazon_electronics")
+    model = W2V_c("/home/sanqiang/Documents/data/Electronics_5.json", "amazon_electronics_nmodel")
     #model = W2V_c("/home/sanqiang/Documents/data/Amazon_Instant_Video_5.json", "amazon_instant_video")
     model.train(sys.maxsize)
 
