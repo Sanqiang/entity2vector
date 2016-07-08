@@ -40,7 +40,7 @@ class W2V_c:
         #train based
         self.batch_size = 100
         self.embedding_size = 128  # Dimension of the embedding vector.
-        self.raw_sample_probs = [0.5, 0.3, 0.2] #context word sample prob
+        self.raw_sample_probs = [0.4, 0.3, 0.15, 0.1 ,0.05] #context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
         self.sample_probs = []
         sum = 0
@@ -59,7 +59,10 @@ class W2V_c:
         self.pos_mode = True
 
         self.get_stat()
-        self.get_stat_pos()
+        if self.pos_mode:
+            self.interest_words = {}
+            self.interest_tag = ["NOUN", "ADV", "ADJ"]
+            self.get_stat_pos()
         self.batch_index = 0
         self.loop_index = 0
 
@@ -94,9 +97,9 @@ class W2V_c:
             return title, text, user, prod, rating
 
     def get_stat(self):
-        filename =  "/".join((self.folder, "stat"))
+        filename = "/".join((self.folder, "stat"))
         if os.path.exists(filename):
-            f = open(filename, 'rb', encoding=self.file_encoding)
+            f = open(filename, 'rb')
             obj = pickle.load(f)
             self.word2idx = obj["word2idx"]
             self.idx2word = obj["idx2word"]
@@ -144,7 +147,7 @@ class W2V_c:
         self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
 
         #populate data
-        with open(self.path, "r") as ins:
+        with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
                 text_data = self.parse(" ".join([text, title]))
@@ -175,13 +178,10 @@ class W2V_c:
     def get_stat_pos(self):
         filename = "/".join((self.folder, "stat_pos"))
         if os.path.exists(filename):
-            pickle_data = pickle.load(filename)
+            f = open(filename, 'rb')
+            pickle_data = pickle.load(f)
             self.interest_words = pickle_data["interest_words"]
             return self.interest_words
-
-        import json
-        self.interest_words = []
-        self.interest_tag = ["NOUN","ADV","ADJ"]
 
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
@@ -193,9 +193,9 @@ class W2V_c:
                     if tag in self.interest_tag:
                         stem_word = self.stemmer.get_stem_word(word)
                         if stem_word in self.word2idx:
-                            self.interest_words.append(self.word2idx[stem_word])
+                            self.interest_words[self.word2idx[stem_word]] = True
         f = open(filename, 'wb')
-        pickle_data = {"interest_words",self.interest_words}
+        pickle_data = {"interest_words":self.interest_words}
         pickle.dump(pickle_data, f)
         return self.interest_words
 
