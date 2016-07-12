@@ -38,7 +38,7 @@ class W2V_c:
         self.idx2user = {}
 
         #train based
-        self.batch_size = 100
+        self.batch_size = 500
         self.embedding_size = 128  # Dimension of the embedding vector.
         self.raw_sample_probs = [0.4, 0.3, 0.15, 0.1 ,0.05] #context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
@@ -352,7 +352,7 @@ class W2V_c:
 
             init = tf.initialize_all_variables()
 
-        with tf.Session(graph=graph) as session:
+        with tf.Session(graph=graph, config=tf.ConfigProto(intra_op_parallelism_threads=20, inter_op_parallelism_threads = 20)) as session:
             # We must initialize all variables before we use them.
             init.run()
             print("Initialized")
