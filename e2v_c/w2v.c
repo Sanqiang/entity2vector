@@ -11,21 +11,27 @@
 #define MAX_SENTENCE_LENGTH 1000//句子最大长度,及包含词数
 
 float *syn0, *syn1, *syn1neg, *expTable;
-int n_target, layer1_size, c;
-long long l1, l2, vocab_size, n_dataset, a, b;
+int n_target, layer1_size, c, n_negative;
+long long l1, l2, vocab_size, data_size, n_dataset, a, b;
 long p;
 float f, g, alpha;
-int n_target, label, i, n_threads, *dataset, num;
+int n_target, label, i, n_threads, num;
 char train_file[MAX_STRING], word_file[MAX_STRING];
 char ch;
 
 const int table_size = 1e8;
 int *table;
 struct vocab_word *vocab;//词动态数组
+struct train_pair *dataset;
 
 struct vocab_word {
     long long cn;//词频
     char *word;
+};
+
+struct train_pair{
+    long long context;
+    long long target;
 };
 
 void populate_vocab(){
@@ -87,15 +93,20 @@ void init_unigram_table() {
 
 void read_data(){
     FILE *fin;
+    dataset = (struct train_pair *)realloc(dataset, (n_dataset + 1) * sizeof(struct train_pair));
     fin = fopen(train_file, "rb");
 
-    i=0; num = 0;
+    num = 0; data_size = 0;
+    boolean is_target = 1;
 
     while (!feof(fin)) {
         ch = fgetc(fin);
-        if(ch == ' ' || ch == '\n'){
-            dataset[i] = num;
-            i++;
+        if(ch == ' '){
+            dataset[data_size].target = num;
+            num = 0;
+        }else if(ch == '\n'){
+            dataset[data_size].context = num;
+            data_size++;
             num = 0;
         }else{
             num = num * 10;
@@ -138,6 +149,8 @@ void init(){
 }
 
 void train_thread(void *id) {
+    unsigned long long next_random = (long long)id;
+
     long long pos_st = n_dataset / n_threads * (long long)id;
     /*while (pos_st % (n_target + 1) != 0){
         pos_st ++;
@@ -151,9 +164,11 @@ void train_thread(void *id) {
     printf("current thread start! start pos %d and end pos %d. \n", pos_st, pos_ed);
 
     while (1){
-        long long context = dataset[pos];; //to update
+        struct train_pair pair = dataset[pos]; //to update
+        long long context = pair.context;
+        long long target = pair.target;
         pos++;
-        //long long target_list[n_target]; //first one is pos rest are neg
+
         l1 = context * layer1_size; //location in the hidden layer, update him rather than word
 
         float *neu1 = (float *)calloc(layer1_size, sizeof(float)); // 隐层节点
@@ -161,13 +176,17 @@ void train_thread(void *id) {
         for (c = 0; c < layer1_size; c++) neu1[c] = 0;
         for (c = 0; c < layer1_size; c++) neu1e[c] = 0;
 
-        for (i = 0; i < n_target; ++i) {
-            long long target = dataset[pos+i];
+        for (i = 0; i <= n_target; ++i) {
             if(i == 0){
                 label = 1;
             }
             else{
                 label = 0;
+                next_random = next_random * (unsigned long long)25214903917 + 11;
+                target = table[(next_random >> 16) % table_size];
+                if (target == 0) target = next_random % (vocab_size - 1) + 1;
+                if (target == context) continue;
+                target = 0;
             }
 
             l2 = target * layer1_size;
@@ -211,10 +230,13 @@ int main(int argc, char **argv) {
     n_target = 4;
     n_dataset = 5;
     n_threads = 4;
+    n_negative = 5;
     //old setting /Users/zhaosanqiang916/ClionProjects/e2v/
     strcpy(train_file, "/home/sanqiang/Documents/git/entity2vector/e2v_c/sample.txt");
     strcpy(word_file, "/home/sanqiang/Documents/git/entity2vector/e2v_c/word_sample.txt");
     init();
     train();
     conclude();
+
+    exit(0);
 }
