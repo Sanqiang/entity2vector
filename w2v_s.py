@@ -28,63 +28,57 @@ class W2V_c(W2V_base):
             prod = obj["prod"]
             text_data = obj["text_data"]
 
-            word_idx = 0
-            while len(buffer) < span:
-                buffer.append(text_data[word_idx])
-                word_idx += 1
-                if word_idx >= len(text_data):
-                    break
+            for text_data_sent in text_data:
+                word_idx = 0
+                while len(buffer) < span and word_idx < len(text_data_sent):
+                    buffer.append(text_data_sent[word_idx])
+                    word_idx += 1
 
-            for word_idx in range(word_idx, len(text_data)):
+                for word_idx in range(word_idx, len(text_data_sent)):
 
-                target_idx = int((len(buffer)+1)/2)
-                target_word = buffer[target_idx] #consider buffer is shorter than  self.skip_window
-                context_word = target_word
-                avoid_context_word = [target_word]
+                    target_idx = int((len(buffer)+1)/2)
+                    target_word = buffer[target_idx] #consider buffer is shorter than  self.skip_window
+                    context_word = target_word
+                    avoid_context_word = [target_word]
 
-                for cnt_idx in range(0, self.skip_window): #random pick up skip_window context word
-                    reset = self.skip_window * 5
-                    while context_word in avoid_context_word: #for avoid repeat sample
-                        r = rd.random()
-                        reset -= 1
-                        if reset < 0:
-                            break
-                        for rank_idx in range(0, self.skip_window): #from closest to farest
-                            if r <= self.sample_probs[rank_idx]:
-                                if r >= 0.5:
-                                    if target_idx - (rank_idx + 1) > 0:
-                                        context_word = buffer[target_idx - (rank_idx + 1)]
-                                else:
-                                    if target_idx + (rank_idx + 1) < len(buffer):
-                                        context_word = buffer[target_idx + (rank_idx + 1)]
+                    for cnt_idx in range(0, self.skip_window): #random pick up skip_window context word
+                        reset = self.skip_window * 5
+                        while context_word in avoid_context_word: #for avoid repeat sample
+                            r = rd.random()
+                            reset -= 1
+                            if reset < 0:
                                 break
-                    if context_word not in avoid_context_word:
-                        avoid_context_word.append(context_word)
-                        context_data.append(context_word)
+                            for rank_idx in range(0, self.skip_window): #from closest to farest
+                                if r <= self.sample_probs[rank_idx]:
+                                    if r >= 0.5:
+                                        if target_idx - (rank_idx + 1) > 0:
+                                            context_word = buffer[target_idx - (rank_idx + 1)]
+                                    else:
+                                        if target_idx + (rank_idx + 1) < len(buffer):
+                                            context_word = buffer[target_idx + (rank_idx + 1)]
+                                    break
+                        if context_word not in avoid_context_word:
+                            avoid_context_word.append(context_word)
+                            context_data.append(context_word)
+                            target_data.append(target_word)
+
+                        #add entity data
+                        context_data.append(self.prod2idx[prod])
+                        target_data.append(target_word)
+                        context_data.append(self.user2idx[user])
                         target_data.append(target_word)
 
-                    #add entity data
-                    if self.prod2idx[prod] > self.vocab_size + len(self.prod2idx) + len(self.user2idx):
-                        print("x")
-                    if self.user2idx[user] > self.vocab_size + len(self.prod2idx) + len(self.user2idx):
-                        print("x")
-                    context_data.append(self.prod2idx[prod])
-                    target_data.append(target_word)
-                    context_data.append(self.user2idx[user])
-                    target_data.append(target_word)
-
-                    if self.pos_mode:
-                        if target_word in self.interest_words:
+                        if self.pos_mode:
+                            if target_word in self.interest_words:
+                                target_data.append(self.prod2idx[prod])
+                                context_data.append(target_word)
+                        else:
                             target_data.append(self.prod2idx[prod])
                             context_data.append(target_word)
-                    else:
-                        target_data.append(self.prod2idx[prod])
-                        context_data.append(target_word)
-                        #target_data.append(self.user2idx[user])
-                        #context_data.append(target_word)
-
-                #for next word
-                buffer.append(text_data[word_idx])
+                            #target_data.append(self.user2idx[user])
+                            #context_data.append(target_word)
+                    #for next word
+                    buffer.append(text_data_sent[word_idx])
 
         #update global batch_index
         self.batch_index += self.batch_size

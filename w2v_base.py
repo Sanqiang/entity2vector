@@ -5,14 +5,16 @@ import pickle
 from collections import defaultdict, Counter
 
 import nltk
-from nltk.tokenize import TweetTokenizer
+from nltk.tokenize import TweetTokenizer, sent_tokenize
 
 from stemmer import PorterStemmer
+from functools import reduce
 
 
 class W2V_base:
     def __init__(self, path, folder):
         self.tknzr = TweetTokenizer()
+        #self.stknzr = sent_tokenize()
         self.stemmer = PorterStemmer()
 
         self.path =  path
@@ -35,7 +37,7 @@ class W2V_base:
         self.idx2user = {}
 
         #train based
-        self.batch_size = 500
+        self.batch_size = 300
         self.embedding_size = 128  # Dimension of the embedding vector.
         self.raw_sample_probs = [0.4, 0.3, 0.15, 0.1 ,0.05] #context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
@@ -94,7 +96,7 @@ class W2V_base:
                 batch_text_data = " ".join([batch_text_data, text, title])
                 line_idx += 1
                 if line_idx % 1000 == 0:
-                    self.word_count += Counter(self.parse(batch_text_data))
+                    self.word_count += Counter(reduce(lambda x,y: x+y, self.parse(batch_text_data)))
                     batch_text_data = ""
 
                 #entity based note since we know the vocab size we can append entity embedding after that (first loop over data)
@@ -104,7 +106,7 @@ class W2V_base:
                     self.idx2prod[prod_idx] = prod
 
         #out of loop word based
-        self.word_count += Counter(self.parse(batch_text_data)) #not forget last batch
+        self.word_count += Counter(reduce(lambda x, y: x + y, self.parse(batch_text_data))) #not forget last batch
         self.word_count = self.word_count.most_common(self.vocab_size)
 
         #populate word2idx
@@ -119,9 +121,7 @@ class W2V_base:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
                 text_data = self.parse(" ".join([text, title]))
-                text_data_idx = []
-                for word in text_data:
-                    text_data_idx.append(self.word2idx[word])
+                text_data_idx = [[self.word2idx[token] for token in sent] for sent in text_data]
 
                 obj = {"text_data":text_data_idx, "prod":prod, "user":user}
 
@@ -154,7 +154,6 @@ class W2V_base:
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, ttext, user, prod, rating = self.line_parser(line)
-
                 text = " ".join((title, ttext))
                 tagded_pairs = nltk.pos_tag(self.tknzr.tokenize(text), tagset='universal')
                 for word,tag in tagded_pairs:
@@ -215,5 +214,6 @@ class W2V_base:
                 return False
         return True
 
-    def parse(self, sent):
-        return [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)]
+    def parse(self, sents):
+        #return [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sents) if self.valid_word(token)]
+        return [[self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for sent in sent_tokenize(sents)]
