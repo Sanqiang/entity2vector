@@ -1,5 +1,6 @@
 from w2v_base import W2V_base
 from collections import deque
+from struct import Struct
 
 class W2V_cpp(W2V_base):
     def __init__(self, path, folder):
@@ -27,48 +28,83 @@ class W2V_cpp(W2V_base):
         return self.table
     '''
 
+    def countlines(self):
+        cnt = 0
+        f = open("/".join((self.folder, "pair.txt")), "r")
+        for line in f:
+            cnt+=1
+        return cnt
+
+    def generate_word(self):
+        f = open("/".join((self.folder, "pairword.txt")), "w")
+        for word,cnt in self.word_count:
+            f.write(word)
+            f.write(" ")
+            f.write(str(cnt))
+            f.write("\n")
+
+
     def generate_pos(self):
         span = 2 * self.skip_window + 1  # [ skip_window target skip_window ]
-        buffer = deque(maxlen=span)
+
         result = []
         f = open("/".join((self.folder, "pair.txt")), "w")
 
         for obj in self.data:
             text_data = obj["text_data"]
             for text_data_sent in text_data:
-                for word_idx in range(0, len(text_data_sent)):
-                    word_idx = 0
-                    while len(buffer) < span and word_idx < len(text_data_sent):
-                        buffer.append(text_data_sent[word_idx])
-                        word_idx += 1
+                #process each sentence
+                word_idx = 0
+                buffer = deque(maxlen=span)
 
-                    for word_idx in range(word_idx, len(text_data_sent)):
-                        target_idx = int((len(buffer) + 1) / 2)
-                        target_word = buffer[target_idx]  # consider buffer is shorter than  self.skip_window
+                while len(buffer) < span and word_idx < len(text_data_sent):
+                    buffer.append(text_data_sent[word_idx])
+                    word_idx += 1
 
-                        for context_word in buffer:
-                            if context_word != target_word:
-                                result.append((target_word, context_word))
+                for target_idx in range(0, int((len(buffer)) / 2)):
+                    target_word = buffer[target_idx]
+                    for context_word in buffer:
+                        if context_word != target_word:
+                            result.append((target_word, context_word))
+
+                for word_idx in range(word_idx, len(text_data_sent)):
+                    target_idx = int((len(buffer)) / 2)
+                    target_word = buffer[target_idx]  # consider buffer is shorter than  self.skip_window
+
+                    for context_word in buffer:
+                        if context_word != target_word:
+                            result.append((target_word, context_word))
 
                     #for next word
                     buffer.append(text_data_sent[word_idx])
+                    word_idx += 1
+
+                for target_idx in range(target_idx, len(buffer)):
+                    target_word = buffer[target_idx]
+                    for context_word in buffer:
+                        if context_word != target_word:
+                            result.append((target_word, context_word))
 
 
-                if len(result) >= 100000:
-                    for target_word, context_word in result:
-                        f.write(" ".join((str(target_word), str(context_word))))
-                        f.write("\n")
-                    result = []
+            if len(result) >= 1000000:
+                for target_word, context_word in result:
+                    f.write(" ".join((str(target_word), str(context_word))))
+                    f.write("\n")
+                print(len(result))
+                result = []
 
-            #write into file
-            for target_word, context_word in result:
-                f.write(" ".join((str(target_word), str(context_word))))
-                f.write("\n")
+
+        #write into file
+        for target_word, context_word in result:
+            f.write(" ".join((str(target_word), str(context_word))))
+            f.write("\n")
+            print(len(result))
 
 
 
 def main():
     w2c = W2V_cpp("/home/sanqiang/Documents/data/yelp/yelp_academic_dataset_review.json", "yelp_ny_pos")
-    w2c.generate_pos()
-
+    #w2c.generate_word()
+    #w2c.generate_pos()
+    print(w2c.countlines())
 main()

@@ -39,7 +39,7 @@ class W2V_base:
         #train based
         self.batch_size = 300
         self.embedding_size = 128  # Dimension of the embedding vector.
-        self.raw_sample_probs = [0.4, 0.3, 0.15, 0.1 ,0.05] #context word sample prob
+        self.raw_sample_probs =  [0.4, 0.3, 0.15, 0.1 ,0.05] #context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
         self.sample_probs = []
         sum = 0
@@ -64,7 +64,6 @@ class W2V_base:
             self.get_stat_pos()
         self.batch_index = 0
         self.loop_index = 0
-
 
     def get_stat(self):
         filename = "/".join((self.folder, "stat"))

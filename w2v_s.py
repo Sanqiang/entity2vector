@@ -33,6 +33,7 @@ class W2V_c(W2V_base):
                 while len(buffer) < span and word_idx < len(text_data_sent):
                     buffer.append(text_data_sent[word_idx])
                     word_idx += 1
+                word_idx -= 1
 
                 for word_idx in range(word_idx, len(text_data_sent)):
 
