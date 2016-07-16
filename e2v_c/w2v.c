@@ -10,14 +10,15 @@
 #define EXP_TABLE_SIZE 1000//这里是用来求sigmoid函数,使用的是一种近似的求法，
 #define MAX_EXP 6//只要求球区间为６的即可
 #define MAX_SENTENCE_LENGTH 1000//句子最大长度,及包含词数
+#define MAX_CODE_LENGTH 40
 
 float *syn0, *syn1, *syn1neg, *expTable;
-int layer1_size, c, n_negative;
-long long l1, l2, vocab_size, cur_data_size, n_dataset;
-int a, b;
-long p;
+unsigned short layer1_size, c, n_negative;
+unsigned long long l1, l2, vocab_size, cur_data_size, n_dataset;
+unsigned int a, b;
+unsigned long p;
 float f, g, alpha;
-int  label, i, n_threads, num, iters;
+short  label, i, n_threads, num, iters;
 char train_file[MAX_STRING], word_file[MAX_STRING];
 char ch;
 
@@ -26,11 +27,80 @@ int *table;
 struct vocab_word *vocab;//词动态数组
 struct train_pair *dataset;
 //struct train_pair dataset2[2453688725];
+int hs = 0;
 
+void CreateBinaryTree() {
+    long long a, b, i, min1i, min2i, pos1, pos2, point[MAX_CODE_LENGTH];
+    char code[MAX_CODE_LENGTH];
+    long long *count = (long long *)calloc(vocab_size * 2 + 1, sizeof(long long));
+    long long *binary = (long long *)calloc(vocab_size * 2 + 1, sizeof(long long));
+    long long *parent_node = (long long *)calloc(vocab_size * 2 + 1, sizeof(long long));
+    for (a = 0; a < vocab_size; a++)
+        count[a] = vocab[a].cn;
+    for (a = vocab_size; a < vocab_size * 2; a++)
+        count[a] = 1e15;
+    pos1 = vocab_size - 1;
+    pos2 = vocab_size;
+    // Following algorithm constructs the Huffman tree by adding one node at a time
+    //count 数组是从大到小排序
+    for (a = 0; a < vocab_size - 1; a++) {
+        // First, find two smallest nodes 'min1, min2'
+        if (pos1 >= 0) {
+            if (count[pos1] < count[pos2]) {
+                min1i = pos1;
+                pos1--;
+            } else {
+                min1i = pos2;
+                pos2++;
+            }
+        } else {
+            min1i = pos2;
+            pos2++;
+        }
+        if (pos1 >= 0) {
+            if (count[pos1] < count[pos2]) {
+                min2i = pos1;
+                pos1--;
+            } else {
+                min2i = pos2;
+                pos2++;
+            }
+        } else {
+            min2i = pos2;
+            pos2++;
+        }
+        count[vocab_size + a] = count[min1i] + count[min2i];
+        parent_node[min1i] = vocab_size + a;
+        parent_node[min2i] = vocab_size + a;
+        binary[min2i] = 1;
+    }
+    // Now assign binary code to each vocabulary word
+    for (a = 0; a < vocab_size; a++) {
+        b = a;
+        i = 0;
+        while (1) {
+            code[i] = binary[b];
+            point[i] = b;
+            i++;
+            b = parent_node[b];
+            if (b == vocab_size * 2 - 2) break;//到达根节点
+        }
+        vocab[a].codelen = i;
+        vocab[a].point[0] = vocab_size - 2;
+        for (b = 0; b < i; b++) {
+            vocab[a].code[i - b - 1] = code[b];
+            vocab[a].point[i - b] = point[b] - vocab_size;//这里没看懂
+        }
+    }
+    free(count);
+    free(binary);
+    free(parent_node);
+}
 
 struct vocab_word {
-    long long cn;//词频
+    unsigned long cn;//词频
     char *word;
+    int *point, *code, codelen;//huffman编码对应内节点的路劲
 };
 
 struct train_pair{
@@ -199,8 +269,8 @@ void train_thread(void *id) {
         for (c = 0; c < layer1_size; c++) syn0[c + l1] += neu1e[c];
 
         pos += 1;
-        if(pos <= pos_ed){
-            printf("finished one loop for one thread.");
+        if(pos >= pos_ed){
+            printf("finished one loop for one thread. \n");
             local_iter--;
             pos = pos_st;
             if(local_iter == 0){
