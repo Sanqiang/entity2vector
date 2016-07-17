@@ -15,7 +15,7 @@
 float *syn0, *syn1, *syn1neg, *expTable;
 unsigned short layer1_size, c, n_negative;
 unsigned long long l1, l2, vocab_size, cur_data_size, n_dataset;
-unsigned int a, b;
+unsigned int a, b, d;
 unsigned long p;
 float f, g, alpha;
 short  label, i, n_threads, num, iters;
@@ -27,7 +27,13 @@ int *table;
 struct vocab_word *vocab;//词动态数组
 struct train_pair *dataset;
 //struct train_pair dataset2[2453688725];
-int hs = 0;
+int hs = 1;
+
+struct vocab_word {
+    unsigned long cn;//词频
+    char *word;
+    int *point, *code, codelen;//huffman编码对应内节点的路劲
+};
 
 void CreateBinaryTree() {
     long long a, b, i, min1i, min2i, pos1, pos2, point[MAX_CODE_LENGTH];
@@ -88,20 +94,14 @@ void CreateBinaryTree() {
         vocab[a].codelen = i;
         vocab[a].point[0] = vocab_size - 2;
         for (b = 0; b < i; b++) {
-            vocab[a].code[i - b - 1] = code[b];
-            vocab[a].point[i - b] = point[b] - vocab_size;//这里没看懂
+            vocab[a].code[i - b - 1] = code[b]; //direction from top to down
+            vocab[a].point[i - b] = point[b] - vocab_size;//point position from top to down
         }
     }
     free(count);
     free(binary);
     free(parent_node);
 }
-
-struct vocab_word {
-    unsigned long cn;//词频
-    char *word;
-    int *point, *code, codelen;//huffman编码对应内节点的路劲
-};
 
 struct train_pair{
     unsigned short context;
@@ -111,8 +111,8 @@ struct train_pair{
 void populate_vocab(){
     FILE *fin;
     fin = fopen(word_file, "rb");
-    vocab = (struct vocab_word *)realloc(vocab, (vocab_size + 1) * sizeof(struct vocab_word));
-
+    //vocab = (struct vocab_word *)realloc(vocab, (size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
+    vocab = (struct vocab_word *)malloc ((size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
     char word[MAX_STRING];
     int word_idx = 0;
     int num = 0;
@@ -130,7 +130,12 @@ void populate_vocab(){
             vocab[cur_vocab_size].word = (char *)calloc(word_idx, sizeof(char));
             strcpy(vocab[cur_vocab_size].word,word);
             vocab[cur_vocab_size].cn = num;
+            vocab[cur_vocab_size].code = (char *)calloc(MAX_CODE_LENGTH, sizeof(char));
+            vocab[cur_vocab_size].point = (int *)calloc(MAX_CODE_LENGTH, sizeof(int));
             cur_vocab_size++;
+            if (cur_vocab_size >= vocab_size){
+                break;
+            }
             //fresh var
             word_idx = 0;
             num = 0;
@@ -138,13 +143,17 @@ void populate_vocab(){
         }else{
             if(word_mode){
                 word[word_idx] = ch;
-                word_idx ++;
+                if(word_idx < MAX_STRING){
+                    word_idx ++;
+                }
+
             }else{
                 num = num * 10;
                 num += ch - '0';
             }
         }
     }
+    fclose(fin);
 }
 
 void init_unigram_table() {
@@ -185,13 +194,11 @@ void read_data(){
             num += ch - '0';
         }
     }
-
+    fclose(fin);
 }
 
 void init(){
-    read_data();
-    populate_vocab();
-    init_unigram_table();
+
 
     //populate exp precomputing table
     expTable = (float *)malloc((EXP_TABLE_SIZE + 1) * sizeof(float));
@@ -203,7 +210,9 @@ void init(){
     //init net
     long long a;
     a = posix_memalign((void **)&syn0, 128, (long long)vocab_size * layer1_size * sizeof(float));
+    if (syn0 == NULL) {printf("syn0 Memory allocation failed\n"); exit(1);}
     a = posix_memalign((void **)&syn1neg, 128, (long long)vocab_size * layer1_size * sizeof(float));
+    if (syn1neg == NULL) {printf("syn1neg Memory allocation failed\n"); exit(1);}
     for (a = 0; a < vocab_size; a++){
         for (b = 0; b < layer1_size; b++) {
             syn1neg[a * layer1_size + b] = 0;
@@ -217,6 +226,23 @@ void init(){
             syn0[a * layer1_size + b] = (((next_random & 0xFFFF) / (float)65536) - 0.5) / layer1_size;
         }
     }
+
+    if (hs) {
+        a = posix_memalign((void **) &syn1, 128, (long long) vocab_size * layer1_size * sizeof(float));
+        if (syn1 == NULL) {
+            printf("syn1 Memory allocation failed\n");
+            exit(1);
+        }
+        for (a = 0; a < vocab_size; a++) {
+            for (b = 0; b < layer1_size; b++) {
+                syn1[a * layer1_size + b] = 0;
+            }
+        }
+    }
+    read_data();
+    populate_vocab();
+    init_unigram_table();
+    CreateBinaryTree();
 }
 
 void train_thread(void *id) {
@@ -239,9 +265,30 @@ void train_thread(void *id) {
 
         l1 = context * layer1_size; //location in the hidden layer, update him rather than word
 
-
         for (c = 0; c < layer1_size; c++) neu1[c] = 0;
         for (c = 0; c < layer1_size; c++) neu1e[c] = 0;
+
+        if (hs){
+            for (d = 0; d < vocab[context].codelen; d++) {
+                f = 0;
+                l2 = vocab[context].point[d] * layer1_size;
+                // Propagate hidden -> output
+                for (c = 0; c < layer1_size; c++)
+                    f += neu1[c] * syn1[c + l2];
+                if (f <= -MAX_EXP) continue;
+                else if (f >= MAX_EXP) continue;
+                else f = expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))];
+                // 'g' is the gradient multiplied by the learning rate
+                // g 是梯度乘以学习速率
+                g = (1 - vocab[context].code[d] - f) * alpha;
+                // Propagate errors output -> hidden
+                // 累计误差率
+                for (c = 0; c < layer1_size; c++) neu1e[c] += g * syn1[c + l2];
+                // Learn weights hidden -> output
+                // 更新参数权重值
+                for (c = 0; c < layer1_size; c++) syn1[c + l2] += g * neu1[c];
+            }
+        }
 
         for (i = 0; i <= (n_negative+1); ++i) {
             if(i == 0){
@@ -311,14 +358,16 @@ void conclude(){
 
 int main(int argc, char **argv) {
 
-    vocab_size = 30003;
+    vocab_size = 30000;
     layer1_size = 100;
-    n_dataset = 2453688725;
-    n_threads = 5;
+    n_dataset = 33344589; // 2453688725;
+    n_threads = 1;
     n_negative = 5;
     //old setting /Users/zhaosanqiang916/ClionProjects/e2v/
-    strcpy(train_file, "/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/pair.txt");
-    strcpy(word_file, "/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/pairword.txt");
+    //strcpy(train_file, "/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/pair.txt");
+    //strcpy(word_file, "/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/pairword.txt");
+    strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
+    strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();
     printf("finished init.");
     train();
