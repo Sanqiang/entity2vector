@@ -14,15 +14,16 @@ from functools import reduce
 class W2V_base:
     def __init__(self, path, folder):
         self.tknzr = TweetTokenizer()
-        #self.stknzr = sent_tokenize()
+        # self.stknzr = sent_tokenize()
         self.stemmer = PorterStemmer()
 
-        self.path =  path
+        self.path = path
         self.folder = folder
 
-        #word based
+        # word based
         self.sample = 0.001
-        self.vocab_size = 30000
+        self.min_count = 5;
+        self.vocab_size = 0
 
         self.total_count = 0
         self.word_count = Counter()
@@ -30,16 +31,16 @@ class W2V_base:
         self.idx2word = {}
         self.word_sample = {}  # target word sample prob useless
 
-        #entity based
+        # entity based
         self.prod2idx = {}
         self.idx2prod = {}
         self.user2idx = {}
         self.idx2user = {}
 
-        #train based
+        # train based
         self.batch_size = 300
         self.embedding_size = 128  # Dimension of the embedding vector.
-        self.raw_sample_probs =  [0.4, 0.3, 0.15, 0.1 ,0.05] #context word sample prob
+        self.raw_sample_probs = [0.4, 0.3, 0.15, 0.1, 0.05]  # context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
         self.sample_probs = []
         sum = 0
@@ -50,7 +51,7 @@ class W2V_base:
 
         self.num_negative_sampled = 64  # Number of negative examples to sample.
 
-        self.data = [] #data set obj
+        self.data = []  # data set obj
 
         self.data_type = "yelp"
         self.file_encoding = "utf-8"
@@ -85,62 +86,73 @@ class W2V_base:
         line_idx = 0
         batch_text_data = ""
 
-        #populate the count
+        # populate the count
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
-                if title is None:
-                    continue
-                #word based
+                # word based
                 batch_text_data = " ".join([batch_text_data, text, title])
                 line_idx += 1
                 if line_idx % 1000 == 0:
-                    self.word_count += Counter(reduce(lambda x,y: x+y, self.parse(batch_text_data)))
+                    self.word_count += Counter(reduce(lambda x, y: x + y, self.parse(batch_text_data)))
                     batch_text_data = ""
 
-                #entity based note since we know the vocab size we can append entity embedding after that (first loop over data)
+        # out of loop word based
+        self.word_count += Counter(reduce(lambda x, y: x + y, self.parse(batch_text_data)))  # not forget last batch
+
+        # self.word_count = self.word_count.most_common(self.vocab_size)
+        self.temp_word_count = Counter()
+        for word in self.word_count:
+            cnt = self.word_count[word]
+            if cnt >= self.min_count:
+                self.temp_word_count[word] = cnt
+        self.word_count = self.temp_word_count
+        self.vocab_size = len(self.word_count)
+
+        with open(self.path, "r", encoding=self.file_encoding) as ins:
+            for line in ins:
+                title, text, user, prod, rating = self.line_parser(line)
+                # entity based note since we know the vocab size we can append entity embedding after that (first loop over data)
                 if prod not in self.prod2idx:
                     prod_idx = self.vocab_size + len(self.prod2idx) + 1
                     self.prod2idx[prod] = prod_idx
                     self.idx2prod[prod_idx] = prod
 
-        #out of loop word based
-        self.word_count += Counter(reduce(lambda x, y: x + y, self.parse(batch_text_data))) #not forget last batch
-        self.word_count = self.word_count.most_common(self.vocab_size)
-
-        #populate word2idx
-        for word, cnt in self.word_count:
+        # populate word2idx
+        for word in self.word_count:
             if word not in self.word2idx:
-                self.word2idx[word] = 1 + len(self.word2idx) #0 is discarded word
-        #populate idx2word
+                self.word2idx[word] = 1 + len(self.word2idx)  # 0 is discarded word
+        # populate idx2word
         self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
 
-        #populate data
+        # populate data
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
                 text_data = self.parse(" ".join([text, title]))
                 text_data_idx = [[self.word2idx[token] for token in sent] for sent in text_data]
 
-                obj = {"text_data":text_data_idx, "prod":prod, "user":user}
+                obj = {"text_data": text_data_idx, "prod": prod, "user": user}
 
                 self.data.append(obj)
 
-                #note that we know both vocab size and entity size, we can append user embedding after that (second loop over data)
+                # note that we know both vocab size and entity size, we can append user embedding after that (second loop over data)
                 if user not in self.user2idx:
                     user_idx = 1 + len(self.user2idx) + len(self.prod2idx) + self.vocab_size
                     self.user2idx[user] = user_idx
                     self.idx2user[user_idx] = user
 
-        #calculate the sample
-        #threshold_count = self.sample * self.total_count
-        #for word in self.word_count:
+        # calculate the sample
+        # threshold_count = self.sample * self.total_count
+        # for word in self.word_count:
         #    word_probability = (sqrt(self.w ord_count[word] / threshold_count) + 1) * (threshold_count / self.word_count[word])
         #    self.word_sample[word] = int(round(word_probability * 2**32))
         f = open(filename, 'wb')
-        pickle_data = {"word2idx":self.word2idx,"idx2word":self.idx2word,"word_count":self.word_count,"word_sample":self.word_sample,"total_count":self.total_count, "data":self.data,
-                       "idx2user":self.idx2user,"user2idx":self.user2idx,"prod2idx":self.prod2idx,"idx2prod":self.idx2prod}
-        pickle.dump(pickle_data,f)
+        pickle_data = {"word2idx": self.word2idx, "idx2word": self.idx2word, "word_count": self.word_count,
+                       "word_sample": self.word_sample, "total_count": self.total_count, "data": self.data,
+                       "idx2user": self.idx2user, "user2idx": self.user2idx, "prod2idx": self.prod2idx,
+                       "idx2prod": self.idx2prod}
+        pickle.dump(pickle_data, f)
 
     def get_stat_pos(self):
         filename = "/".join((self.folder, "stat_pos"))
@@ -155,17 +167,17 @@ class W2V_base:
                 title, ttext, user, prod, rating = self.line_parser(line)
                 text = " ".join((title, ttext))
                 tagded_pairs = nltk.pos_tag(self.tknzr.tokenize(text), tagset='universal')
-                for word,tag in tagded_pairs:
+                for word, tag in tagded_pairs:
                     if tag in self.interest_tag:
                         stem_word = self.stemmer.get_stem_word(word)
                         if stem_word in self.word2idx:
                             self.interest_words[self.word2idx[stem_word]] = True
         f = open(filename, 'wb')
-        pickle_data = {"interest_words":self.interest_words}
+        pickle_data = {"interest_words": self.interest_words}
         pickle.dump(pickle_data, f)
         return self.interest_words
 
-    #note that return format is title, text, user, prod, rating
+    # note that return format is title, text, user, prod, rating
     def line_parser(self, line):
         if self.data_type == "amz":
             obj = json.loads(line)
@@ -214,5 +226,6 @@ class W2V_base:
         return True
 
     def parse(self, sents):
-        #return [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sents) if self.valid_word(token)]
-        return [[self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for sent in sent_tokenize(sents)]
+        # return [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sents) if self.valid_word(token)]
+        return [[self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
+                sent in sent_tokenize(sents)]
