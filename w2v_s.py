@@ -1,3 +1,4 @@
+#word2vec simple training
 import random as rd
 import sys
 from collections import deque

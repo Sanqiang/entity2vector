@@ -1,3 +1,4 @@
+#word2vec pair generator
 from w2v_base import W2V_base
 from collections import deque
 from struct import Struct
@@ -105,8 +106,8 @@ class W2V_cpp(W2V_base):
 
 
 def main():
-    w2c = W2V_cpp("/home/sanqiang/data/yelp/yelp_academic_dataset_review.json", "yelp_ny")
-    # w2c = W2V_cpp("/Users/zhaosanqiang916//data/yelp/review.json", "yelp_ny_pos")
+    w2c = W2V_cpp("/home/sanqiang/data/yelp/NV.json", "yelp_nv")
+    #w2c = W2V_cpp("/Users/zhaosanqiang916//data/yelp/review.json", "yelp_ny_pos")
     w2c.generate_word()
     w2c.generate_pos()
     print(w2c.countlines())

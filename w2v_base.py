@@ -1,3 +1,4 @@
+#word2vec base class
 import json
 import os.path
 import os.path

@@ -1,3 +1,4 @@
+#word2vec old imple
 from collections import defaultdict, Counter
 from six import iteritems
 from math import sqrt
