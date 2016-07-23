@@ -1,3 +1,6 @@
+/*
+ * Word2vec impl
+ * */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +29,6 @@ const int table_size = 1e8;
 int *table;
 struct vocab_word *vocab;//词动态数组
 struct train_pair *dataset;
-//struct train_pair dataset2[2453688725];
 int hs = 1;
 
 struct vocab_word {
@@ -34,6 +36,16 @@ struct vocab_word {
     char *word;
     int *point, *code, codelen;//huffman编码对应内节点的路劲
 };
+
+char* concat(char *s1, char *s2)
+{
+    char *result = malloc(strlen(s1)+strlen(s2)+1);//+1 for the zero-terminator
+    //in real code you would check for errors in malloc here
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
 
 void CreateBinaryTree() {
     long long a, b, i, min1i, min2i, pos1, pos2, point[MAX_CODE_LENGTH];
@@ -198,8 +210,6 @@ void read_data(){
 }
 
 void init(){
-
-
     //populate exp precomputing table
     expTable = (float *)malloc((EXP_TABLE_SIZE + 1) * sizeof(float));
     for (i = 0; i < EXP_TABLE_SIZE; i++) {
@@ -247,17 +257,25 @@ void init(){
 
 void train_thread(void *id) {
     unsigned long long next_random = (long long)id;
+    long long thread_id = (long long)id;
 
-    long long pos_st = n_dataset / n_threads * (long long)id;
-    long long pos_ed = n_dataset / n_threads * (1 + (long long)id);
+    long long pos_st = n_dataset / n_threads * thread_id;
+    long long pos_ed = n_dataset / n_threads * (1 + thread_id);
 
-    long long pos = pos_st;
+    long long pos = pos_st, last_pos=0;
     int local_iter = iters;
     printf("current thread start! start pos %llu and end pos %llu. \n", pos_st, pos_ed);
     float *neu1 = (float *)calloc(layer1_size, sizeof(float)); // 隐层节点
     float *neu1e = (float *)calloc(layer1_size, sizeof(float)); // 误差累计项，其实对应的是Gneu1
 
     while (1){
+
+        if(pos - last_pos >= 10000){
+            last_pos = pos;
+            printf("%cProgress: %.2f%%  ", 13,  (n_threads * (last_pos+pos)) / (float)(iters * n_dataset + 1) * 100);
+            fflush(stdout);
+        }                                                                                                                                                                                                                                  
+
         struct train_pair pair = dataset[pos]; //to update
         unsigned short context = pair.context;
         unsigned short target = pair.target;
@@ -307,8 +325,7 @@ void train_thread(void *id) {
 
             f = 0;
             for (c = 0; c < layer1_size; c++) f += syn0[c + l1] * syn1neg[c + l2];
-            if (f > MAX_EXP) g = (label - 1) * alpha;
-            else if (f < -MAX_EXP) g = (label - 0) * alpha;
+            if (f > MAX_EXP) g = (label - 1) * alpha;else if (f < -MAX_EXP) g = (label - 0) * alpha;
             else g = (label - expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))]) * alpha;
             for (c = 0; c < layer1_size; c++) neu1e[c] += g * syn1neg[c + l2];
             for (c = 0; c < layer1_size; c++) syn1neg[c + l2] += g * syn0[c + l1];
@@ -317,7 +334,7 @@ void train_thread(void *id) {
 
         pos += 1;
         if(pos >= pos_ed){
-            printf("finished one loop for one thread. \n");
+            printf("finished one loop for one thread %llu. \n", thread_id);
             local_iter--;
             pos = pos_st;
             if(local_iter == 0){
@@ -332,19 +349,19 @@ void train_thread(void *id) {
 
 void train(){
     pthread_t *pt = (pthread_t *)malloc(n_threads * sizeof(pthread_t));
-    for (p = 0; p < n_threads; p++) pthread_create(&pt[p], NULL, train_thread, (void *)p);
-    for (p = 0; p < n_threads; p++) pthread_join(pt[p], NULL);
+    for(i = 0; i < 2147400000; i++){
+        for (p = 0; p < n_threads; p++) pthread_create(&pt[p], NULL, train_thread, (void *)p);
+        for (p = 0; p < n_threads; p++) pthread_join(pt[p], NULL);
+        conclude(i);
+    }
+
 }
 
-void conclude(){
-//    for (a = 0; a < vocab_size; a++){
-//        for (b = 0; b < layer1_size; b++) {
-//            printf("%f, ", syn0[a * layer1_size + b]);
-//        }
-//        printf("\n");
-//    }
+void conclude(int ind){
+    char str[15];
+    char * path = concat("/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/syn0_", sprintf(str, "%d", ind));
     FILE *fo;
-    fo = fopen("/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/syn0.txt", "wb");
+    fo = fopen(path, "wb");
     for (a = 0; a < vocab_size; a++) {
         fprintf(fo, "%s ", vocab[a].word);
         if (0) for (b = 0; b < layer1_size; b++)
@@ -353,26 +370,23 @@ void conclude(){
                 fprintf(fo, "%lf ", syn0[a * layer1_size + b]);
         fprintf(fo, "\n");
     }
-
 }
 
 int main(int argc, char **argv) {
 
-    vocab_size = 30000;
+    vocab_size = 30003;
     layer1_size = 100;
-    n_dataset = 33344589; // 2453688725;
-    n_threads = 1;
+    n_dataset = 2453688725; // ;33344589
+    n_threads = 5;
     n_negative = 5;
-    //old setting /Users/zhaosanqiang916/ClionProjects/e2v/
-    //strcpy(train_file, "/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/pair.txt");
-    //strcpy(word_file, "/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/pairword.txt");
-    strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
-    strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
+    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_ny_pos/pair.txt");
+    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_ny_pos/pairword.txt");
+    //strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
+    //strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();
     printf("finished init.");
     train();
     printf("finished train.");
-    conclude();
 
     exit(0);
 }
