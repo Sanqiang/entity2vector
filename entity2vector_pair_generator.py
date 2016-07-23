@@ -3,30 +3,28 @@ from stemmer import PorterStemmer
 import json
 import nltk
 from nltk.tokenize import TweetTokenizer, sent_tokenize, word_tokenize
-
-
 class Vector_Process:
-    def __init__(self, folder, file_origin, file_update, vector_length):
+    def __init__(self, folder, file_origin, file_update, vector_length, words):
         self.folder = folder
         self.file_origin = file_origin
         self.file_update = file_update
         self.vector_length = vector_length
         self.stemmer = PorterStemmer()
-        self.words = set()
+        self.words = words
 
     def process(self):
         path_origin = "/".join((self.folder, self.file_origin))
         path_update = "/".join((self.folder, self.file_update))
+        f_update = open(path_update, "w")
         f_origin = open(path_origin, "r")
         str_update = ""
         for line in f_origin:
             items = line.split(" ")
-            word = self.stemmer.get_stem_word(items[0])
-            items[0] = word
-            self.words.add(word)
+            word = items[0]
+            if word not in self.words:
+                continue
             nline = " ".join(items)
             str_update = "\n".join((str_update, nline))
-        f_update = open(path_update, "w")
         f_update.write(str_update)
         f_origin.close()
         f_update.close()
@@ -36,13 +34,16 @@ class Vector_Process:
 
 
 class Pair_Process():
-    def __init__(self, folder, file_origin, file_pair, words):
+    def __init__(self, folder, file_origin, file_pair, prod_sign=False, usr_sign=False, pos_sign=False):
         self.folder = folder
         self.file_origin = file_origin
         self.file_pair = file_pair
         self.stemmer = PorterStemmer()
-        self.words = words
+        self.words = []
         self.intersted_pos = ["NOUN", "ADV", "ADJ"]
+        self.prod_sign = prod_sign
+        self.usr_sign = usr_sign
+        self.pos_sign = pos_sign
 
     def line_parser(self, line):
         obj = json.loads(line)
@@ -53,7 +54,26 @@ class Pair_Process():
         rating = obj["stars"]
         return title, context, user, prod, rating
 
-    def process(self, prod_sign=False, usr_sign=False, pos_sign=False):
+    def populate_words(self):
+        path_origin = "/".join((self.folder, self.file_origin))
+        f_origin = open(path_origin, "r")
+        for line in f_origin:
+            title, context, user, prod, rating = self.line_parser(line)
+            text = ". ".join((title, context))
+            text = [[token for token in word_tokenize(sent)] for sent in sent_tokenize(text)]
+            for sent in text:
+                sent = nltk.pos_tag(sent, tagset='universal')
+                for word,tag in sent:
+                    if self.pos_sign and tag not in self.intersted_pos:
+                        continue
+                    if self.prod_sign:
+                        self.words.append(word)
+                    if self.usr_sign:
+                        self.words.append(word)
+        return self.words
+
+
+    def process(self):
         n_user = 0
         n_prod = 0
         n_pair = 0
@@ -67,15 +87,16 @@ class Pair_Process():
             text = ". ".join((title, context))
             text = [[token for token in word_tokenize(sent)] for sent in sent_tokenize(text)]
             for sent in text:
-                for word in sent:
+                sent = nltk.pos_tag(sent, tagset='universal')
+                for word, tag in sent:
                     word = self.stemmer.get_stem_word(word)
                     if word in self.words:
-                        if pos_sign and word not in self.intersted_pos:
+                        if self.pos_sign and word not in self.intersted_pos:
                             continue
-                        if prod_sign:
+                        if self.prod_sign:
                             results.append((prod, word))
                             n_prod += 1
-                        if usr_sign:
+                        if self.usr_sign:
                             results.append((user, word))
                             n_user += 1
             if len(results) >= 10000:
@@ -96,12 +117,18 @@ class Pair_Process():
         print("#prod is", n_prod, "\n")
         print("#pair is", n_pair, "\n")
 
-def main():
-    vp = Vector_Process("/home/sanqiang/data/glove","glove.twitter.27B.200d.txt","glove.twitter.27B.200d.update.txt",200)
-    vp.process()
 
-    pp = Pair_Process("/home/sanqiang/data/yelp", "review.json", "pair_review", vp.words)
-    pp.process(pos_sign=True, prod_sign=True)
+def main():
+    pp = Pair_Process("/home/sanqiang/data/yelp", "review.json", "pair_review", pos_sign=True, prod_sign=True)
+    words =pp.populate_words()
+    print("1")
+
+    vp = Vector_Process("/home/sanqiang/data/glove","glove.twitter.27B.200d.txt","glove.twitter.27B.200d.update.txt",200, words)
+    vp.process()
+    print("2")
+
+    pp.process()
+    print("3")
 
 main()
 
