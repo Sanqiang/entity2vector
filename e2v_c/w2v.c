@@ -22,7 +22,7 @@ unsigned int a, b, d;
 unsigned long p;
 float f, g, alpha;
 short  label, i, n_threads, num, iters;
-char train_file[MAX_STRING], word_file[MAX_STRING];
+char train_file[MAX_STRING], word_file[MAX_STRING], output_file[MAX_STRING];
 char ch;
 
 const int table_size = 1e8;
@@ -32,14 +32,14 @@ struct train_pair *dataset;
 int hs = 1;
 
 struct vocab_word {
-    unsigned long cn;//词频
+    unsigned long cn;
     char *word;
     int *point, *code, codelen;//huffman编码对应内节点的路劲
 };
 
 char* concat(char *s1, char *s2)
 {
-    char *result = malloc(strlen(s1)+strlen(s2)+1);//+1 for the zero-terminator
+    char *result = malloc((strlen(s1)+strlen(s2)+1)* sizeof(char));//+1 for the zero-terminator
     //in real code you would check for errors in malloc here
     strcpy(result, s1);
     strcat(result, s2);
@@ -123,8 +123,8 @@ struct train_pair{
 void populate_vocab(){
     FILE *fin;
     fin = fopen(word_file, "rb");
-    //vocab = (struct vocab_word *)realloc(vocab, (size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
-    vocab = (struct vocab_word *)malloc ((size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
+    vocab = (struct vocab_word *)realloc(vocab, (size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
+    // vocab = (struct vocab_word *)malloc ((size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
     char word[MAX_STRING];
     int word_idx = 0;
     int num = 0;
@@ -138,12 +138,10 @@ void populate_vocab(){
             word_mode = 0;
         }else if(ch == '\n'){
             word_mode = 1;
-            word[word_idx] = 0;
-            vocab[cur_vocab_size].word = (char *)calloc(word_idx, sizeof(char));
+            word[word_idx] = '\0';
+            vocab[cur_vocab_size].word = (char *)calloc(strlen(word)+1, sizeof(char));
             strcpy(vocab[cur_vocab_size].word,word);
             vocab[cur_vocab_size].cn = num;
-            vocab[cur_vocab_size].code = (char *)calloc(MAX_CODE_LENGTH, sizeof(char));
-            vocab[cur_vocab_size].point = (int *)calloc(MAX_CODE_LENGTH, sizeof(int));
             cur_vocab_size++;
             if (cur_vocab_size >= vocab_size){
                 break;
@@ -166,6 +164,11 @@ void populate_vocab(){
         }
     }
     fclose(fin);
+    for(cur_vocab_size=0;cur_vocab_size<vocab_size;cur_vocab_size++){
+        vocab[cur_vocab_size].code = (char *)calloc(MAX_CODE_LENGTH, sizeof(char));
+        vocab[cur_vocab_size].point = (int *)calloc(MAX_CODE_LENGTH, sizeof(int));
+    }
+
 }
 
 void init_unigram_table() {
@@ -210,6 +213,11 @@ void read_data(){
 }
 
 void init(){
+    populate_vocab();
+    read_data();
+    init_unigram_table();
+    CreateBinaryTree();
+
     //populate exp precomputing table
     expTable = (float *)malloc((EXP_TABLE_SIZE + 1) * sizeof(float));
     for (i = 0; i < EXP_TABLE_SIZE; i++) {
@@ -249,10 +257,6 @@ void init(){
             }
         }
     }
-    read_data();
-    populate_vocab();
-    init_unigram_table();
-    CreateBinaryTree();
 }
 
 void train_thread(void *id) {
@@ -272,7 +276,7 @@ void train_thread(void *id) {
 
         if(pos - last_pos >= 10000){
             last_pos = pos;
-            printf("%cProgress: %.2f%%  ", 13,  (n_threads * (last_pos+pos)) / (float)(iters * n_dataset + 1) * 100);
+            printf("%cProgress: %.2f%%  ", 13,  (n_threads * (last_pos+pos)) / (float)(n_dataset + 1) * 100);
             fflush(stdout);
         }                                                                                                                                                                                                                                  
 
@@ -353,13 +357,15 @@ void train(){
         for (p = 0; p < n_threads; p++) pthread_create(&pt[p], NULL, train_thread, (void *)p);
         for (p = 0; p < n_threads; p++) pthread_join(pt[p], NULL);
         conclude(i);
+        printf("finished loop \n");
     }
 
 }
 
 void conclude(int ind){
-    char str[15];
-    char * path = concat("/home/sanqiang/Documents/git/entity2vector/yelp_ny_pos/syn0_", sprintf(str, "%d", ind));
+    char str[5];
+    sprintf(str, "%d", ind);
+    char * path = concat(output_file, str);
     FILE *fo;
     fo = fopen(path, "wb");
     for (a = 0; a < vocab_size; a++) {
@@ -374,13 +380,15 @@ void conclude(int ind){
 
 int main(int argc, char **argv) {
 
-    vocab_size = 30003;
+    vocab_size = 17024;
     layer1_size = 100;
-    n_dataset = 2453688725; // ;33344589
-    n_threads = 5;
-    n_negative = 5;
-    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_ny_pos/pair.txt");
-    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_ny_pos/pairword.txt");
+    n_dataset =  68746503; // ;33344589
+    n_threads = 1;
+    n_negative = 10;
+    iters = 1;
+    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_nv/pair.txt");
+    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_nv/pairword.txt");
+    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_nv/result_");
     //strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
     //strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();
