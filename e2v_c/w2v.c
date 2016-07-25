@@ -17,11 +17,11 @@
 
 float *syn0, *syn1, *syn1neg, *expTable;
 unsigned short layer1_size, c, n_negative;
-unsigned long long l1, l2, vocab_size, cur_data_size, n_dataset;
+unsigned long long vocab_size, cur_data_size, n_dataset;
 unsigned int a, b, d;
 unsigned long p;
-float f, g, alpha;
-short  label, i, n_threads, num, iters;
+float alpha;
+short  i, n_threads, num, iters;
 char train_file[MAX_STRING], word_file[MAX_STRING], output_file[MAX_STRING];
 char ch;
 
@@ -29,7 +29,7 @@ const int table_size = 1e8;
 int *table;
 struct vocab_word *vocab;//词动态数组
 struct train_pair *dataset;
-int hs = 1;
+int hs = 0;
 
 struct vocab_word {
     unsigned long cn;
@@ -267,10 +267,14 @@ void train_thread(void *id) {
     long long pos_ed = n_dataset / n_threads * (1 + thread_id);
 
     long long pos = pos_st, last_pos=0;
-    int local_iter = iters;
+    int local_iter = iters, label;
+    unsigned int context,target;
     //printf("current thread start! start pos %llu and end pos %llu. \n", pos_st, pos_ed);
     float *neu1 = (float *)calloc(layer1_size, sizeof(float)); // 隐层节点
     float *neu1e = (float *)calloc(layer1_size, sizeof(float)); // 误差累计项，其实对应的是Gneu1
+    unsigned  long long l1, l2, c;
+    long long a, b, d;
+    float f, g;
 
     while (1){
 
@@ -281,8 +285,8 @@ void train_thread(void *id) {
         }                                                                                                                                                                                                                                  
 
         struct train_pair pair = dataset[pos]; //to update
-        unsigned short context = pair.context;
-        unsigned short target = pair.target;
+        context = pair.context;
+        target = pair.target;
         pos++;
 
         l1 = context * layer1_size; //location in the hidden layer, update him rather than word
@@ -322,23 +326,34 @@ void train_thread(void *id) {
                 target = table[(next_random >> 16) % table_size];
                 if (target == 0) target = next_random % (vocab_size - 1) + 1;
                 if (target == context) continue;
-                target = 0;
             }
 
             l2 = target * layer1_size;
 
             f = 0;
             for (c = 0; c < layer1_size; c++) f += syn0[c + l1] * syn1neg[c + l2];
-            if (f > MAX_EXP) g = (label - 1) * alpha;
-            else if (f < -MAX_EXP) g = (label - 0) * alpha;
-            else g = (label - expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))]) * alpha;
-            for (c = 0; c < layer1_size; c++) neu1e[c] += g * syn1neg[c + l2];
-            for (c = 0; c < layer1_size; c++) syn1neg[c + l2] += g * syn0[c + l1];
+            if (f > MAX_EXP) {
+                g = (label - 1) * alpha;
+            }
+            else if (f < -MAX_EXP) {
+                g = (label - 0) * alpha;
+            }
+            else {
+                g = (label - expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))]) * alpha;
+            }
+
+
+            for (c = 0; c < layer1_size; c++) {
+                neu1e[c] += g * syn1neg[c + l2];
+            }
+            for (c = 0; c < layer1_size; c++) {
+                syn1neg[c + l2] += g * syn0[c + l1];
+            }
         }
         for (c = 0; c < layer1_size; c++) syn0[c + l1] += neu1e[c];
 
         if(pos >= pos_ed){
-            printf("finished one loop for one thread %llu. \n", thread_id);
+            //printf("finished one loop for one thread %llu. \n", thread_id);
             local_iter--;
             pos = pos_st;
             if(local_iter == 0){
@@ -357,7 +372,6 @@ void train(){
         for (p = 0; p < n_threads; p++) pthread_create(&pt[p], NULL, train_thread, (void *)p);
         for (p = 0; p < n_threads; p++) pthread_join(pt[p], NULL);
         conclude(i);
-        printf("finished loop \n");
     }
 
 }
@@ -366,6 +380,7 @@ void conclude(int ind){
     char str[5];
     sprintf(str, "%d", ind);
     char * path = concat(output_file, str);
+    printf(path);
     FILE *fo;
     fo = fopen(path, "wb");
     for (a = 0; a < vocab_size; a++) {
@@ -376,19 +391,20 @@ void conclude(int ind){
                 fprintf(fo, "%lf ", syn0[a * layer1_size + b]);
         fprintf(fo, "\n");
     }
+    fclose(fo);
 }
 
 int main(int argc, char **argv) {
     alpha = 0.025;
     vocab_size = 17024;
-    layer1_size = 1;
+    layer1_size = 100;
     n_dataset =  68746503; // ;33344589
-    n_threads = 1;
+    n_threads = 6;
     n_negative = 10;
     iters = 1;
     strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_nv/pair.txt");
     strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_nv/pairword.txt");
-    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_nv/result_test");
+    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_nv/result_multi_thread_");
     //strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
     //strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();
