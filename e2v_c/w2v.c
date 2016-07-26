@@ -25,7 +25,7 @@ const int table_size = 1e8;
 int *table;
 struct vocab_word *vocab;//词动态数组
 struct train_pair *dataset;
-int hs = 0;
+int hs = 1;
 
 struct vocab_word {
     unsigned long cn;
@@ -121,11 +121,14 @@ void populate_vocab(){
     fin = fopen(word_file, "rb");
     vocab = (struct vocab_word *)realloc(vocab, (size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
     // vocab = (struct vocab_word *)malloc ((size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
+    vocab[0].word = "<UNK>";
+    vocab[0].cn = 0;
     char word[MAX_STRING];
     int word_idx = 0;
     int num = 0;
     boolean word_mode = 1;
-    long long cur_vocab_size = 0;
+
+    long long cur_vocab_size = 1;
     char ch;
 
     while (!feof(fin)) {
@@ -392,15 +395,15 @@ void conclude(int ind){
 
 int main(int argc, char **argv) {
     alpha = 0.025;
-    vocab_size = 68005; //17024;
+    vocab_size = 52478;//68005; //;
     layer1_size = 100;
-    n_dataset =  377793547; //68746503;
-    n_threads = 6;
+    n_dataset =  378131096;//377793547; //;
+    n_threads = 7;
     n_negative = 10;
     //iters = 5;
-    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_nv_full/pair.txt");
-    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_nv_full/pairword.txt");
-    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_nv_full/result/multi_thread_");
+    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_nv_full2/pair.txt");
+    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_nv_full2/pairword.txt");
+    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_nv_full2/result/multi_thread_hs");
     //strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
     //strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();

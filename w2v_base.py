@@ -41,7 +41,7 @@ class W2V_base:
         # train based
         self.batch_size = 300
         self.embedding_size = 128  # Dimension of the embedding vector.
-        self.raw_sample_probs = [0.4, 0.3, 0.15, 0.1, 0.05]  # context word sample prob
+        self.raw_sample_probs =  [0.4, 0.3, 0.15, 0.1, 0.05]  # context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
         self.sample_probs = []
         sum = 0
@@ -92,7 +92,7 @@ class W2V_base:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
                 # word based
-                batch_text_data = " ".join([batch_text_data, text, title])
+                batch_text_data = ". ".join([batch_text_data, text, title])
                 line_idx += 1
                 if line_idx % 1000 == 0:
                     self.word_count += Counter(reduce(lambda x, y: x + y, self.parse(batch_text_data)))
@@ -110,6 +110,16 @@ class W2V_base:
         self.word_count = self.temp_word_count
         self.vocab_size = len(self.word_count)
 
+        #sort word
+        self.word_count = self.word_count.most_common(self.vocab_size)
+
+        # populate word2idx
+        for word,cnt in self.word_count:
+            if word not in self.word2idx:
+                self.word2idx[word] = 1 + len(self.word2idx)  # 0 is discarded word
+        # populate idx2word
+        self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
+
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
@@ -119,19 +129,11 @@ class W2V_base:
                     self.prod2idx[prod] = prod_idx
                     self.idx2prod[prod_idx] = prod
 
-        # populate word2idx
-        for word in self.word_count:
-            if word not in self.word2idx:
-                self.word2idx[word] = 1 + len(self.word2idx)  # 0 is discarded word
-        # populate idx2word
-        self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
-
         # populate data
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
-                text_data = self.parse(" ".join([text, title]))
-                text_data_idx = [[self.word2idx[token] for token in sent] for sent in text_data]
+                text_data_idx = self.parse(".".join([text, title]), required_idx=True)
 
                 obj = {"text_data": text_data_idx, "prod": prod, "user": user}
 
@@ -226,7 +228,10 @@ class W2V_base:
                 return False
         return True
 
-    def parse(self, sents):
-        # return [self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sents) if self.valid_word(token)]
-        return [[self.stemmer.get_stem_word(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
+    def parse(self, sents, required_idx = False):
+        if required_idx:
+            return [[self.word2idx[self.stemmer.get_stem_word(token.lower())] for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
+                sent in sent_tokenize(sents)]
+        else:
+            return [[self.stemmer.get_stem_word(token.lower()) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
                 sent in sent_tokenize(sents)]

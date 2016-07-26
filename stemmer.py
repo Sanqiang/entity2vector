@@ -344,7 +344,8 @@ class PorterStemmer:
         return self.b[self.k0:self.k+1]
 
     def get_stem_word(self, word):
-        return self.stem(word.lower(),0,len(word)-1)
+        return word
+        #return self.stem(word.lower(),0,len(word)-1)
 
     def get_stem_wordlist(self, wordlist):
         return [self.get_stem_word(word) for word in wordlist]

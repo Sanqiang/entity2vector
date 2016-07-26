@@ -3,13 +3,16 @@ from stemmer import PorterStemmer
 import json
 import nltk
 from nltk.tokenize import TweetTokenizer, sent_tokenize, word_tokenize
+import os.path
+
+
 class Vector_Process:
     def __init__(self, folder, file_origin, file_update, vector_length, words):
         self.folder = folder
         self.file_origin = file_origin
         self.file_update = file_update
         self.vector_length = vector_length
-        self.stemmer = PorterStemmer()
+        #self.stemmer = PorterStemmer()
         self.words = words
 
     def process(self):
@@ -38,8 +41,8 @@ class Pair_Process():
         self.folder = folder
         self.file_origin = file_origin
         self.file_pair = file_pair
-        self.stemmer = PorterStemmer()
-        self.words = []
+        #self.stemmer = PorterStemmer()
+        self.words = set()
         self.intersted_pos = ["NOUN", "ADV", "ADJ"]
         self.prod_sign = prod_sign
         self.usr_sign = usr_sign
@@ -54,7 +57,14 @@ class Pair_Process():
         rating = obj["stars"]
         return title, context, user, prod, rating
 
-    def populate_words(self):
+    def populate_words(self, file_word):
+        path_words = "/".join((self.folder, file_word))
+        if os.path.exists(path_words):
+            f_words = open(path_words, "r")
+            for word in f_words:
+                self.words.add(word)
+            return self.words
+
         path_origin = "/".join((self.folder, self.file_origin))
         f_origin = open(path_origin, "r")
         for line in f_origin:
@@ -67,9 +77,14 @@ class Pair_Process():
                     if self.pos_sign and tag not in self.intersted_pos:
                         continue
                     if self.prod_sign:
-                        self.words.append(word)
+                        self.words.add(word)
                     if self.usr_sign:
-                        self.words.append(word)
+                        self.words.add(word)
+
+        f_words = open(path_words, "w")
+        for word in self.words:
+            f_words.write(word)
+            f_words.write("\n")
         return self.words
 
 
@@ -89,9 +104,8 @@ class Pair_Process():
             for sent in text:
                 sent = nltk.pos_tag(sent, tagset='universal')
                 for word, tag in sent:
-                    word = self.stemmer.get_stem_word(word)
                     if word in self.words:
-                        if self.pos_sign and word not in self.intersted_pos:
+                        if self.pos_sign and tag not in self.intersted_pos:
                             continue
                         if self.prod_sign:
                             results.append((prod, word))
@@ -113,14 +127,14 @@ class Pair_Process():
             f_update.write(entity)
             f_update.write(" ")
             f_update.write(word)
-        print("#user is", n_user, "\n")
-        print("#prod is", n_prod, "\n")
-        print("#pair is", n_pair, "\n")
+        print("#user is", n_user)
+        print("#prod is", n_prod)
+        print("#pair is", n_pair)
 
 
 def main():
-    pp = Pair_Process("/home/sanqiang/data/yelp", "review.json", "pair_review", pos_sign=True, prod_sign=True)
-    words =pp.populate_words()
+    pp = Pair_Process("/home/sanqiang/data/yelp", "NVu.json", "pair_NVu", pos_sign=True, prod_sign=True)
+    words = pp.populate_words("word.txt")
     print("1")
 
     vp = Vector_Process("/home/sanqiang/data/glove","glove.twitter.27B.200d.txt","glove.twitter.27B.200d.update.txt",200, words)

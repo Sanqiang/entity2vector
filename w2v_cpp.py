@@ -2,6 +2,7 @@
 from w2v_base import W2V_base
 from collections import deque
 from struct import Struct
+from collections import Counter
 
 
 class W2V_cpp(W2V_base):
@@ -40,8 +41,8 @@ class W2V_cpp(W2V_base):
 
     def generate_word(self):
         f = open("/".join((self.folder, "pairword.txt")), "w")
-        for word in self.word_count:
-            cnt = self.word_count[word]
+        for word, cnt in self.word_count:
+            #cnt = self.word_count[word]
             f.write(word)
             f.write(" ")
             f.write(str(cnt))
@@ -106,7 +107,7 @@ class W2V_cpp(W2V_base):
 
 
 def main():
-    w2c = W2V_cpp("/home/sanqiang/data/yelp/NV.json", "yelp_nv")
+    w2c = W2V_cpp("/home/sanqiang/data/yelp/NVu.json", "yelp_nv_full_win5")
     #w2c = W2V_cpp("/Users/zhaosanqiang916//data/yelp/review.json", "yelp_ny_pos")
     w2c.generate_word()
     w2c.generate_pos()
