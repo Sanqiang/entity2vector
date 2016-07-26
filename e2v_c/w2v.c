@@ -18,13 +18,9 @@
 float *syn0, *syn1, *syn1neg, *expTable;
 unsigned short layer1_size, c, n_negative;
 unsigned long long vocab_size, cur_data_size, n_dataset;
-unsigned int a, b, d;
-unsigned long p;
 float alpha;
-short  i, n_threads, num, iters;
+short  n_threads, iters;
 char train_file[MAX_STRING], word_file[MAX_STRING], output_file[MAX_STRING];
-char ch;
-
 const int table_size = 1e8;
 int *table;
 struct vocab_word *vocab;//词动态数组
@@ -130,6 +126,7 @@ void populate_vocab(){
     int num = 0;
     boolean word_mode = 1;
     long long cur_vocab_size = 0;
+    char ch;
 
     while (!feof(fin)) {
         ch = fgetc(fin);
@@ -172,7 +169,7 @@ void populate_vocab(){
 }
 
 void init_unigram_table() {
-    long long train_words_pow = 0;
+    long long train_words_pow = 0, a, i;
     float d1, power = 0.75;
     table = (int *)malloc(table_size * sizeof(int));
     for (a = 0; a < vocab_size; a++) train_words_pow += pow(vocab[a].cn, power);
@@ -192,8 +189,8 @@ void read_data(){
     FILE *fin;
     dataset = (struct train_pair *)malloc ((size_t) ((n_dataset + 1) * sizeof(struct train_pair)));
     fin = fopen(train_file, "rb");
-
-    num = 0; cur_data_size = 0;
+    char ch;
+    unsigned int num = 0; cur_data_size = 0;
 
     while (!feof(fin)) {
         ch = fgetc(fin);
@@ -220,13 +217,14 @@ void init(){
 
     //populate exp precomputing table
     expTable = (float *)malloc((EXP_TABLE_SIZE + 1) * sizeof(float));
+    long long i;
     for (i = 0; i < EXP_TABLE_SIZE; i++) {
         expTable[i] = exp((i / (float)EXP_TABLE_SIZE * 2 - 1) * MAX_EXP); // Precompute the exp() table
         expTable[i] = expTable[i] / (expTable[i] + 1);                   // Precompute f(x) = x / (x + 1)
     }
 
     //init net
-    long long a;
+    long long a, b;
     a = posix_memalign((void **)&syn0, 128, (long long)vocab_size * layer1_size * sizeof(float));
     if (syn0 == NULL) {printf("syn0 Memory allocation failed\n"); exit(1);}
     a = posix_memalign((void **)&syn1neg, 128, (long long)vocab_size * layer1_size * sizeof(float));
@@ -267,13 +265,13 @@ void train_thread(void *id) {
     long long pos_ed = n_dataset / n_threads * (1 + thread_id);
 
     long long pos = pos_st, last_pos=0;
-    int local_iter = iters, label;
+    int label;
     unsigned int context,target;
     //printf("current thread start! start pos %llu and end pos %llu. \n", pos_st, pos_ed);
     float *neu1 = (float *)calloc(layer1_size, sizeof(float)); // 隐层节点
     float *neu1e = (float *)calloc(layer1_size, sizeof(float)); // 误差累计项，其实对应的是Gneu1
     unsigned  long long l1, l2, c;
-    long long a, b, d;
+    long long a, b, d, i;
     float f, g;
 
     while (1){
@@ -354,11 +352,7 @@ void train_thread(void *id) {
 
         if(pos >= pos_ed){
             //printf("finished one loop for one thread %llu. \n", thread_id);
-            local_iter--;
-            pos = pos_st;
-            if(local_iter == 0){
-                break;
-            }
+            break;
         }
     }
     free(neu1);
@@ -368,6 +362,7 @@ void train_thread(void *id) {
 
 void train(){
     pthread_t *pt = (pthread_t *)malloc(n_threads * sizeof(pthread_t));
+    int i, p;
     for(i = 0; i < 2147400000; i++){
         for (p = 0; p < n_threads; p++) pthread_create(&pt[p], NULL, train_thread, (void *)p);
         for (p = 0; p < n_threads; p++) pthread_join(pt[p], NULL);
@@ -377,12 +372,13 @@ void train(){
 }
 
 void conclude(int ind){
-    char str[5];
+    char str[15];
     sprintf(str, "%d", ind);
     char * path = concat(output_file, str);
-    printf(path);
+    printf("Path: %s \n", path);
     FILE *fo;
     fo = fopen(path, "wb");
+    long long a, b;
     for (a = 0; a < vocab_size; a++) {
         fprintf(fo, "%s ", vocab[a].word);
         if (0) for (b = 0; b < layer1_size; b++)
@@ -396,15 +392,15 @@ void conclude(int ind){
 
 int main(int argc, char **argv) {
     alpha = 0.025;
-    vocab_size = 17024;
+    vocab_size = 68005; //17024;
     layer1_size = 100;
-    n_dataset =  68746503; // ;33344589
+    n_dataset =  377793547; //68746503;
     n_threads = 6;
     n_negative = 10;
-    iters = 1;
-    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_nv/pair.txt");
-    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_nv/pairword.txt");
-    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_nv/result_multi_thread_");
+    //iters = 5;
+    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_nv_full/pair.txt");
+    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_nv_full/pairword.txt");
+    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_nv_full/result/multi_thread_");
     //strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
     //strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();
