@@ -10,6 +10,8 @@ from nltk.tokenize import TweetTokenizer, sent_tokenize
 
 from stemmer import PorterStemmer
 from functools import reduce
+import re
+from nltk.corpus import stopwords
 
 
 class W2V_base:
@@ -17,6 +19,7 @@ class W2V_base:
         self.tknzr = TweetTokenizer()
         # self.stknzr = sent_tokenize()
         self.stemmer = PorterStemmer()
+        self.stops = set(stopwords.words("english"))
 
         self.path = path
         self.folder = folder
@@ -29,7 +32,9 @@ class W2V_base:
         self.total_count = 0
         self.word_count = Counter()
         self.word2idx = defaultdict(int)
+        self.word2idx["<UNK>"] = 0
         self.idx2word = {}
+        self.idx2word[0] = "<UNK>"
         self.word_sample = {}  # target word sample prob useless
 
         # entity based
@@ -41,16 +46,16 @@ class W2V_base:
         # train based
         self.batch_size = 300
         self.embedding_size = 128  # Dimension of the embedding vector.
-        self.raw_sample_probs =  [0.4, 0.3, 0.15, 0.1, 0.05]  # context word sample prob
+        self.raw_sample_probs =  [0.4, 0.3, 0.15, 0.1, 0.05, 0.4, 0.3, 0.15, 0.1, 0.05]  # context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
         self.sample_probs = []
         sum = 0
         for prob in self.raw_sample_probs:
             sum += prob
             self.sample_probs.append(sum)
-        self.num_skips = 2  # How many times to reuse an input to generate a label.
+        #self.num_skips = 2  # How many times to reuse an input to generate a label.
 
-        self.num_negative_sampled = 64  # Number of negative examples to sample.
+        #self.num_negative_sampled = 64  # Number of negative examples to sample.
 
         self.data = []  # data set obj
 
@@ -92,7 +97,7 @@ class W2V_base:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
                 # word based
-                batch_text_data = ". ".join([batch_text_data, text, title])
+                batch_text_data = " . ".join([batch_text_data, text, title])
                 line_idx += 1
                 if line_idx % 1000 == 0:
                     self.word_count += Counter(reduce(lambda x, y: x + y, self.parse(batch_text_data)))
@@ -133,7 +138,7 @@ class W2V_base:
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
-                text_data_idx = self.parse(".".join([text, title]), required_idx=True)
+                text_data_idx = self.parse(" . ".join([text, title]), required_idx=True)
 
                 obj = {"text_data": text_data_idx, "prod": prod, "user": user}
 
@@ -228,10 +233,17 @@ class W2V_base:
                 return False
         return True
 
+    def token_transfer(self, token):
+        if token in self.stops:
+            return "<UNK>"
+        token = re.sub("[^a-zA-Z]", token, "")
+        token = token.lower()
+        return token
+
     def parse(self, sents, required_idx = False):
         if required_idx:
-            return [[self.word2idx[self.stemmer.get_stem_word(token.lower())] for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
+            return [[self.word2idx[self.token_transfer(token)] for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
                 sent in sent_tokenize(sents)]
         else:
-            return [[self.stemmer.get_stem_word(token.lower()) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
+            return [[self.token_transfer(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
                 sent in sent_tokenize(sents)]

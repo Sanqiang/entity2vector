@@ -121,14 +121,12 @@ void populate_vocab(){
     fin = fopen(word_file, "rb");
     vocab = (struct vocab_word *)realloc(vocab, (size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
     // vocab = (struct vocab_word *)malloc ((size_t) ((vocab_size + 1) * sizeof(struct vocab_word)));
-    vocab[0].word = "<UNK>";
-    vocab[0].cn = 0;
     char word[MAX_STRING];
     int word_idx = 0;
     int num = 0;
     boolean word_mode = 1;
 
-    long long cur_vocab_size = 1;
+    long long cur_vocab_size = 0;
     char ch;
 
     while (!feof(fin)) {
@@ -382,6 +380,7 @@ void conclude(int ind){
     FILE *fo;
     fo = fopen(path, "wb");
     long long a, b;
+    fprintf(fo, "%lld %lld\n", vocab_size, layer1_size);
     for (a = 0; a < vocab_size; a++) {
         fprintf(fo, "%s ", vocab[a].word);
         if (0) for (b = 0; b < layer1_size; b++)
