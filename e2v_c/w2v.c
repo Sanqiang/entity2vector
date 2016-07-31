@@ -394,21 +394,21 @@ void conclude(int ind){
 
 int main(int argc, char **argv) {
     alpha = 0.025;
-    vocab_size = 52478;//68005; //;
-    layer1_size = 100;
-    n_dataset =  378131096;//377793547; //;
-    n_threads = 7;
+    vocab_size = 123587;//86632 for rest 123587 for all
+    layer1_size = 200;
+    n_dataset =  1203551737;//717660641 for rest 1203551737 for all
+    n_threads = 3;
     n_negative = 10;
     //iters = 5;
-    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_nv_full2/pair.txt");
-    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_nv_full2/pairword.txt");
-    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_nv_full2/result/multi_thread_hs");
+    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_allalphaword_mincnt10_win10/pair.txt");
+    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_allalphaword_mincnt10_win10/pairword.txt");
+    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_allalphaword_mincnt10_win10/result/multi_thread_hs_d200_neg10");
     //strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
     //strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();
-    printf("finished init.");
+    printf("finished init for %s.", train_file);
     train();
-    printf("finished train.");
+    printf("finished train for %s .", train_file);
 
     exit(0);
 }

@@ -26,8 +26,8 @@ if True: #only generate Restaurants
         if "Restaurants" in categories:
             interested_business_id.add(business_id)
 
-    f = open("/home/sanqiang/data/yelp/NV.json","r")
-    fu = open("/home/sanqiang/data/yelp/NVu2.json","w")
+    f = open("/home/sanqiang/data/yelp/review.json","r")
+    fu = open("/home/sanqiang/data/yelp/review_rest.json","w")
     nline = ""
     ncount = 0
     for line in f:

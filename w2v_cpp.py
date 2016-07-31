@@ -7,6 +7,7 @@ from collections import Counter
 
 class W2V_cpp(W2V_base):
     def __init__(self, path, folder):
+        print(folder)
         W2V_base.__init__(self, path, folder)
 
     '''
@@ -67,18 +68,18 @@ class W2V_cpp(W2V_base):
 
                 for target_idx in range(0, int((len(buffer)) / 2)):
                     target_word = buffer[target_idx]
-                    if target_word != 0:
+                    if target_word != -1:
                         for context_word in buffer:
-                            if context_word != target_word and context_word != 0:
+                            if context_word != target_word and context_word != -1:
                                 result.append((target_word, context_word))
 
                 for word_idx in range(word_idx, len(text_data_sent)):
                     target_idx = int((len(buffer)) / 2)
                     target_word = buffer[target_idx]  # consider buffer is shorter than  self.skip_window
 
-                    if target_word != 0:
+                    if target_word != -1:
                         for context_word in buffer:
-                            if context_word != target_word and context_word != 0:
+                            if context_word != target_word and context_word != -1:
                                 result.append((target_word, context_word))
 
                     # for next word
@@ -87,9 +88,9 @@ class W2V_cpp(W2V_base):
 
                 for target_idx in range(int((len(buffer)) / 2), len(buffer)):
                     target_word = buffer[target_idx]
-                    if target_word != 0:
+                    if target_word != -1:
                         for context_word in buffer:
-                            if context_word != target_word and context_word != 0:
+                            if context_word != target_word and context_word != -1:
                                 result.append((target_word, context_word))
 
             if len(result) >= 1000000:
@@ -107,8 +108,9 @@ class W2V_cpp(W2V_base):
 
 
 def main():
-    w2c = W2V_cpp("/home/sanqiang/data/yelp/NVu.json", "yelp_nv_with_allalphaword_mincnt10")
+    #w2c = W2V_cpp("/home/sanqiang/data/yelp/review.json", "yelp_allalphaword_mincnt10_win10")
     #w2c = W2V_cpp("/Users/zhaosanqiang916//data/yelp/review.json", "yelp_ny_pos")
+    w2c = W2V_cpp("/home/sanqiang/data/yelp/review.json", "yelp_allalphaword_mincnt10_win10")
     w2c.generate_word()
     w2c.generate_pos()
     print(w2c.countlines())

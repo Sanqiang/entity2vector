@@ -2,7 +2,7 @@ from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from gensim.models.word2vec import Word2Vec
 
-if True:
+if False:
     #path = "/home/sanqiang/git/entity2vector/yelp_nv/result/multi_thread_446"
     path = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt"
     f = open(path, "r")
@@ -36,7 +36,7 @@ if True:
             print(nword)
         print("=======")
 if True:
-    model = Word2Vec.load_word2vec_format("/Users/zhaosanqiang916/data/glove/multi_thread_43")
+    model = Word2Vec.load_word2vec_format("/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/result/multi_thread_hs_d2014")
     print("finished init")
     while True:
         word = input()

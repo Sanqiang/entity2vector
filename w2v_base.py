@@ -15,6 +15,9 @@ from nltk.corpus import stopwords
 
 
 class W2V_base:
+    def default_idx(self):
+        return -1
+
     def __init__(self, path, folder):
         self.tknzr = TweetTokenizer()
         # self.stknzr = sent_tokenize()
@@ -31,10 +34,8 @@ class W2V_base:
 
         self.total_count = 0
         self.word_count = Counter()
-        self.word2idx = defaultdict(int)
-        self.word2idx["<UNK>"] = 0
+        self.word2idx = defaultdict(self.default_idx)
         self.idx2word = {}
-        self.idx2word[0] = "<UNK>"
         self.word_sample = {}  # target word sample prob useless
 
         # entity based
@@ -113,6 +114,7 @@ class W2V_base:
             if cnt >= self.min_count:
                 self.temp_word_count[word] = cnt
         self.word_count = self.temp_word_count
+        del self.word_count["<UNK>"]
         self.vocab_size = len(self.word_count)
 
         #sort word
@@ -121,7 +123,7 @@ class W2V_base:
         # populate word2idx
         for word,cnt in self.word_count:
             if word not in self.word2idx:
-                self.word2idx[word] = 1 + len(self.word2idx)  # 0 is discarded word
+                self.word2idx[word] = len(self.word2idx)  # -1 rather than 0 is discarded word
         # populate idx2word
         self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
 
@@ -236,7 +238,7 @@ class W2V_base:
     def token_transfer(self, token):
         if token in self.stops:
             return "<UNK>"
-        token = re.sub("[^a-zA-Z]", token, "")
+        token = re.sub("[^a-zA-Z]", "", token)
         token = token.lower()
         return token
 
