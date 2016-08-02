@@ -58,6 +58,7 @@ class W2V_cpp(W2V_base):
         for obj in self.data:
             text_data = obj["text_data"]
             for text_data_sent in text_data:
+                text_data_sent = [[items[1] for items in sent] for sent in text_data_sent]
                 # process each sentence
                 word_idx = 0
                 buffer = deque(maxlen=span)

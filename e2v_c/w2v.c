@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <jmorecfg.h>
 #include <sys/mman.h>
+#include "model.c"
 
 #define MAX_STRING 100//string 类型的最大长度
 #define EXP_TABLE_SIZE 1000//这里是用来求sigmoid函数,使用的是一种近似的求法，
@@ -20,12 +21,12 @@ unsigned short layer1_size, c, n_negative;
 unsigned long long vocab_size, cur_data_size, n_dataset;
 float alpha;
 short  n_threads, iters;
-char train_file[MAX_STRING], word_file[MAX_STRING], output_file[MAX_STRING];
+char train_file[MAX_STRING], word_file[MAX_STRING], output_file[MAX_STRING], model_file[MAX_STRING];
 const int table_size = 1e8;
 int *table;
 struct vocab_word *vocab;//词动态数组
 struct train_pair *dataset;
-int hs = 1;
+int hs = 0;
 
 struct vocab_word {
     unsigned long cn;
@@ -281,7 +282,7 @@ void train_thread(void *id) {
             last_pos = pos;
             printf("%cProgress: %.2f%%  ", 13,  (n_threads * (pos - pos_st)) / (float)(n_dataset + 1) * 100);
             fflush(stdout);
-        }                                                                                                                                                                                                                                  
+        }
 
         struct train_pair pair = dataset[pos]; //to update
         context = pair.context;
@@ -361,17 +362,6 @@ void train_thread(void *id) {
     pthread_exit(NULL);
 }
 
-void train(){
-    pthread_t *pt = (pthread_t *)malloc(n_threads * sizeof(pthread_t));
-    int i, p;
-    for(i = 0; i < 2147400000; i++){
-        for (p = 0; p < n_threads; p++) pthread_create(&pt[p], NULL, train_thread, (void *)p);
-        for (p = 0; p < n_threads; p++) pthread_join(pt[p], NULL);
-        conclude(i);
-    }
-
-}
-
 void conclude(int ind){
     char str[15];
     sprintf(str, "%d", ind);
@@ -392,17 +382,37 @@ void conclude(int ind){
     fclose(fo);
 }
 
+void train(){
+    pthread_t *pt = (pthread_t *)malloc(n_threads * sizeof(pthread_t));
+    int i = 15, p;
+    for(; i < 2147400000; i++){
+        for (p = 0; p < n_threads; p++) pthread_create(&pt[p], NULL, train_thread, (void *)p);
+        for (p = 0; p < n_threads; p++) pthread_join(pt[p], NULL);
+        conclude(i);
+
+        //save model
+        char str[15];
+        char * path;
+        sprintf(str, "%d", i);
+        path = concat(concat(model_file, str),"_syn0");
+        save_model(path, vocab_size, layer1_size,syn0);
+        path = concat(concat(model_file, str),"_syn1neg");
+        save_model(path, vocab_size, layer1_size,syn1neg);
+    }
+
+}
+
 int main(int argc, char **argv) {
     alpha = 0.025;
-    vocab_size = 123587;//86632 for rest 123587 for all
+    vocab_size = 86632;//86632 for rest 123587 for all
     layer1_size = 200;
-    n_dataset =  1203551737;//717660641 for rest 1203551737 for all
-    n_threads = 3;
+    n_dataset =  717660641;//717660641 for rest 1203551737 for all
+    n_threads = 5;
     n_negative = 10;
-    //iters = 5;
-    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_allalphaword_mincnt10_win10/pair.txt");
-    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_allalphaword_mincnt10_win10/pairword.txt");
-    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_allalphaword_mincnt10_win10/result/multi_thread_hs_d200_neg10");
+    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pair.txt");
+    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pairword.txt");
+    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/result/d200_neg10_");
+    strcpy(model_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/model/");
     //strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
     //strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();

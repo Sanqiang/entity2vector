@@ -13,7 +13,7 @@ from functools import reduce
 import re
 from nltk.corpus import stopwords
 
-
+#only work for w2v_cpp,w2v_cpp2
 class W2V_base:
     def default_idx(self):
         return -1
@@ -65,11 +65,12 @@ class W2V_base:
         # extension
         self.pos_mode = True
 
-        self.get_stat()
         if self.pos_mode:
             self.interest_words = {}
             self.interest_tag = ["NOUN", "ADV", "ADJ"]
-            self.get_stat_pos()
+
+        self.get_stat()
+
         self.batch_index = 0
         self.loop_index = 0
 
@@ -140,9 +141,9 @@ class W2V_base:
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
-                text_data_idx = self.parse(" . ".join([text, title]), required_idx=True)
 
-                obj = {"text_data": text_data_idx, "prod": prod, "user": user}
+                text_data = self.parse(" . ".join([text, title]), required_idx=True, required_pos=True)
+                obj = {"text_data": text_data, "prod": prod, "user": user}
 
                 self.data.append(obj)
 
@@ -164,28 +165,28 @@ class W2V_base:
                        "idx2prod": self.idx2prod}
         pickle.dump(pickle_data, f)
 
-    def get_stat_pos(self):
-        filename = "/".join((self.folder, "stat_pos"))
-        if os.path.exists(filename):
-            f = open(filename, 'rb')
-            pickle_data = pickle.load(f)
-            self.interest_words = pickle_data["interest_words"]
-            return self.interest_words
-
-        with open(self.path, "r", encoding=self.file_encoding) as ins:
-            for line in ins:
-                title, ttext, user, prod, rating = self.line_parser(line)
-                text = " ".join((title, ttext))
-                tagded_pairs = nltk.pos_tag(self.tknzr.tokenize(text), tagset='universal')
-                for word, tag in tagded_pairs:
-                    if tag in self.interest_tag:
-                        stem_word = self.stemmer.get_stem_word(word)
-                        if stem_word in self.word2idx:
-                            self.interest_words[self.word2idx[stem_word]] = True
-        f = open(filename, 'wb')
-        pickle_data = {"interest_words": self.interest_words}
-        pickle.dump(pickle_data, f)
-        return self.interest_words
+    # def get_stat_pos(self):
+    #     filename = "/".join((self.folder, "stat_pos"))
+    #     if os.path.exists(filename):
+    #         f = open(filename, 'rb')
+    #         pickle_data = pickle.load(f)
+    #         self.interest_words = pickle_data["interest_words"]
+    #         return self.interest_words
+    #
+    #     with open(self.path, "r", encoding=self.file_encoding) as ins:
+    #         for line in ins:
+    #             title, ttext, user, prod, rating = self.line_parser(line)
+    #             text = " ".join((title, ttext))
+    #             tagded_pairs = nltk.pos_tag(self.tknzr.tokenize(text), tagset='universal')
+    #             for word, tag in tagded_pairs:
+    #                 if tag in self.interest_tag:
+    #                     stem_word = self.stemmer.get_stem_word(word)
+    #                     if stem_word in self.word2idx:
+    #                         self.interest_words[self.word2idx[stem_word]] = True
+    #     f = open(filename, 'wb')
+    #     pickle_data = {"interest_words": self.interest_words}
+    #     pickle.dump(pickle_data, f)
+    #     return self.interest_words
 
     # note that return format is title, text, user, prod, rating
     def line_parser(self, line):
@@ -242,10 +243,17 @@ class W2V_base:
         token = token.lower()
         return token
 
-    def parse(self, sents, required_idx = False):
-        if required_idx:
+    def parse(self, sents, required_idx = False, required_pos = False):
+        if required_idx and not required_pos:
             return [[self.word2idx[self.token_transfer(token)] for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
                 sent in sent_tokenize(sents)]
-        else:
+        elif not required_idx and not required_pos:
             return [[self.token_transfer(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
                 sent in sent_tokenize(sents)]
+        elif required_idx and required_pos:
+            return [[(self.word2idx[self.token_transfer(items[0])],items[1]) for items in nltk.pos_tag(self.tknzr.tokenize(sent)) if self.valid_word(items[0])]
+                    for sent in sent_tokenize(sents)]
+        elif not required_idx and required_pos:
+            return [[(self.token_transfer(items[0]), items[1]) for items in
+                     nltk.pos_tag(self.tknzr.tokenize(sent)) if self.valid_word(items[0])]
+                    for sent in sent_tokenize(sents)]
