@@ -13,7 +13,8 @@
 float *entity_vector, *neg_entity_vector, *expTable;
 unsigned int *wordvector2idx, n_prod = 0, n_pair = 0,
         layer1_size = 200, *negative_sampling_table, n_thread = 5, max_iter = 5, n_negative = 5;
-char vector_file[MAX_STRING] = "/Users/zhaosanqiang916/data/sample_vector", pair_file[MAX_STRING] = "", output_file[MAX_STRING] = "", prod_file[MAX_STRING] = "";
+char vector_file[MAX_STRING] = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt", pair_file[MAX_STRING] = "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pairentity.txt",
+        output_file[MAX_STRING] = "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pairentity.txt", prod_file[MAX_STRING] = "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/output.txt";
 long long wordvectorsize = 300000;
 struct wordvector* idx2wordvector;
 struct pair* pairs;

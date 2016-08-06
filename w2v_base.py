@@ -29,7 +29,7 @@ class W2V_base:
 
         # word based
         self.sample = 0.001
-        self.min_count = 5;
+        self.min_count = 5
         self.vocab_size = 0
 
         self.total_count = 0
@@ -251,9 +251,9 @@ class W2V_base:
             return [[self.token_transfer(token) for token in self.tknzr.tokenize(sent) if self.valid_word(token)] for
                 sent in sent_tokenize(sents)]
         elif required_idx and required_pos:
-            return [[(self.word2idx[self.token_transfer(items[0])],items[1]) for items in nltk.pos_tag(self.tknzr.tokenize(sent)) if self.valid_word(items[0])]
+            return [[(self.word2idx[self.token_transfer(items[0])],items[1]) for items in nltk.pos_tag(self.tknzr.tokenize(sent), tagset='universal') if self.valid_word(items[0])]
                     for sent in sent_tokenize(sents)]
         elif not required_idx and required_pos:
             return [[(self.token_transfer(items[0]), items[1]) for items in
-                     nltk.pos_tag(self.tknzr.tokenize(sent)) if self.valid_word(items[0])]
+                     nltk.pos_tag(self.tknzr.tokenize(sent), tagset='universal') if self.valid_word(items[0])]
                     for sent in sent_tokenize(sents)]

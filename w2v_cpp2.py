@@ -7,36 +7,6 @@ import os.path
 import re
 from w2v_base import W2V_base
 
-class Vector_Process:
-    def __init__(self, folder, file_origin, file_update, vector_length, words):
-        self.folder = folder
-        self.file_origin = file_origin
-        self.file_update = file_update
-        self.vector_length = vector_length
-        #self.stemmer = PorterStemmer()
-        self.words = words
-
-    def process(self):
-        path_origin = "/".join((self.folder, self.file_origin))
-        path_update = "/".join((self.folder, self.file_update))
-        f_update = open(path_update, "w")
-        f_origin = open(path_origin, "r")
-        str_update = ""
-        for line in f_origin:
-            items = line.split(" ")
-            word = items[0]
-            if word not in self.words:
-                continue
-            nline = " ".join(items)
-            str_update = "\n".join((str_update, nline))
-        f_update.write(str_update)
-        f_origin.close()
-        f_update.close()
-
-    def check_word(self):
-        return False
-
-
 class W2V_cpp2(W2V_base):
     def __init__(self, path, folder, prod_sign=False, usr_sign=False, pos_sign=False):
         self.prod_sign = prod_sign
@@ -45,7 +15,7 @@ class W2V_cpp2(W2V_base):
         W2V_base.__init__(self, path, folder)
 
     def process_vector(self):
-        path_origin = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt","glove.twitter.27B.200d.update.txt"
+        path_origin = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt"
         path_update = "/".join((self.folder, "wordvector.txt"))
         f_update = open(path_update, "w")
         f_origin = open(path_origin, "r")
@@ -75,8 +45,8 @@ class W2V_cpp2(W2V_base):
         f_pair = open(path_pair, "w")
         results = []
         n_pair = 0
-        prod2idx = []
-        user2idx = []
+        prod2idx = {}
+        user2idx = {}
         for obj in self.data:
             prod = obj["prod"]
             user = obj["user"]
@@ -99,18 +69,18 @@ class W2V_cpp2(W2V_base):
                 n_pair += len(results)
                 print(len(results))
                 for entity, word in results:
-                    f_pair.write(entity)
+                    f_pair.write(str(entity))
                     f_pair.write(" ")
-                    f_pair.write(word)
+                    f_pair.write(str(word))
                     f_pair.write("\n")
                 results = []
 
         n_pair += len(results)
         print(len(results))
         for entity, word in results:
-            f_pair.write(entity)
+            f_pair.write(str(entity))
             f_pair.write(" ")
-            f_pair.write(word)
+            f_pair.write(str(word))
             f_pair.write("\n")
 
         #process prod
