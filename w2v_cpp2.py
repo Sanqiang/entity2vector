@@ -15,38 +15,55 @@ class W2V_cpp2(W2V_base):
         W2V_base.__init__(self, path, folder)
 
     def process_vector(self):
-        path_origin = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt"
+        #path_origin = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt"
+        idx2interested_words = []
+        interested_words2idx = {}
+
+        path_origin = "/Users/zhaosanqiang916/data/glove/glove.twitter.27B.200d.txt"
         path_update = "/".join((self.folder, "wordvector.txt"))
         f_update = open(path_update, "w")
         f_origin = open(path_origin, "r")
         str_update = ""
+        words = [ala[0] for ala in self.word_count]
         for line in f_origin:
             items = line.split(" ")
             word = items[0]
-            if word not in self.word_count:
+            if word not in words: #only consider the word occur in the word vector and our data set
                 continue
             nline = " ".join(items)
-            str_update = "\n".join((str_update, nline))
+            str_update = "".join((str_update, nline))
+
+            idx2interested_words.append(word)
+            interested_words2idx[word] = len(interested_words2idx)
+
+            if len(str_update) > 10000:
+                f_update.write(str_update)
+                str_update = ""
+
         f_update.write(str_update)
         f_origin.close()
         f_update.close()
 
-    def generate_word(self):
+        return idx2interested_words,interested_words2idx
+
+    def generate_word(self, idx2interested_words):
         f = open("/".join((self.folder, "pairword2.txt")), "w")
-        for word, cnt in self.word_count:
+        for word, cnt in idx2interested_words:
             #cnt = self.word_count[word]
             f.write(word)
             f.write(" ")
             f.write(str(cnt))
             f.write("\n")
 
-    def process(self):
+    def process(self, idx2interested_words, interested_words2idx):
         path_pair = "/".join((self.folder, "pairentity.txt"))
         f_pair = open(path_pair, "w")
         results = []
         n_pair = 0
-        prod2idx = {}
+        prod2idx = {} #only for current dataset not self ones
         user2idx = {}
+
+        #populate prod2idx and user2idx
         for obj in self.data:
             prod = obj["prod"]
             user = obj["user"]
@@ -54,16 +71,33 @@ class W2V_cpp2(W2V_base):
 
             for sent in text_data:
                 for word, tag in sent:
+                    if word == -1 or self.idx2word[word] not in idx2interested_words:
+                        continue
                     if self.pos_sign and tag not in self.interest_tag:
                         continue
                     if self.prod_sign:
-                        results.append([prod, word])
                         if prod not in prod2idx:
                             prod2idx[prod] = len(prod2idx)
                     if self.usr_sign:
-                        results.append([user, word])
                         if user not in user2idx:
                             user2idx[user] = len(user2idx)
+
+        for obj in self.data:
+            prod = obj["prod"]
+            user = obj["user"]
+            text_data = obj["text_data"]
+
+            for sent in text_data:
+                for word, tag in sent:
+                    if word == -1 or self.idx2word[word] not in idx2interested_words:
+                        continue
+                    word = interested_words2idx[self.idx2word[word]]
+                    if self.pos_sign and tag not in self.interest_tag:
+                        continue
+                    if self.prod_sign:
+                        results.append([prod2idx[prod], word])
+                    if self.usr_sign:
+                        results.append([user2idx[user], word])
 
             if len(results) >= 10000:
                 n_pair += len(results)
@@ -87,15 +121,15 @@ class W2V_cpp2(W2V_base):
         path_prod = "/".join((self.folder, "prod.txt"))
         f_prod = open(path_prod, "w")
         for prod in prod2idx:
-            f_prod.write(prod)
+            f_prod.write(str(prod2idx[prod]))
             f_prod.write("\n")
 
         #process user
         #process prod
-        path_user = "/".join((self.folder, "prod.txt"))
+        path_user = "/".join((self.folder, "user.txt"))
         f_user = open(path_user, "w")
         for user in user2idx:
-            f_prod.write(user)
+            f_prod.write(str(user2idx[user]))
             f_prod.write("\n")
 
 
@@ -105,13 +139,20 @@ class W2V_cpp2(W2V_base):
 
 
 def main():
-    w2v_cpp2 = W2V_cpp2("/home/sanqiang/data/yelp/review_rest.json", "yelp_rest_allalphaword_yelp_mincnt10_win10", prod_sign=True, pos_sign=True)
+    #w2v_cpp2 = W2V_cpp2("/home/sanqiang/data/yelp/review_rest.json", "yelp_rest_allalphaword_yelp_mincnt10_win10", prod_sign=True, pos_sign=True)
+    w2v_cpp2 = W2V_cpp2("/Users/zhaosanqiang916/data/yelp/review_rest.json", "yelp_rest",
+                        prod_sign=True, pos_sign=True)
     print("init")
-    w2v_cpp2.process()
-    print("process")
-    w2v_cpp2.process_vector()
+
     print("vector")
-    w2v_cpp2.generate_word()
+    idx2interested_words, interested_words2idx = w2v_cpp2.process_vector()
+    w2v_cpp2.generate_word(idx2interested_words)
+
+    print("process")
+    w2v_cpp2.process(idx2interested_words, interested_words2idx)
+
+
+
 
 main()
 
