@@ -6,6 +6,7 @@ from nltk.tokenize import TweetTokenizer, sent_tokenize, word_tokenize
 import os.path
 import re
 from w2v_base import W2V_base
+from collections import OrderedDict
 
 class W2V_cpp2(W2V_base):
     def __init__(self, path, folder, prod_sign=False, usr_sign=False, pos_sign=False):
@@ -16,7 +17,7 @@ class W2V_cpp2(W2V_base):
 
     def process_vector(self):
         #path_origin = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt"
-        idx2interested_words = []
+        idx2interested_words = {} #idx follow the word vector pretraining file
         interested_words2idx = {}
 
         path_origin = "/Users/zhaosanqiang916/data/glove/glove.twitter.27B.200d.txt"
@@ -33,7 +34,7 @@ class W2V_cpp2(W2V_base):
             nline = " ".join(items)
             str_update = "".join((str_update, nline))
 
-            idx2interested_words.append(word)
+            idx2interested_words[len(idx2interested_words)] = word
             interested_words2idx[word] = len(interested_words2idx)
 
             if len(str_update) > 10000:
@@ -46,22 +47,23 @@ class W2V_cpp2(W2V_base):
 
         return idx2interested_words,interested_words2idx
 
-    def generate_word(self, idx2interested_words):
+    def generate_word(self, interested_words2idx):
         f = open("/".join((self.folder, "pairword2.txt")), "w")
-        for word, cnt in idx2interested_words:
-            #cnt = self.word_count[word]
+        for word,cnt in self.word_count:
+            if word not in interested_words2idx:
+                continue
             f.write(word)
             f.write(" ")
             f.write(str(cnt))
             f.write("\n")
 
-    def process(self, idx2interested_words, interested_words2idx):
+    def process(self, interested_words2idx):
         path_pair = "/".join((self.folder, "pairentity.txt"))
         f_pair = open(path_pair, "w")
         results = []
         n_pair = 0
-        prod2idx = {} #only for current dataset not self ones
-        user2idx = {}
+        prod2idx = OrderedDict() #only for current dataset not self ones
+        user2idx = OrderedDict()
 
         #populate prod2idx and user2idx
         for obj in self.data:
@@ -71,7 +73,7 @@ class W2V_cpp2(W2V_base):
 
             for sent in text_data:
                 for word, tag in sent:
-                    if word == -1 or self.idx2word[word] not in idx2interested_words:
+                    if word == -1 or self.idx2word[word] not in interested_words2idx:
                         continue
                     if self.pos_sign and tag not in self.interest_tag:
                         continue
@@ -89,7 +91,7 @@ class W2V_cpp2(W2V_base):
 
             for sent in text_data:
                 for word, tag in sent:
-                    if word == -1 or self.idx2word[word] not in idx2interested_words:
+                    if word == -1 or self.idx2word[word] not in interested_words2idx:
                         continue
                     word = interested_words2idx[self.idx2word[word]]
                     if self.pos_sign and tag not in self.interest_tag:
@@ -121,6 +123,8 @@ class W2V_cpp2(W2V_base):
         path_prod = "/".join((self.folder, "prod.txt"))
         f_prod = open(path_prod, "w")
         for prod in prod2idx:
+            f_prod.write(prod)
+            f_prod.write("_")
             f_prod.write(str(prod2idx[prod]))
             f_prod.write("\n")
 
@@ -146,10 +150,10 @@ def main():
 
     print("vector")
     idx2interested_words, interested_words2idx = w2v_cpp2.process_vector()
-    w2v_cpp2.generate_word(idx2interested_words)
+    w2v_cpp2.generate_word(interested_words2idx)
 
     print("process")
-    w2v_cpp2.process(idx2interested_words, interested_words2idx)
+    w2v_cpp2.process(interested_words2idx)
 
 
 
