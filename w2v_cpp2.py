@@ -133,8 +133,8 @@ class W2V_cpp2(W2V_base):
         path_user = "/".join((self.folder, "user.txt"))
         f_user = open(path_user, "w")
         for user in user2idx:
-            f_prod.write(str(user2idx[user]))
-            f_prod.write("\n")
+            f_user.write(str(user2idx[user]))
+            f_user.write("\n")
 
 
         print("#prod", len(prod2idx))
@@ -144,8 +144,8 @@ class W2V_cpp2(W2V_base):
 
 def main():
     #w2v_cpp2 = W2V_cpp2("/home/sanqiang/data/yelp/review_rest.json", "yelp_rest_allalphaword_yelp_mincnt10_win10", prod_sign=True, pos_sign=True)
-    w2v_cpp2 = W2V_cpp2("/Users/zhaosanqiang916/data/yelp/review_rest.json", "yelp_rest",
-                        prod_sign=True, pos_sign=True)
+    w2v_cpp2 = W2V_cpp2("/Users/zhaosanqiang916/data/yelp/review_rest.json", "yelp_rest3",
+                        pos_sign=True, usr_sign=True)
     print("init")
 
     print("vector")

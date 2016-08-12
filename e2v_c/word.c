@@ -76,6 +76,7 @@ void populate_wordvector(){
                 strcpy(idx2word[cur_vector_size].word,word);
 
                 save_word_hash(word, cur_vector_size);
+                printf("%s \n",word);
 
 
                 mode = 1;
