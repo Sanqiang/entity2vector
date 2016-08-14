@@ -11,8 +11,8 @@ unsigned int
 char vector_file[MAX_STRING] =  "/Users/zhaosanqiang916/git/entity2vector/yelp_rest2/wordvector.txt",//"/home/sanqiang/data/glove/glove.twitter.27B.200d.txt"
 pair_file[MAX_STRING] =  "/Users/zhaosanqiang916/git/entity2vector/yelp_rest2/pairentity.txt", //"/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pairentity.txt",
         output_file[MAX_STRING] = "/Users/zhaosanqiang916/git/entity2vector/yelp_rest2/output/", // "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pairentity.txt",
-        prod_file[MAX_STRING] = "/Users/zhaosanqiang916/git/entity2vector/yelp_rest2/user.txt"; // "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/output.txt";
-unsigned long long n_prod = 388525 /*24974 for prod entity*/, n_pair = 59751978, word_size = 60631;
+        prod_file[MAX_STRING] = "/Users/zhaosanqiang916/git/entity2vector/yelp_rest2/prod.txt"; // "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/output.txt";
+unsigned long long n_prod =   388525 /* 388525 user for prod entity 24974*/, n_pair = 59751978, word_size = 60631;
 
 const int table_size = 1e8;
-const int vocab_hash_size = 30000000;
+const int vocab_hash_size = 100000000;

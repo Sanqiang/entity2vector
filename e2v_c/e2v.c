@@ -57,7 +57,7 @@ void train_thread(void *id) {
             fflush(stdout);
         }
 
-        struct pair pair = pairs[pos]; //to update
+        struct pair pair = idx2pairs[pos]; //to update
         unsigned short context = pair.prod;
         unsigned short target = pair.token;
         pos++;
@@ -75,7 +75,11 @@ void train_thread(void *id) {
                 label = 0;
                 next_random = next_random * (unsigned long long)25214903917 + 11;
                 target = negative_sampling_table[(next_random >> 16) % table_size];
-                while(idx2word[target].prods[context] == 0){
+                /*while(check_pair(target, context) != -1){
+                    next_random = next_random * (unsigned long long)25214903917 + 11;
+                    target = negative_sampling_table[(next_random >> 16) % table_size];
+                }*/
+                while(idx2word[target].prods[context] != false){
                     next_random = next_random * (unsigned long long)25214903917 + 11;
                     target = negative_sampling_table[(next_random >> 16) % table_size];
                 }

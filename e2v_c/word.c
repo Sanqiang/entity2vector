@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct word* idx2word;
 unsigned int *word2idx;
@@ -13,7 +14,8 @@ unsigned int *word2idx;
 struct word{
     char* word;
     float* vector;
-    int* prods;
+    _Bool * prods;
+    int cnt;
 };
 
 int get_hash(char* word){
@@ -58,6 +60,7 @@ void populate_wordvector(){
         if(ch == '\n'){
             word[word_idx] = '\0';
             idx2word[cur_vector_size].vector[vector_idx] = atof(num);
+            idx2word[cur_vector_size].cnt = 0;
 
             vector_idx = 0;
             word_idx = 0;
@@ -66,9 +69,9 @@ void populate_wordvector(){
         }else if(ch == ' '){
             word[word_idx] = '\0';
             if(mode == 0){
-                idx2word[cur_vector_size].prods = (int *)calloc(n_prod, sizeof(int));
+                idx2word[cur_vector_size].prods = (_Bool *)calloc(n_prod, sizeof(_Bool));
                 for(i=0;i<n_prod;i++){
-                    idx2word[cur_vector_size].prods[i] = 0;
+                    idx2word[cur_vector_size].prods[i] = false;
                 }
                 idx2word[cur_vector_size].vector = (float *)calloc(layer1_size, sizeof(float));
 
@@ -76,8 +79,6 @@ void populate_wordvector(){
                 strcpy(idx2word[cur_vector_size].word,word);
 
                 save_word_hash(word, cur_vector_size);
-                printf("%s \n",word);
-
 
                 mode = 1;
             }else if(mode == 1){
@@ -100,7 +101,7 @@ void populate_wordvector(){
 
 void init_word(){
     //init hash table
-    word2idx = (int *)calloc(vocab_hash_size, sizeof(int));
+    word2idx = (int *)calloc(vocab_hash_size, sizeof(unsigned int));
     unsigned long long i;
     for (i = 0; i < vocab_hash_size; i++) word2idx[i] = -1;
 
