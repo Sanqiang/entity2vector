@@ -11,9 +11,7 @@
 #include "model.c"
 
 float *entity_vector, *neg_entity_vector;
-
-float alpha = 0.025;
-
+float alpha = 0.01;
 
 void init(){
     init_util();
@@ -79,9 +77,12 @@ void train_thread(void *id) {
                     next_random = next_random * (unsigned long long)25214903917 + 11;
                     target = negative_sampling_table[(next_random >> 16) % table_size];
                 }*/
-                while(idx2word[target].prods[context] != false){
+                while(1){
                     next_random = next_random * (unsigned long long)25214903917 + 11;
                     target = negative_sampling_table[(next_random >> 16) % table_size];
+                    if(!idx2word[target].prods[context]){
+                        break;
+                    }
                 }
             }
 
@@ -89,9 +90,23 @@ void train_thread(void *id) {
             for (c = 0; c < layer1_size; c++) f += entity_vector[c + l1] * idx2word[target].vector[c];
             if (f > MAX_EXP) g = (label - 1) * alpha;else if (f < -MAX_EXP) g = (label - 0) * alpha;
             else g = (label - expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))]) * alpha;
-            for (c = 0; c < layer1_size; c++) neu1e[c] += g * idx2word[target].vector[c];
+            for (c = 0; c < layer1_size; c++) {
+                neu1e[c] += g * idx2word[target].vector[c];
+                if(idx2word[target].vector[c] > 10 || idx2word[target].vector[c] < -10){
+                    printf("neu1e at %d is %f \t current g is %f \t current vector value is %f for target %d, %s \n", c, neu1e[c], g, idx2word[target].vector[c], target, idx2word[target].word);
+
+                }
+            }
+
+
         }
-        for (c = 0; c < layer1_size; c++) entity_vector[c + l1] += neu1e[c];
+        for (c = 0; c < layer1_size; c++) {
+            entity_vector[c + l1] += neu1e[c];
+            if(entity_vector[c + l1] > 10 || entity_vector[c + l1] < -10){
+                printf("warning! value \t value:\t %f alpha:\t %f \n", entity_vector[c + l1], alpha);
+
+            }
+        }
 
         if(pos >= pos_ed){
             //printf("finished one loop for one thread %llu. \n", thread_id);
@@ -102,6 +117,7 @@ void train_thread(void *id) {
     free(neu1e);
     pthread_exit(NULL);
 }
+
 
 void conclude(int ind){
     char str[15];

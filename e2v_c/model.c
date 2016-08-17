@@ -4,7 +4,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
+_Bool use_model = true;
 
 void save_model(char * path, unsigned long long n_dataset, unsigned long long layer1_size, float * dataset){
     printf("Save model path: %s \n", path);
@@ -35,6 +37,8 @@ float * load_model(char * path){
     float * dataset, decimal_num;
 
     //for size
+
+
     while (!feof(fin)) {
         ch = fgetc(fin);
 
@@ -98,5 +102,8 @@ int main(int argc, char **argv) {
     printf("%f\n", dataset2[5]);
 
     exit(0);
+
+    float * dataset = load_model("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod_aword/output/model_3");
+    printf("%f\n", dataset[0]);
 }
- */
+*/

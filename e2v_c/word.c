@@ -67,8 +67,8 @@ void populate_wordvector(){
             cur_vector_size++;
             mode = 0;
         }else if(ch == ' '){
-            word[word_idx] = '\0';
             if(mode == 0){
+                word[word_idx] = '\0';
                 idx2word[cur_vector_size].prods = (_Bool *)calloc(n_prod, sizeof(_Bool));
                 for(i=0;i<n_prod;i++){
                     idx2word[cur_vector_size].prods[i] = false;
@@ -82,6 +82,7 @@ void populate_wordvector(){
 
                 mode = 1;
             }else if(mode == 1){
+                num[word_idx] = '\0';
                 idx2word[cur_vector_size].vector[vector_idx] = atof(num);
                 vector_idx++;
             }

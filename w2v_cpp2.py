@@ -59,8 +59,11 @@ class W2V_cpp2(W2V_base):
 
     def process(self, interested_words2idx):
         path_pair = "/".join((self.folder, "pairentity.txt"))
+        path_pair_concrete = "/".join((self.folder, "pairentity_concrete.txt"))
         f_pair = open(path_pair, "w")
+        f_pair_concrete = open(path_pair_concrete, "w")
         results = []
+        results_concrete = []
         n_pair = 0
         prod2idx = OrderedDict() #only for current dataset not self ones
         user2idx = OrderedDict()
@@ -94,13 +97,15 @@ class W2V_cpp2(W2V_base):
                     if word == -1 or self.idx2word[word] not in interested_words2idx:
                         continue
                     word = interested_words2idx[self.idx2word[word]]
+                    word_concrete = self.idx2word[word]
                     if self.pos_sign and tag not in self.interest_tag:
                         continue
                     if self.prod_sign:
                         results.append([prod2idx[prod], word])
+                        results_concrete.append([prod2idx[prod], word_concrete])
                     if self.usr_sign:
                         results.append([user2idx[user], word])
-
+                        results_concrete.append([user2idx[user], word_concrete])
             if len(results) >= 10000:
                 n_pair += len(results)
                 print(len(results))
@@ -110,6 +115,12 @@ class W2V_cpp2(W2V_base):
                     f_pair.write(str(word))
                     f_pair.write("\n")
                 results = []
+                for entity, word in results_concrete:
+                    f_pair_concrete.write(str(entity))
+                    f_pair_concrete.write(" ")
+                    f_pair_concrete.write(str(word))
+                    f_pair_concrete.write("\n")
+                results_concrete = []
 
         n_pair += len(results)
         print(len(results))
@@ -118,7 +129,12 @@ class W2V_cpp2(W2V_base):
             f_pair.write(" ")
             f_pair.write(str(word))
             f_pair.write("\n")
-
+        for entity, word in results_concrete:
+            f_pair_concrete.write(str(entity))
+            f_pair_concrete.write(" ")
+            f_pair_concrete.write(str(word))
+            f_pair_concrete.write("\n")
+        results_concrete = []
         #process prod
         path_prod = "/".join((self.folder, "prod.txt"))
         f_prod = open(path_prod, "w")
@@ -133,6 +149,8 @@ class W2V_cpp2(W2V_base):
         path_user = "/".join((self.folder, "user.txt"))
         f_user = open(path_user, "w")
         for user in user2idx:
+            f_user.write(user)
+            f_user.write("_")
             f_user.write(str(user2idx[user]))
             f_user.write("\n")
 
@@ -144,8 +162,8 @@ class W2V_cpp2(W2V_base):
 
 def main():
     #w2v_cpp2 = W2V_cpp2("/home/sanqiang/data/yelp/review_rest.json", "yelp_rest_allalphaword_yelp_mincnt10_win10", prod_sign=True, pos_sign=True)
-    w2v_cpp2 = W2V_cpp2("/Users/zhaosanqiang916/data/yelp/review_rest.json", "yelp_rest3",
-                        pos_sign=True, usr_sign=True)
+    w2v_cpp2 = W2V_cpp2("/Users/zhaosanqiang916/data/yelp/review_rest.json", "yelp_rest_prod",
+                        pos_sign=True, usr_sign=False, prod_sign=True)
     print("init")
 
     print("vector")
