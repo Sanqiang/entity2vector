@@ -6,19 +6,24 @@ from collections import defaultdict, Counter, deque
 from math import sqrt
 
 import numpy as np
-import tensorflow as tf
+#import tensorflow as tf
 from nltk.tokenize import TweetTokenizer
 from sklearn.neighbors import NearestNeighbors
-from scipy.sparse import lil_matrix
+from scipy.sparse import dok_matrix
 from stemmer import PorterStemmer
-from w2v_s import W2V_c
 from gensim.models import Word2Vec
 import json
+from collections import OrderedDict
+from w2v_base import W2V_base
+from w2v_cpp2 import W2V_cpp2
 
-class Exp:
+class Exp(W2V_base):
 
-    def __init__(self, k):
+    def __init__(self, k, path, folder):
         self.k = k
+        W2V_base.__init__(self, path, folder)
+        self.train_path = "/".join((self.folder, "train.json"))
+        self.test_path = "/".join((self.folder, "test.json"))
 
     def split(self):
         import json
@@ -36,8 +41,8 @@ class Exp:
                 heapq.heappush(h, unixReviewTime)
         split = int(len(h) * 0.8)
 
-        f_train = open("/".join((self.folder, "train.json")))
-        f_test = open("/".join((self.folder, "test.json")))
+        f_train = open(self.train_path)
+        f_test = open(self.test_path)
         with open(self.path, "r") as ins:
             for line in ins:
                 obj = json.loads(line)
@@ -46,64 +51,71 @@ class Exp:
                     f_train.write(line)
                 else:
                     f_test.write(line)
-
         return split
 
-    def populate_idx(self):
-
-        self.prod2idx ={}
-        self.idx2prod = []
-        path = "/".join((self.folder, "prod.txt"))
-        with open(path, "r") as ins:
+    def populate_score(self):
+        matrix = dok_matrix((len(self.user2idx), len(self.prod2idx)), dtype=np.float)
+        with open(self.train_path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
-                prod = line[0:line.rindex("_")]
-                self.prod2idx[prod] = len(self.prod2idx)
-                self.idx2prod.append(prod)
+                title, text, user, prod, rating = self.line_parser(line)
+                user_idx = self.user2idx[user]
+                prod_idx = self.prod2idx[prod]
+                matrix[user_idx, prod_idx] = rating
+        return matrix
 
-        self.user2idx = {}
-        self.idx2user = []
-        path = "/".join((self.folder, "user.txt"))
-        with open(path, "r") as ins:
-            for line in ins:
-                user = line[0:line.rindex("_")]
-                self.user2idx[user] = len(self.user2idx)
-                self.idx2user.append(user)
+    def populate_entity(self, path_vec,path_entity, prod_model = True):
+        self.prod_model = prod_model
+        self.entity_model = Word2Vec.load_word2vec_format(path_vec)
 
-    def get_review_model(self, filename):
-        path = "/".join((self.folder, "output", filename))
-        self.review_model = Word2Vec.load_word2vec_format(path)
+        self.entity2idx = {}
+        self.idx2entity = OrderedDict()
 
-    def get_score_matrix(self):
-        filename = "/".join((self.folder, "score"))
-        if not os.path.exists(filename):
-            prod_n = len(self.prod2idx)
-            user_n = len(self.user2idx)
+        f = open(path_entity, "r")
+        for line in f:
+            entity = line[0:line.rindex("_")]
+            idx = int(line[1+line.rindex("_"):])
 
-            self.matrix = lil_matrix((prod_n, user_n), dtype=np.float)
+            self.entity2idx[entity] = idx
+            self.idx2entity[idx] = entity
 
-            with open(self.path, "r") as ins:
-                for line in ins:
-                    obj = json.loads(line)
-                    # reviewText = obj["reviewText"]
-                    # summary = obj["summary"]
-                    reviewerID = obj["reviewerID"]
-                    overall = obj["overall"]
-                    asin = obj["asin"]
-                    prod_idx = self.prod2idx[asin]
-                    user_idx = self.user2idx[reviewerID]
-                    self.matrix[prod_idx, user_idx] = overall
-            np.save(filename, self.matrix)
-        else:
-            self.matrix = np.load(filename)
+    def predict(self, product_idx, user_idx):
+        #find similar prod (which user already rate)
+        inds = (self.matrix[:,user_idx] > 0).indices
+        inds =[self.entity2idx[self.idx2prod[ind]] for ind in inds]
+        list = self.entity_model.most_similar(self.entity2idx[self.idx2prod[product_idx]], topn=self.k, restrict_vocab=inds)
 
-    def get_score_model(self):
-        matrix = self.get_score_matrix()
-        self.nbrs = NearestNeighbors(n_neighbors=self.k, algorithm='ball_tree').fit(matrix)
-        return self.nbrs
+        preidct_score = 0
+        denom = 0
+        for pair in list:
+            pair_ent = pair[0]
+            prod = pair_ent[0:pair_ent.rindex("_")]
+            prod_id = pair_ent[1+pair_ent.rindex("_"):]
+            dist = pair[1]
+            rating = self.matrix[prod_id, user_idx]
+            preidct_score += rating * dist
+            denom += dist
+        preidct_score /= denom
+        return preidct_score
 
-    def get_neighers(self, prod_idx):
-        distances, indices = self.nbrs.kneighbors(prod_idx)
+    def test(self):
+        rmse = []
+        self.matrix = self.populate_score(self.train_path)
+        self.tmatrix = self.populate_score(self.test_path)
+        for prod_idx, user_idx in self.tmatrix.keys():
+            truth_score = self.tmatrix[prod_idx, user_idx]
+            preidct_score = self.predict(prod_idx, user_idx)
+            rmse.append((truth_score - preidct_score)**2)
+        print(np.mean(rmse))
 
 
-exp = Exp("/home/sanqiang/Documents/data/Electronics_5.json", "amazon_electronics")
-emb = exp.split()
+
+
+if __name__ == '__main__':
+    exp = Exp(10, "/Users/zhaosanqiang916/data/yelp/review_rest.json", "yelp_rest_prod")
+    print("done init")
+    exp.split()
+
+    exp.populate_score()
+    exp.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/output/model_88","/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/prod.txt", prod_model=True)
+
+    exp.test()

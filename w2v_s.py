@@ -5,7 +5,7 @@ from collections import deque
 from math import sqrt
 
 import numpy as np
-import tensorflow as tf
+#import tensorflow as tf
 
 from w2v_base import W2V_base
 

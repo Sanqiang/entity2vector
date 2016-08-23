@@ -5,8 +5,14 @@ import nltk
 from nltk.tokenize import TweetTokenizer, sent_tokenize, word_tokenize
 import os.path
 import re
+import time
+import datetime
 from w2v_base import W2V_base
 from collections import OrderedDict
+from sklearn.neighbors import NearestNeighbors
+from scipy.sparse import dok_matrix
+from gensim.models import Word2Vec
+import numpy as np
 
 class W2V_cpp2(W2V_base):
     def __init__(self, path, folder, prod_sign=False, usr_sign=False, pos_sign=False):
@@ -14,6 +20,26 @@ class W2V_cpp2(W2V_base):
         self.usr_sign = usr_sign
         self.pos_sign = pos_sign
         W2V_base.__init__(self, path, folder)
+        self.k = 10
+        self.train_path = "/".join((self.folder, "train.json"))
+        self.test_path = "/".join((self.folder, "test.json"))
+
+        #process dict
+        for prod_id in self.idx2prod.keys():
+            prod = self.idx2prod[prod_id]
+            n_prod_id = prod_id - len(self.word_count) - 1
+            del self.idx2prod[prod_id]
+            self.idx2prod[n_prod_id] = prod
+            self.prod2idx[prod] = n_prod_id
+
+        for user_id in self.idx2user.keys():
+            user = self.idx2user[user_id]
+            n_user_id = user_id - len(self.word_count) - len(self.prod2idx) - 1
+            del self.idx2user[user_id]
+            self.idx2user[n_user_id] = user
+            self.user2idx[user] = n_user_id
+
+
 
     def process_vector(self):
         #path_origin = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt"
@@ -159,6 +185,107 @@ class W2V_cpp2(W2V_base):
         print("#user", len(user2idx))
         print("#pair", n_pair)
 
+    #exp
+    def split(self):
+        import json
+        import heapq
+        h = []
+        with open(self.path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                #reviewText = obj["reviewText"]
+                #summary = obj["summary"]
+                #reviewerID = obj["reviewerID"]
+                #overall = obj["overall"]
+                #asin = obj["asin"]
+                date_str = obj["date"]
+                date_time = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                time_time = time.mktime(date_time.timetuple())
+                heapq.heappush(h, time_time)
+        split = h[int(len(h) * 0.8)]
+
+        f_train = open(self.train_path, "w")
+        f_test = open(self.test_path, "w")
+        with open(self.path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                date_str = obj["date"]
+                date_time = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+                time_time = time.mktime(date_time.timetuple())
+                if time_time < split: # go to train
+                    f_train.write(line)
+                else:
+                    f_test.write(line)
+        return split
+
+    def populate_score(self, path):
+        matrix = dok_matrix((len(self.user2idx), len(self.prod2idx)), dtype=np.float)
+        with open(path, "r", encoding=self.file_encoding) as ins:
+            for line in ins:
+                title, text, user, prod, rating = self.line_parser(line)
+                user_idx = self.user2idx[user]
+                prod_idx = self.prod2idx[prod]
+                if user_idx >= len(self.user2idx) or prod_idx >= len(self.prod2idx):
+                    print("out range")
+                matrix[user_idx, prod_idx] = rating
+        return matrix
+
+    def populate_entity(self, path_vec,path_entity, prod_model = True):
+        self.prod_model = prod_model
+        self.entity_model = Word2Vec.load_word2vec_format(path_vec)
+
+        self.entity2idx = {}
+        self.idx2entity = OrderedDict()
+
+        f = open(path_entity, "r")
+        for line in f:
+            entity = line[0:line.rindex("_")]
+            idx = int(line[1+line.rindex("_"):])
+
+            self.entity2idx[entity] = idx
+            self.idx2entity[idx] = entity
+
+    def predict(self, product_idx, user_idx):
+        #find similar prod (which user already rate)
+        inds = (self.matrix[user_idx,:] > 0).indices
+        inds =[self.entity2idx[self.idx2prod[ind]] for ind in inds]
+        entity_idx = self.entity2idx[self.idx2prod[product_idx]]
+        entity = self.idx2entity[entity_idx]
+        list = self.entity_model.most_similar("_".join((entity, str(entity_idx))), topn=self.k, restrict_vocab=inds)
+
+        if len(list) == 0:
+            if len(inds) == 0:
+                return 0
+            else:
+                print("x")
+                return 0
+
+
+        preidct_score = 0
+        denom = 0
+        for pair in list:
+            pair_ent = pair[0]
+            prod = pair_ent[0:pair_ent.rindex("_")]
+            prod_id = int(pair_ent[1+pair_ent.rindex("_"):])
+            dist = pair[1]
+            rating = self.matrix[user_idx, prod_id]
+            preidct_score += rating * dist
+            denom += dist
+        preidct_score /= denom
+        return preidct_score
+
+    def test(self):
+        rmse = []
+        self.matrix = self.populate_score(self.train_path)
+        self.tmatrix = self.populate_score(self.test_path)
+        for user_idx, prod_idx in self.tmatrix.keys():
+            truth_score = self.tmatrix[user_idx, prod_idx]
+            preidct_score = self.predict(prod_idx, user_idx)
+            if preidct_score == 0:
+                continue
+            rmse.append((truth_score - preidct_score)**2)
+        print(np.mean(rmse))
+
 
 def main():
     #w2v_cpp2 = W2V_cpp2("/home/sanqiang/data/yelp/review_rest.json", "yelp_rest_allalphaword_yelp_mincnt10_win10", prod_sign=True, pos_sign=True)
@@ -166,13 +293,21 @@ def main():
                         pos_sign=True, usr_sign=False, prod_sign=True)
     print("init")
 
-    print("vector")
-    idx2interested_words, interested_words2idx = w2v_cpp2.process_vector()
-    w2v_cpp2.generate_word(interested_words2idx)
+    if False:
+        print("vector")
+        idx2interested_words, interested_words2idx = w2v_cpp2.process_vector()
+        w2v_cpp2.generate_word(interested_words2idx)
 
-    print("process")
-    w2v_cpp2.process(interested_words2idx)
+        print("process")
+        w2v_cpp2.process(interested_words2idx)
 
+    if True:
+        #w2v_cpp2.split()
+
+        w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/output/model_75",
+                            "/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/prod.txt", prod_model=True)
+
+        w2v_cpp2.test()
 
 
 
