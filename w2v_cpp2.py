@@ -13,14 +13,16 @@ from sklearn.neighbors import NearestNeighbors
 from scipy.sparse import dok_matrix
 from gensim.models import Word2Vec
 import numpy as np
+import math
 
 class W2V_cpp2(W2V_base):
     def __init__(self, path, folder, prod_sign=False, usr_sign=False, pos_sign=False):
+        self.method = "w2v"
         self.prod_sign = prod_sign
         self.usr_sign = usr_sign
         self.pos_sign = pos_sign
         W2V_base.__init__(self, path, folder)
-        self.k = 10
+        self.k = 5
         self.train_path = "/".join((self.folder, "train.json"))
         self.test_path = "/".join((self.folder, "test.json"))
 
@@ -231,6 +233,8 @@ class W2V_cpp2(W2V_base):
         return matrix
 
     def populate_entity(self, path_vec,path_entity, prod_model = True):
+        self.path_vec = path_vec
+        self.path_entity = path_entity
         self.prod_model = prod_model
         self.entity_model = Word2Vec.load_word2vec_format(path_vec)
 
@@ -239,40 +243,92 @@ class W2V_cpp2(W2V_base):
 
         f = open(path_entity, "r")
         for line in f:
-            entity = line[0:line.rindex("_")]
-            idx = int(line[1+line.rindex("_"):])
+            if self.method == "LDA":
+                entity = line[0:-1]
+                idx = len(self.entity2idx)
 
-            self.entity2idx[entity] = idx
-            self.idx2entity[idx] = entity
+                self.entity2idx[entity] = idx
+                self.idx2entity[idx] = entity
+            else:
+                entity = line[0:line.rindex("_")]
+                idx = int(line[1 + line.rindex("_"):])
+
+                self.entity2idx[entity] = idx
+                self.idx2entity[idx] = entity
+
+
 
     def predict(self, product_idx, user_idx):
-        #find similar prod (which user already rate)
-        inds = (self.matrix[user_idx,:] > 0).indices
-        inds =[self.entity2idx[self.idx2prod[ind]] for ind in inds]
-        entity_idx = self.entity2idx[self.idx2prod[product_idx]]
-        entity = self.idx2entity[entity_idx]
-        list = self.entity_model.most_similar("_".join((entity, str(entity_idx))), topn=self.k, restrict_vocab=inds)
-
-        if len(list) == 0:
-            if len(inds) == 0:
-                return 0
+        if self.prod_model:
+            #find similar prod (which user already rate)
+            inds = (self.matrix[user_idx,:] > 0).indices
+            inds =[self.entity2idx[self.idx2prod[ind]] for ind in inds if self.idx2prod[ind] in self.entity2idx]
+            entity_idx = self.entity2idx[self.idx2prod[product_idx]]
+            entity = self.idx2entity[entity_idx]
+            if self.method == "LDA":
+                list = self.entity_model.most_similar(entity, topn=self.k,
+                                                      restrict_vocab=inds)
             else:
-                print("x")
+                list = self.entity_model.most_similar("_".join((entity, str(entity_idx))), topn=self.k, restrict_vocab=inds)
+
+            if len(list) == 0:
+                if len(inds) == 0:
+                    return 0
+                else:
+                    print("x")
+                    return 0
+
+
+            preidct_score = 0
+            denom = 0
+            for pair in list:
+                pair_ent = pair[0]
+                #prod = pair_ent[0:pair_ent.rindex("_")]
+                if self.method == "LDA":
+                    prod_id = self.prod2idx[pair_ent]
+                else:
+                    prod_id = inds[int(pair_ent[1+pair_ent.rindex("_"):])]
+                dist = pair[1]
+                rating = self.matrix[user_idx, prod_id]
+                #preidct_score += rating * dist
+                #denom += dist
+                preidct_score += rating
+                denom += 1
+            preidct_score /= denom
+            return preidct_score
+        else:
+            # find similar user (which prod already rate)
+            inds = (self.matrix.T[product_idx, :] > 0).indices
+            inds = [self.entity2idx[self.idx2user[ind]] for ind in inds if self.idx2user[ind] in self.entity2idx]
+            if user_idx not in self.idx2user or self.idx2user[user_idx] not in self.entity2idx:
+                print(self.idx2user[user_idx], "\n")
                 return 0
+            entity_idx = self.entity2idx[self.idx2user[user_idx]]
+            entity = self.idx2entity[entity_idx]
+            list = self.entity_model.most_similar("_".join((entity, str(entity_idx))), topn=self.k, restrict_vocab=inds)
 
+            if len(list) == 0:
+                if len(inds) == 0:
+                    return 0
+                else:
+                    print("x")
+                    return 0
 
-        preidct_score = 0
-        denom = 0
-        for pair in list:
-            pair_ent = pair[0]
-            prod = pair_ent[0:pair_ent.rindex("_")]
-            prod_id = int(pair_ent[1+pair_ent.rindex("_"):])
-            dist = pair[1]
-            rating = self.matrix[user_idx, prod_id]
-            preidct_score += rating * dist
-            denom += dist
-        preidct_score /= denom
-        return preidct_score
+            preidct_score = 0
+            denom = 0
+            for pair in list:
+                pair_ent = pair[0]
+                # prod = pair_ent[0:pair_ent.rindex("_")]
+                usr_id = inds[int(pair_ent[1 + pair_ent.rindex("_"):])]
+                dist = pair[1]
+                rating = self.matrix[usr_id, product_idx]
+                # preidct_score += rating * dist
+                # denom += dist
+                preidct_score += rating
+                denom += 1
+            preidct_score /= denom
+            return preidct_score
+
 
     def test(self):
         rmse = []
@@ -281,7 +337,7 @@ class W2V_cpp2(W2V_base):
         for user_idx, prod_idx in self.tmatrix.keys():
             truth_score = self.tmatrix[user_idx, prod_idx]
             preidct_score = self.predict(prod_idx, user_idx)
-            if preidct_score == 0:
+            if preidct_score is None or preidct_score == 0 or math.isnan(preidct_score):
                 continue
             rmse.append((truth_score - preidct_score)**2)
         print(np.mean(rmse))
@@ -304,9 +360,12 @@ def main():
     if True:
         #w2v_cpp2.split()
 
-        w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/output/model_75",
-                            "/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/prod.txt", prod_model=True)
+        #w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod_aword/output/model_0", "/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod_aword/prod.txt", prod_model=True)
+        w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_user_aword/output/model_75","/Users/zhaosanqiang916/git/entity2vector/yelp_rest_user_aword/user.txt",prod_model=False)
+        #w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/lda/model.txt",
+        #                          "/Users/zhaosanqiang916/git/entity2vector/lda/prod.txt", prod_model=False)
 
+        print("w2v", w2v_cpp2.k, w2v_cpp2.prod_model, w2v_cpp2.path_vec, w2v_cpp2.path_entity)
         w2v_cpp2.test()
 
 
