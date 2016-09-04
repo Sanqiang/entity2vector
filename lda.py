@@ -27,19 +27,22 @@ class W2V_cpp2(W2V_base):
         entity2id = {}
         id2entity = []
 
-        doc_id = 0
         for obj in self.data:
             doc = []
             obj_sents = obj["text_data"]
             entity = obj["prod"]
+            if entity not in entity2id:
+                entity2id[entity] = len(entity2id)
+                id2entity.append(entity)
+            doc_id = entity2id[entity]
+
             for obj_sent in obj_sents:
                 for pair in obj_sent:
                     if pair[0] >= 0:
                         doc.append((pair[0], doc_id))
             data.append(doc)
-            entity2id[entity] = doc_id
-            id2entity.append(entity)
-            doc_id += 1
+
+
 
         self.ldamodel = LdaModel(corpus=data, id2word=self.idx2word, num_topics=self.n_topic)
 

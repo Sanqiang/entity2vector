@@ -17,7 +17,7 @@ import math
 
 class W2V_cpp2(W2V_base):
     def __init__(self, path, folder, prod_sign=False, usr_sign=False, pos_sign=False):
-        self.method = "w2v"
+        self.method = "LDA"
         self.prod_sign = prod_sign
         self.usr_sign = usr_sign
         self.pos_sign = pos_sign
@@ -247,8 +247,11 @@ class W2V_cpp2(W2V_base):
                 entity = line[0:-1]
                 idx = len(self.entity2idx)
 
-                self.entity2idx[entity] = idx
-                self.idx2entity[idx] = entity
+                if entity not in self.entity2idx:
+                    self.entity2idx[entity] = idx
+                    self.idx2entity[idx] = entity
+                else:
+                    print("dup?")
             else:
                 entity = line[0:line.rindex("_")]
                 idx = int(line[1 + line.rindex("_"):])
@@ -360,12 +363,12 @@ def main():
     if True:
         #w2v_cpp2.split()
 
-        #w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod_aword/output/model_0", "/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod_aword/prod.txt", prod_model=True)
-        w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_user_aword/output/model_75","/Users/zhaosanqiang916/git/entity2vector/yelp_rest_user_aword/user.txt",prod_model=False)
-        #w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/lda/model.txt",
-        #                          "/Users/zhaosanqiang916/git/entity2vector/lda/prod.txt", prod_model=False)
+        #w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/output/model_75", "/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/prod.txt", prod_model=True)
+        #w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_user_aword/output/model_75","/Users/zhaosanqiang916/git/entity2vector/yelp_rest_user_aword/user.txt",prod_model=F)
+        w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/lda/model.txt",
+                                  "/Users/zhaosanqiang916/git/entity2vector/lda/prod.txt", prod_model=True)
 
-        print("w2v", w2v_cpp2.k, w2v_cpp2.prod_model, w2v_cpp2.path_vec, w2v_cpp2.path_entity)
+        print("LDA", w2v_cpp2.k, w2v_cpp2.prod_model, w2v_cpp2.path_vec, w2v_cpp2.path_entity)
         w2v_cpp2.test()
 
 
