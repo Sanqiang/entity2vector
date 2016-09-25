@@ -13,6 +13,6 @@ class TextProcess:
         for sent in sent_tokenize(text):
             for token in TextProcess.tknzr.tokenize(sent):
                 text_processed = " ".join((text_processed, token))
-            text_processed = "".join((text_processed,"\t"))
+            text_processed = "".join((text_processed,"\v"))
         return text_processed
 
