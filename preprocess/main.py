@@ -16,7 +16,8 @@ for line in f:
     business_id = str(obj["business_id"])
     stars = str(obj["stars"])
 
-    line_processed = "\t".join((text, user_id, business_id, stars))
+    # line_processed = "\t".join((user_id, business_id, stars, text))
+    line_processed = "\t".join((business_id, text))
     f_processed.write(line_processed)
     f_processed.write("\n")
 

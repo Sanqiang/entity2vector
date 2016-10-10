@@ -5,16 +5,26 @@
 
 
 
+struct eqstr
+{
+    bool operator()(const char* s1, const char* s2) const
+    {
+        return (s1 == s2) || (s1 && s2 && strcmp(s1, s2) == 0);
+    }
+};
+
 char* concat(char *s1, char *s2)
 {
-    char *result = malloc((strlen(s1)+strlen(s2)+1)* sizeof(char));//+1 for the zero-terminator
+    char *result = (char *)malloc((strlen(s1)+strlen(s2)+1)* sizeof(char));//+1 for the zero-terminator
     //in real code you would check for errors in malloc here
     strcpy(result, s1);
     strcat(result, s2);
     return result;
 }
 
-float * expTable;
+#define MAX_EXP 6
+#define EXP_TABLE_SIZE 1000
+float* expTable;
 void init_util(){
     //populate exp precomputing table
     int i;

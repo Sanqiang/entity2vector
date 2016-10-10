@@ -3,9 +3,14 @@ project(train)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-include_directories(SYSTEM /usr/local/include/json-c/) #for link h file
+include_directories(SYSTEM /usr/local/include) #for link h file
 link_directories(/usr/local/lib) #for link implemented lib
-set(SOURCE_FILES sample/test.c)
+#set(SOURCE_FILES sample/sparsehash.cpp)
+#set(SOURCE_FILES data.cpp)
+#include_directories(SYSTEM /fast_text)
+#link_directories(/fast_text)
+#set(SOURCE_FILES fast_text/main.cc fast_text/args.cc fast_text/utils.cc fast_text/fasttext.cc fast_text/dictionary.cc fast_text/model.cc fast_text/matrix.cc fast_text/vector.cc)
+set(SOURCE_FILES src/app.cpp src/data.cpp)
 add_executable(train ${SOURCE_FILES})
 
-target_link_libraries(train json-c)
+target_link_libraries(train)
