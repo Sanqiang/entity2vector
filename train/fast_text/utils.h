@@ -11,7 +11,6 @@
 #define FASTTEXT_UTILS_H
 
 #include <fstream>
-
 #include "real.h"
 
 #define SIGMOID_TABLE_SIZE 512
@@ -22,16 +21,17 @@ namespace fasttext {
 
 namespace utils {
 
-  real log(real);
-  real sigmoid(real);
 
-  void initTables();
-  void initSigmoid();
-  void initLog();
-  void freeTables();
+    real log(real);
+      real sigmoid(real);
 
-  int64_t size(std::ifstream&);
-  void seek(std::ifstream&, int64_t);
+      void initTables();
+      void initSigmoid();
+      void initLog();
+      void freeTables();
+
+      int64_t size(std::ifstream&);
+      void seek(std::ifstream&, int64_t);
 }
 
 }
