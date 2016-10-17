@@ -47,6 +47,18 @@ namespace entity2vec{
         model model(input_, output_, args_, threadId);
         model.setTargetCounts(data_->getCounts());
 
+        std::vector<uint32_t> line;
+        std::vector<uint32_t> labels;
+        const uint32_t ntokens = data_->nwords();
+        uint32_t localTokenCount = 0;
+        while (1){
+            real progress = real(tokenCount) / (args_->epoch * ntokens);
+            real lr = args_->lr * (1.0 - progress);
+            localTokenCount += data_->getLine(ifs, line, labels, model.rng);
+            skipgram(model, lr, line);
+
+            break;
+        }
         printf("Thread Id: %d", threadId);
 
     }
@@ -56,10 +68,9 @@ namespace entity2vec{
         std::uniform_int_distribution<> uniform(1, args_->ws);
         for (int32_t w = 0; w < line.size(); w++) {
             int32_t boundary = uniform(model.rng);
-            //const std::vector<int32_t>& ngrams = dict_->getNgrams(line[w]);
             for (int32_t c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.size()) {
-                    //model.update(ngrams, line[w + c], lr);
+                    model.update(line[w], line[w + c], lr);
                 }
             }
         }

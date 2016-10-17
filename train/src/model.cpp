@@ -55,15 +55,12 @@ namespace entity2vec {
         return negative;
     }
 
-    void model::computeHidden(const std::vector<uint32_t> &input, vector &hidden) {
+    void model::computeHidden(uint32_t input, vector &hidden) {
         hidden.zero();
-        for (auto it = input.cbegin(); it != input.cend(); ++it) {
-            hidden.addRow(*wi_, *it);
-        }
-        hidden.mul(1.0 / input.size());
+        hidden.addRow(*wi_, input);
     }
 
-    void model::initTableNegatives(const std::vector<uint64_t> &counts) {
+    void model::initTableNegatives(const std::vector<uint32_t> &counts) {
         real z = 0.0;
         for (size_t i = 0; i < counts.size(); i++) {
             z += pow(counts[i], 0.5);
@@ -77,8 +74,15 @@ namespace entity2vec {
         std::shuffle(negatives.begin(), negatives.end(), rng);
     }
 
-    void model::setTargetCounts(const std::vector<uint64_t> &counts) {
+    void model::setTargetCounts(const std::vector<uint32_t> &counts) {
         initTableNegatives(counts);
+    }
+
+    void model::update(uint32_t input, uint32_t target, real lr) {
+        computeHidden(input, hidden_);
+        loss_ += negativeSampling(target, lr);
+        nexamples_ += 1;
+        wi_->addRow(grad_, input, 1.0);
     }
 
 }

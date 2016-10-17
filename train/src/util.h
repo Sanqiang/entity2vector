@@ -25,7 +25,7 @@ namespace entity2vec {
 
         void initLog();
 
-        void seek(std::ifstream &ifs, uint64_t pos);
+        void seek(std::ifstream &ifs, uint32_t pos);
     }
 }
 

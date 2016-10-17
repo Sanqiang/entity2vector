@@ -9,12 +9,14 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <random>
 
 namespace entity2vec {
     struct entry {
         std::string word;
-        uint64_t count;
+        uint32_t count;
         uint32_t prod_id;
+        std::vector<uint32_t> subwords;
     };
 
     class data {
@@ -24,27 +26,36 @@ namespace entity2vec {
         static const uint32_t MAX_LINE_SIZE = 1024;
 
         uint8_t cur_mode = 0; //0:prod 1:text // 0:user 1:prod 2:rating 3:text
-        uint64_t cur_prod_id;
-        uint64_t word_size_;
-        uint64_t prod_size_;
+        uint32_t cur_prod_id;
+        uint32_t word_size_;
+        uint32_t prod_size_;
 
         std::vector<uint32_t> word2idx_;
         std::vector<entry> idx2words_;
         std::vector<uint32_t> prod2idx_;
         std::vector<std::string> idx2prod_;
 
+        std::shared_ptr<args> args_;
+
     public:
-        explicit data();
         explicit data(std::shared_ptr<args> args);
 
         uint32_t hash(const std::string& str) const;
         uint32_t findWord(const std::string &word) const;
         uint32_t findProd(const std::string &prod) const;
+        uint32_t getWordId(const std::string& word) const;
+        uint32_t getProdId(const std::string& prod) const;
         void addWord(const std::string& word);
         void addProd(const std::string& prod);
-        std::vector<uint64_t> getCounts();
+        std::vector<uint32_t> getCounts();
+        const std::vector<uint32_t>& getNgrams(uint32_t i) const;
+
         void readFromFile(std::istream &in);
-        uint64_t nwords();
+        void initNgrams();
+        void computeNgrams(const std::string& word, std::vector<uint64_t>& ngrams);
+        uint32_t getLine(std::istream& in, std::vector<uint32_t>& words, std::vector<uint32_t>& labels, std::minstd_rand& rng) const;
+
+        uint32_t nwords();
     };
 
 

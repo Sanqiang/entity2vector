@@ -8,21 +8,8 @@
 
 namespace entity2vec {
 
-    data::data() {
-        cur_mode = 0;
-        word_size_ = 0;
-        prod_size_ = 0;
-        word2idx_.resize(VOCAB_HASH_SIZE);
-        for (uint32_t i = 0; i < VOCAB_HASH_SIZE; i++) {
-            word2idx_[i] = -1;
-        }
-        prod2idx_.reserve(PROD_HASH_SIZE);
-        for (uint32_t i = 0; i < PROD_HASH_SIZE; i++) {
-            prod2idx_[i] = -1;
-        }
-    }
-
     data::data(std::shared_ptr<args> args) {
+        args_ = args;
         cur_mode = 0;
         word_size_ = 0;
         prod_size_ = 0;
@@ -84,12 +71,22 @@ namespace entity2vec {
         return h;
     }
 
+    uint32_t data::getWordId(const std::string &word) const {
+        uint32_t h = findWord(word);
+        return word2idx_[h];
+    }
+
+    uint32_t data::getProdId(const std::string &prod) const {
+        uint32_t h = findProd(prod);
+        return prod2idx_[h];
+    }
+
     void data::readFromFile(std::istream &in) {
         std::string word;
         char c;
         std::streambuf& sb = *in.rdbuf();
         while ((c = sb.sbumpc()) != EOF) {
-            if (c == ' ' || c == '\t' || c == '\v') {
+            if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
                 if(!word.empty()){
                     if(cur_mode == 0){
                         addProd(word);
@@ -103,6 +100,8 @@ namespace entity2vec {
                     cur_mode++;
                 }else if(c == '\v'){
 
+                }else if(c == '\n'){
+                    cur_mode = 0;
                 }
                 word.clear();
             }else{
@@ -111,12 +110,60 @@ namespace entity2vec {
         }
     }
 
-    uint64_t data::nwords() {
+    uint32_t data::getLine(std::istream &in, std::vector<uint32_t> &words, std::vector<uint32_t> &labels,
+                           std::minstd_rand &rng) const {
+        std::uniform_real_distribution<> uniform(0, 1);
+        std::string token;
+        int32_t ntokens = 0;
+        words.clear();
+        labels.clear();
+        if (in.eof()) {
+            in.clear();
+            in.seekg(std::streampos(0));
+        }
+        uint8_t cur_mode = 0;
+        std::string word;
+        char c;
+        std::streambuf& sb = *in.rdbuf();
+        while ((c = sb.sbumpc()) != EOF) {
+            if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
+                if(!word.empty()){
+                    if(cur_mode == 1){
+                        uint32_t wid = getWordId(word);
+                        words.push_back(wid);
+                        //if (wid < 0) continue;
+                        ntokens++;
+                    }else if(cur_mode == 0){
+                        uint32_t pid = getProdId(word);
+                        labels.push_back(pid);
+                    }
+                }
+
+                if(c == '\t'){
+                    cur_mode++;
+                }else if(c == '\v'){
+
+                }else if(c == '\n'){
+                    cur_mode = 0;
+                }
+                word.clear();
+            }else{
+                word.push_back(c);
+            }
+        }
+        return ntokens;
+    }
+
+    const std::vector<uint32_t>& data::getNgrams(uint32_t i) const {
+        return idx2words_[i].subwords;
+    }
+
+    uint32_t data::nwords() {
         return word_size_;
     }
 
-    std::vector<uint64_t> data::getCounts() {
-        std::vector<uint64_t> counts;
+    std::vector<uint32_t> data::getCounts() {
+        std::vector<uint32_t> counts;
         for (auto& w : idx2words_) {
             counts.push_back(w.count);
         }

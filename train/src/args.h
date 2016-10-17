@@ -23,7 +23,7 @@ namespace entity2vec {
         uint32_t wordNgrams;
         //loss_name loss;
         //model_name model;
-        uint32_t bucket;
+        //uint32_t bucket;
         uint32_t minn;
         uint32_t maxn;
         uint32_t thread;

@@ -13,8 +13,7 @@ namespace entity2vec {
         minCount = 5;
         neg = 5;
         wordNgrams = 1;
-        bucket = 2000000;
-        minn = 3;
+        minn = 0;
         maxn = 6;
         thread = 1;
         lrUpdateRate = 100;

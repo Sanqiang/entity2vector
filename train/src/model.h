@@ -25,7 +25,7 @@ namespace entity2vec {
         uint32_t isz_;
         uint32_t osz_;
         real loss_;
-        uint64_t nexamples_;
+        uint32_t nexamples_;
 
         std::vector<uint32_t> negatives;
         size_t negpos;
@@ -39,10 +39,10 @@ namespace entity2vec {
         real getLoss() const;
         uint32_t getNegative(uint32_t target);
 
-        void computeHidden(const std::vector<uint32_t>& input, vector& hidden);
-        void initTableNegatives(const std::vector<uint64_t>& counts);
-        void update(const std::vector<uint32_t>& input, uint32_t target, real lr);
-        void setTargetCounts(const std::vector<uint64_t>& counts);
+        void computeHidden(uint32_t input, vector& hidden);
+        void initTableNegatives(const std::vector<uint32_t>& counts);
+        void update(uint32_t input, uint32_t target, real lr);
+        void setTargetCounts(const std::vector<uint32_t>& counts);
 
         std::minstd_rand rng;
     };

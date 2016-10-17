@@ -22,7 +22,7 @@ namespace entity2vec {
         std::shared_ptr<matrix> input_;
         std::shared_ptr<matrix> output_;
         std::shared_ptr<model> model_;
-        std::atomic<int64_t> tokenCount;
+        std::atomic<uint32_t> tokenCount;
 
         clock_t start;
     public:
