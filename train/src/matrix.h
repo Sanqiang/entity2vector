@@ -13,16 +13,17 @@ namespace entity2vec {
     class matrix {
     public:
         real *data_;
-        int64_t m_;
-        int64_t n_;
+        uint64_t m_;
+        uint64_t n_;
 
         explicit matrix();
 
-        explicit matrix(int64_t m, int64_t n);
+        explicit matrix(uint64_t m, uint64_t n);
 
         void uniform(real a);
-        real dotRow(const vector& vec, int64_t i);
-        void addRow(const vector& vec, int64_t i, real a);
+        void zero();
+        real dotRow(const vector& vec, uint64_t i);
+        void addRow(const vector& vec, uint64_t i, real a);
 
     };
 }

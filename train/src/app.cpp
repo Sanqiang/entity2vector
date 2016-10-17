@@ -3,10 +3,16 @@
 
 using namespace entity2vec;
 
+#include "util.h"
+#include "args.h"
+#include "controller.h"
+
 int main(int argc, char** argv) {
-    std::string path = "/Users/zhaosanqiang916/data/yelp/review_processed_sample.txt";
-    std::ifstream ifs(path);
-    data d;
-    d.readFromFile(ifs);
-    ifs.close();
+    util::initTables();
+    std::shared_ptr<args> a = std::make_shared<args>();
+
+    controller con;
+    con.train(a);
+
+
 }

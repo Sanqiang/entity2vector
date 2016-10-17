@@ -7,7 +7,20 @@
 
 namespace entity2vec {
 
-    real model::binaryLogistic(int32_t target, bool label, real lr) {
+    model::model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, uint32_t seed):
+            hidden_(args->dim), output_(wo->m_), grad_(args->dim), rng(seed) {
+        wi_ = wi;
+        wo_ = wo;
+        args_ = args;
+        isz_ = wi->m_;
+        osz_ = wo->m_;
+        hsz_ = args->dim;
+        negpos = 0;
+        loss_ = 0.0;
+        nexamples_ = 1;
+    }
+
+    real model::binaryLogistic(uint32_t target, bool label, real lr) {
         real score = util::sigmoid(wo_->dotRow(hidden_, target));
         real alpha = lr * (real(label) - score);
         grad_.addRow(*wo_, target, alpha);
@@ -20,10 +33,10 @@ namespace entity2vec {
     }
 
 
-    real model::negativeSampling(int32_t target, real lr) {
+    real model::negativeSampling(uint32_t target, real lr) {
         real loss = 0.0;
         grad_.zero();
-        for (int32_t n = 0; n <= args_->neg; n++) {
+        for (uint32_t n = 0; n <= args_->neg; n++) {
             if (n == 0) {
                 loss += binaryLogistic(target, true, lr);
             } else {
@@ -33,7 +46,7 @@ namespace entity2vec {
         return loss;
     }
 
-    int32_t model::getNegative(int32_t target) {
+    uint32_t model::getNegative(uint32_t target) {
         int32_t negative;
         do {
             negative = negatives[negpos];
@@ -42,7 +55,7 @@ namespace entity2vec {
         return negative;
     }
 
-    void model::computeHidden(const std::vector<int32_t> &input, vector &hidden) {
+    void model::computeHidden(const std::vector<uint32_t> &input, vector &hidden) {
         hidden.zero();
         for (auto it = input.cbegin(); it != input.cend(); ++it) {
             hidden.addRow(*wi_, *it);
@@ -50,7 +63,7 @@ namespace entity2vec {
         hidden.mul(1.0 / input.size());
     }
 
-    void model::initTableNegatives(const std::vector<int64_t> &counts) {
+    void model::initTableNegatives(const std::vector<uint64_t> &counts) {
         real z = 0.0;
         for (size_t i = 0; i < counts.size(); i++) {
             z += pow(counts[i], 0.5);
@@ -63,4 +76,9 @@ namespace entity2vec {
         }
         std::shuffle(negatives.begin(), negatives.end(), rng);
     }
+
+    void model::setTargetCounts(const std::vector<uint64_t> &counts) {
+        initTableNegatives(counts);
+    }
+
 }

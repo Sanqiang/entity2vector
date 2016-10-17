@@ -7,7 +7,22 @@
 #include <iostream>
 
 namespace entity2vec {
+
     data::data() {
+        cur_mode = 0;
+        word_size_ = 0;
+        prod_size_ = 0;
+        word2idx_.resize(VOCAB_HASH_SIZE);
+        for (uint32_t i = 0; i < VOCAB_HASH_SIZE; i++) {
+            word2idx_[i] = -1;
+        }
+        prod2idx_.reserve(PROD_HASH_SIZE);
+        for (uint32_t i = 0; i < PROD_HASH_SIZE; i++) {
+            prod2idx_[i] = -1;
+        }
+    }
+
+    data::data(std::shared_ptr<args> args) {
         cur_mode = 0;
         word_size_ = 0;
         prod_size_ = 0;
@@ -94,5 +109,17 @@ namespace entity2vec {
                 word.push_back(c);
             }
         }
+    }
+
+    uint64_t data::nwords() {
+        return word_size_;
+    }
+
+    std::vector<uint64_t> data::getCounts() {
+        std::vector<uint64_t> counts;
+        for (auto& w : idx2words_) {
+            counts.push_back(w.count);
+        }
+        return counts;
     }
 }

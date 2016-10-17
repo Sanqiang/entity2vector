@@ -13,14 +13,13 @@ namespace entity2vec {
 
     class vector {
     public:
-        int64_t m_;
+        uint64_t m_;
         real* data_;
-        explicit vector();
-        explicit vector(int64_t m);
-        int64_t size();
+        explicit vector(uint64_t m);
+        uint64_t size();
         void zero();
-        void addRow(const matrix& A, int64_t i);
-        void addRow(const matrix& A, int64_t i, real a);
+        void addRow(const matrix& A, uint64_t i);
+        void addRow(const matrix& A, uint64_t i, real a);
         void mul(real a);
         void mul(const matrix& A, const matrix& vec);
 

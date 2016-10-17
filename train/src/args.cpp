@@ -22,6 +22,7 @@ namespace entity2vec {
         label = "__label__";
         verbose = 2;
         pretrainedVectors = "";
+        input = "/Users/zhaosanqiang916/data/yelp/review_processed_sample.txt";
     }
 
 }

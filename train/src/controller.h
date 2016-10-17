@@ -18,13 +18,18 @@ namespace entity2vec {
     class controller {
     private:
         std::shared_ptr<args> args_;
-        std::shared_ptr<data> dict_;
+        std::shared_ptr<data> data_;
         std::shared_ptr<matrix> input_;
         std::shared_ptr<matrix> output_;
         std::shared_ptr<model> model_;
         std::atomic<int64_t> tokenCount;
+
+        clock_t start;
     public:
-        void skipgram(model& model, real lr, const std::vector<int32_t>& line);
+        void trainThread(uint32_t threadId);
+
+        void train(std::shared_ptr<args> args);
+        void skipgram(model& model, real lr, const std::vector<uint32_t>& line);
     };
 }
 

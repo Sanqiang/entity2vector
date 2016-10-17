@@ -11,7 +11,7 @@ namespace entity2vec {
 namespace util{
     real *t_sigmoid = nullptr;
     real *t_log = nullptr;
-    
+
     real log(real x) {
         if (x > 1.0) {
             return 0.0;
