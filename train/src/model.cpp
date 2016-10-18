@@ -87,5 +87,4 @@ namespace entity2vec {
     real model::getLoss() const {
         return loss_ / nexamples_;
     }
-
 }

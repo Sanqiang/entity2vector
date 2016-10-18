@@ -6,6 +6,7 @@
 #define TRAIN_MATRIX_H
 
 #include <iostream>
+#include <vector>
 #include "real.h"
 #include "vector.h"
 
@@ -27,6 +28,8 @@ namespace entity2vec {
 
         void save(std::ostream& out);
         void load(std::istream& in);
+
+        std::vector<std::pair<real, int>> findSimilarRow(uint32_t target, uint32_t k);
     };
 }
 

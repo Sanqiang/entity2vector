@@ -30,29 +30,12 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="fasttext.cc" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/fast_text/fasttext.cc">
+      <file leaf-file-name="CMakeLists.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="102">
-              <caret line="260" column="33" selection-start-line="260" selection-start-column="33" selection-end-line="260" selection-end-column="33" />
-              <folding>
-                <element signature="e#0#308#0" expanded="false" />
-                <element signature="e#310#331#0" expanded="true" />
-                <element signature="e#507#810#0" expanded="false" />
-                <element signature="e#812#1280#0" expanded="false" />
-                <element signature="e#1877#2414#0" expanded="false" />
-                <element signature="e#3103#3467#0" expanded="false" />
-                <element signature="e#3469#4064#0" expanded="false" />
-                <element signature="e#4066#4564#0" expanded="false" />
-                <element signature="e#4566#5534#0" expanded="false" />
-                <element signature="e#5536#6215#0" expanded="false" />
-                <element signature="e#6217#6793#0" expanded="false" />
-                <element signature="e#6795#6982#0" expanded="false" />
-                <element signature="e#6984#7437#0" expanded="false" />
-                <element signature="e#7439#7566#0" expanded="false" />
-                <element signature="e#8948#10104#0" expanded="false" />
-                <element signature="e#10106#11417#0" expanded="false" />
-              </folding>
+            <state relative-caret-position="180">
+              <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -60,69 +43,11 @@
       <file leaf-file-name="controller.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/controller.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="143">
-              <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
+            <state relative-caret-position="315">
+              <caret line="60" column="45" selection-start-line="60" selection-start-column="45" selection-end-line="60" selection-end-column="45" />
               <folding>
                 <element signature="e#0#2#0" expanded="false" />
-                <element signature="e#48#71#0" expanded="true" />
-                <element signature="e#195#1144#0" expanded="false" />
-                <marker date="1476746454000" expanded="false" signature="3139:3543" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="args.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/args.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" column="79" selection-start-line="25" selection-start-column="79" selection-end-line="25" selection-end-column="79" />
-              <folding>
-                <element signature="e#48#65#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="data.cpp" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/data.cpp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="422">
-              <caret line="152" column="40" selection-start-line="152" selection-start-column="40" selection-end-line="152" selection-end-column="40" />
-              <folding>
-                <element signature="e#540#776#0" expanded="false" />
-                <element signature="e#1171#1398#0" expanded="false" />
-                <element signature="e#1404#1658#0" expanded="false" />
-                <element signature="e#1664#1926#0" expanded="false" />
-                <element signature="e#1932#2061#0" expanded="false" />
-                <element signature="e#2067#2196#0" expanded="false" />
-                <element signature="e#2202#3046#0" expanded="false" />
-                <element signature="e#4518#4627#0" expanded="false" />
-                <element signature="e#4633#4691#0" expanded="false" />
-                <element signature="e#4697#4755#0" expanded="false" />
-                <element signature="e#4761#4955#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="dictionary.cc" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/fast_text/dictionary.cc">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="246">
-              <caret line="259" column="0" selection-start-line="259" selection-start-column="0" selection-end-line="260" selection-end-column="32" />
-              <folding>
-                <element signature="e#854#1065#0" expanded="false" />
-                <element signature="e#1527#1585#0" expanded="false" />
-                <element signature="e#1977#2161#0" expanded="false" />
-                <element signature="e#2268#2387#0" expanded="false" />
-                <element signature="e#2389#2509#0" expanded="false" />
-                <element signature="e#3555#4129#0" expanded="false" />
-                <element signature="e#4131#4937#0" expanded="false" />
-                <element signature="e#4939#5685#0" expanded="false" />
-                <element signature="e#5687#5903#0" expanded="false" />
-                <element signature="e#5905#6104#0" expanded="false" />
-                <element signature="e#6106#6447#0" expanded="false" />
+                <element signature="e#2649#3570#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -158,24 +83,25 @@
         <option value="$PROJECT_DIR$/src/dictionary.cpp" />
         <option value="$PROJECT_DIR$/dependency.txt" />
         <option value="$PROJECT_DIR$/src/dictionary.h" />
-        <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/fast_text/utils.h" />
         <option value="$PROJECT_DIR$/src/app.cpp" />
-        <option value="$PROJECT_DIR$/fast_text/dictionary.cc" />
-        <option value="$PROJECT_DIR$/src/model.h" />
         <option value="$PROJECT_DIR$/src/util.cpp" />
         <option value="$PROJECT_DIR$/src/util.h" />
+        <option value="$PROJECT_DIR$/src/args.h" />
+        <option value="$PROJECT_DIR$/src/args.cpp" />
         <option value="$PROJECT_DIR$/src/vector.cpp" />
         <option value="$PROJECT_DIR$/src/vector.h" />
-        <option value="$PROJECT_DIR$/src/matrix.h" />
-        <option value="$PROJECT_DIR$/src/matrix.cpp" />
-        <option value="$PROJECT_DIR$/src/data.h" />
-        <option value="$PROJECT_DIR$/src/args.h" />
-        <option value="$PROJECT_DIR$/src/controller.h" />
         <option value="$PROJECT_DIR$/src/model.cpp" />
-        <option value="$PROJECT_DIR$/src/controller.cpp" />
+        <option value="$PROJECT_DIR$/src/model.h" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/sample/kbest.cpp" />
+        <option value="$PROJECT_DIR$/src/matrix.h" />
+        <option value="$PROJECT_DIR$/fast_text/dictionary.cc" />
+        <option value="$PROJECT_DIR$/src/controller.h" />
+        <option value="$PROJECT_DIR$/src/data.h" />
         <option value="$PROJECT_DIR$/src/data.cpp" />
-        <option value="$PROJECT_DIR$/src/args.cpp" />
+        <option value="$PROJECT_DIR$/src/matrix.cpp" />
+        <option value="$PROJECT_DIR$/src/controller.cpp" />
       </list>
     </option>
   </component>
@@ -245,7 +171,35 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="util" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="train" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="train" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="train" />
+              <option name="myItemType" value="com.jetbrains.cidr.projectView.CidrFilesViewHelper$MyProjectTreeStructure$1" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="train" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sample" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -483,12 +437,12 @@
       <workItem from="1475774659582" duration="23531000" />
       <workItem from="1476107948539" duration="50874000" />
       <workItem from="1476388495414" duration="55723000" />
-      <workItem from="1476681733755" duration="21484000" />
+      <workItem from="1476681733755" duration="36801000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="164722000" />
+    <option name="totallyTimeSpent" value="180039000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="52" y="23" width="1388" height="877" extended-state="0" />
@@ -562,37 +516,20 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/src/controller.cpp</url>
-          <line>57</line>
-          <option name="timeStamp" value="39" />
+          <line>77</line>
+          <option name="timeStamp" value="43" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/matrix.cpp</url>
+          <line>87</line>
+          <option name="timeStamp" value="44" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="43" />
+      <option name="time" value="45" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/include/assert.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-765">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="18" column="17" selection-start-line="0" selection-start-column="2" selection-end-line="101" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/include/fenv.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/iosfwd">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="260">
@@ -680,16 +617,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/dictionary.h" />
     <entry file="file://$PROJECT_DIR$/src/dictionary.cpp" />
-    <entry file="file://$PROJECT_DIR$/fast_text/utils.cc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="600">
-          <caret line="40" column="0" selection-start-line="40" selection-start-column="0" selection-end-line="40" selection-end-column="0" />
-          <folding>
-            <element signature="e#310#328#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fast_text/utils.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
@@ -716,14 +643,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="28" selection-start-line="15" selection-start-column="28" selection-end-line="15" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/memory">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="152">
@@ -736,14 +655,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="171">
           <caret line="292" column="23" selection-start-line="292" selection-start-column="23" selection-end-line="292" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fast_text/matrix.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="22" column="6" selection-start-line="22" selection-start-column="6" selection-end-line="22" selection-end-column="6" />
           <folding />
         </state>
       </provider>
@@ -761,16 +672,6 @@
         <state relative-caret-position="120">
           <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/vector.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="178">
-          <caret line="21" column="45" selection-start-line="21" selection-start-column="45" selection-end-line="21" selection-end-column="45" />
-          <folding>
-            <element signature="e#95#114#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -792,22 +693,164 @@
         </state>
       </provider>
     </entry>
+    <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/string">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2870">
+          <caret line="1632" column="22" selection-start-line="1632" selection-start-column="22" selection-end-line="1632" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fast_text/args.cc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="176" column="0" selection-start-line="176" selection-start-column="0" selection-end-line="188" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/iomanip">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="232" column="0" selection-start-line="232" selection-start-column="0" selection-end-line="232" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/args.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="79" selection-start-line="25" selection-start-column="79" selection-end-line="25" selection-end-column="79" />
+          <folding>
+            <element signature="e#48#65#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fast_text/fasttext.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="43" column="9" selection-start-line="43" selection-start-column="9" selection-end-line="43" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fast_text/matrix.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="22" column="6" selection-start-line="22" selection-start-column="6" selection-end-line="22" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fast_text/model.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="69" column="9" selection-start-line="69" selection-start-column="9" selection-end-line="69" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fast_text/model.cc">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="251">
+          <caret line="136" column="20" selection-start-line="136" selection-start-column="19" selection-end-line="136" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#308#0" expanded="false" />
+            <element signature="e#415#778#0" expanded="false" />
+            <element signature="e#780#1125#0" expanded="false" />
+            <element signature="e#1127#1431#0" expanded="false" />
+            <element signature="e#1433#1774#0" expanded="false" />
+            <element signature="e#1776#2154#0" expanded="false" />
+            <element signature="e#2156#2236#0" expanded="false" />
+            <element signature="e#2238#2568#0" expanded="false" />
+            <element signature="e#2570#2835#0" expanded="false" />
+            <element signature="e#2837#2988#0" expanded="false" />
+            <element signature="e#4194#4918#0" expanded="false" />
+            <element signature="e#4920#5536#0" expanded="false" />
+            <element signature="e#5538#5777#0" expanded="false" />
+            <element signature="e#5779#6187#0" expanded="false" />
+            <element signature="e#6189#6393#0" expanded="false" />
+            <element signature="e#6395#7580#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/include/math.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5580">
+          <caret line="446" column="14" selection-start-line="446" selection-start-column="14" selection-end-line="446" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/vector.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="20" column="29" selection-start-line="20" selection-start-column="29" selection-end-line="20" selection-end-column="29" />
+          <folding>
+            <element signature="e#95#114#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/model.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="600">
+          <caret line="46" column="29" selection-start-line="46" selection-start-column="29" selection-end-line="46" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/vector.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
+        <state relative-caret-position="630">
+          <caret line="77" column="17" selection-start-line="77" selection-start-column="12" selection-end-line="77" selection-end-column="17" />
           <folding>
             <element signature="e#48#67#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/queue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="481" column="19" selection-start-line="481" selection-start-column="4" selection-end-line="481" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/matrix.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="335">
+          <caret line="31" column="84" selection-start-line="31" selection-start-column="84" selection-end-line="31" selection-end-column="84" />
+          <folding>
+            <element signature="e#95#114#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/model.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="458">
+          <caret line="88" column="5" selection-start-line="88" selection-start-column="5" selection-end-line="88" selection-end-column="5" />
+          <folding>
+            <element signature="e#0#2#0" expanded="false" />
+            <element signature="e#923#1307#0" expanded="false" />
+            <element signature="e#1313#1563#0" expanded="false" />
+            <element signature="e#1569#1693#0" expanded="false" />
+            <element signature="e#1699#2190#0" expanded="false" />
+            <element signature="e#2196#2304#0" expanded="false" />
+            <element signature="e#2310#2529#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/fast_text/matrix.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="94" column="0" selection-start-line="94" selection-start-column="0" selection-end-line="98" selection-end-column="49" />
+        <state relative-caret-position="90">
+          <caret line="6" column="26" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="26" />
           <folding>
-            <element signature="e#0#308#0" expanded="false" />
             <element signature="e#433#492#0" expanded="false" />
             <element signature="e#494#581#0" expanded="false" />
             <element signature="e#583#764#0" expanded="false" />
@@ -821,188 +864,51 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/matrix.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="55" column="26" selection-start-line="55" selection-start-column="26" selection-end-line="55" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/matrix.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fast_text/vector.cc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-145">
-          <caret line="66" column="0" selection-start-line="66" selection-start-column="0" selection-end-line="71" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fast_text/model.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="67" column="9" selection-start-line="67" selection-start-column="9" selection-end-line="67" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/string">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2870">
-          <caret line="1632" column="22" selection-start-line="1632" selection-start-column="22" selection-end-line="1632" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/data.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-283">
-          <caret line="21" column="10" selection-start-line="21" selection-start-column="10" selection-end-line="21" selection-end-column="10" />
-          <folding>
-            <element signature="e#90#107#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fast_text/args.cc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="176" column="0" selection-start-line="176" selection-start-column="0" selection-end-line="188" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fast_text/fasttext.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="43" column="9" selection-start-line="43" selection-start-column="9" selection-end-line="43" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Library/Developer/CommandLineTools/usr/include/c++/v1/iomanip">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="232" column="0" selection-start-line="232" selection-start-column="0" selection-end-line="232" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/args.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fast_text/fasttext.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="260" column="33" selection-start-line="260" selection-start-column="33" selection-end-line="260" selection-end-column="33" />
+        <state relative-caret-position="218">
+          <caret line="360" column="30" selection-start-line="360" selection-start-column="25" selection-end-line="360" selection-end-column="30" />
           <folding>
             <element signature="e#0#308#0" expanded="false" />
-            <element signature="e#310#331#0" expanded="true" />
             <element signature="e#507#810#0" expanded="false" />
             <element signature="e#812#1280#0" expanded="false" />
             <element signature="e#1877#2414#0" expanded="false" />
             <element signature="e#3103#3467#0" expanded="false" />
             <element signature="e#3469#4064#0" expanded="false" />
             <element signature="e#4066#4564#0" expanded="false" />
-            <element signature="e#4566#5534#0" expanded="false" />
-            <element signature="e#5536#6215#0" expanded="false" />
             <element signature="e#6217#6793#0" expanded="false" />
             <element signature="e#6795#6982#0" expanded="false" />
             <element signature="e#6984#7437#0" expanded="false" />
             <element signature="e#7439#7566#0" expanded="false" />
             <element signature="e#8948#10104#0" expanded="false" />
-            <element signature="e#10106#11417#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/model.cpp">
+    <entry file="file://$PROJECT_DIR$/fast_text/utils.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="87" column="34" selection-start-line="87" selection-start-column="34" selection-end-line="87" selection-end-column="34" />
+        <state relative-caret-position="90">
+          <caret line="6" column="26" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="26" />
           <folding>
-            <element signature="e#0#2#0" expanded="false" />
-            <element signature="e#114#506#0" expanded="false" />
-            <element signature="e#512#917#0" expanded="false" />
-            <element signature="e#923#1307#0" expanded="false" />
-            <element signature="e#1313#1563#0" expanded="false" />
-            <element signature="e#1569#1693#0" expanded="false" />
-            <element signature="e#1699#2190#0" expanded="false" />
-            <element signature="e#2196#2304#0" expanded="false" />
-            <element signature="e#2310#2529#0" expanded="false" />
+            <element signature="e#310#328#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/model.h">
+    <entry file="file://$PROJECT_DIR$/fast_text/vector.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="38" column="20" selection-start-line="38" selection-start-column="13" selection-end-line="38" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controller.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="32" column="49" selection-start-line="32" selection-start-column="49" selection-end-line="32" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fast_text/model.cc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="103" column="11" selection-start-line="103" selection-start-column="11" selection-end-line="103" selection-end-column="11" />
-          <folding>
-            <element signature="e#0#308#0" expanded="false" />
-            <element signature="e#415#778#0" expanded="false" />
-            <element signature="e#780#1125#0" expanded="false" />
-            <element signature="e#1127#1431#0" expanded="false" />
-            <element signature="e#1433#1774#0" expanded="false" />
-            <element signature="e#1776#2154#0" expanded="false" />
-            <element signature="e#2156#2236#0" expanded="false" />
-            <element signature="e#2238#2568#0" expanded="false" />
-            <element signature="e#2570#2835#0" expanded="false" />
-            <element signature="e#2837#2988#0" expanded="false" />
-            <element signature="e#2990#3450#0" expanded="false" />
-            <element signature="e#3452#3631#0" expanded="false" />
-            <element signature="e#3633#4192#0" expanded="false" />
-            <element signature="e#4194#4918#0" expanded="false" />
-            <element signature="e#4920#5536#0" expanded="false" />
-            <element signature="e#5538#5777#0" expanded="false" />
-            <element signature="e#5779#6187#0" expanded="false" />
-            <element signature="e#6189#6393#0" expanded="false" />
-            <element signature="e#6395#7580#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/fast_text/dictionary.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="152">
-          <caret line="70" column="9" selection-start-line="70" selection-start-column="9" selection-end-line="70" selection-end-column="9" />
+        <state relative-caret-position="90">
+          <caret line="6" column="26" selection-start-line="6" selection-start-column="24" selection-end-line="6" selection-end-column="26" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/fast_text/dictionary.cc">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
-          <caret line="259" column="0" selection-start-line="259" selection-start-column="0" selection-end-line="260" selection-end-column="32" />
+        <state relative-caret-position="372">
+          <caret line="214" column="58" selection-start-line="214" selection-start-column="2" selection-end-line="214" selection-end-column="58" />
           <folding>
+            <element signature="e#310#333#0" expanded="false" />
             <element signature="e#854#1065#0" expanded="false" />
             <element signature="e#1527#1585#0" expanded="false" />
             <element signature="e#1977#2161#0" expanded="false" />
@@ -1010,18 +916,32 @@
             <element signature="e#2389#2509#0" expanded="false" />
             <element signature="e#3555#4129#0" expanded="false" />
             <element signature="e#4131#4937#0" expanded="false" />
-            <element signature="e#4939#5685#0" expanded="false" />
-            <element signature="e#5687#5903#0" expanded="false" />
             <element signature="e#5905#6104#0" expanded="false" />
             <element signature="e#6106#6447#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/fast_text/dictionary.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="70" column="9" selection-start-line="70" selection-start-column="9" selection-end-line="70" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controller.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/data.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="422">
-          <caret line="152" column="40" selection-start-line="152" selection-start-column="40" selection-end-line="152" selection-end-column="40" />
+        <state relative-caret-position="230">
+          <caret line="84" column="34" selection-start-line="84" selection-start-column="34" selection-end-line="84" selection-end-column="34" />
           <folding>
             <element signature="e#540#776#0" expanded="false" />
             <element signature="e#1171#1398#0" expanded="false" />
@@ -1029,34 +949,65 @@
             <element signature="e#1664#1926#0" expanded="false" />
             <element signature="e#1932#2061#0" expanded="false" />
             <element signature="e#2067#2196#0" expanded="false" />
-            <element signature="e#2202#3046#0" expanded="false" />
-            <element signature="e#4518#4627#0" expanded="false" />
-            <element signature="e#4633#4691#0" expanded="false" />
-            <element signature="e#4697#4755#0" expanded="false" />
-            <element signature="e#4761#4955#0" expanded="false" />
+            <marker date="1476821661000" expanded="false" signature="2336:3138" ph="{...}" />
+            <marker date="1476821661000" expanded="false" signature="4673:4719" ph="{...}" />
+            <marker date="1476821661000" expanded="false" signature="4749:4783" ph="{...}" />
+            <marker date="1476821661000" expanded="false" signature="4893:5047" ph="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/args.cpp">
+    <entry file="file://$PROJECT_DIR$/src/data.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="79" selection-start-line="25" selection-start-column="79" selection-end-line="25" selection-end-column="79" />
+        <state relative-caret-position="336">
+          <caret line="47" column="45" selection-start-line="47" selection-start-column="45" selection-end-line="47" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sample/kbest.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="50" selection-start-line="17" selection-start-column="12" selection-end-line="17" selection-end-column="50" />
           <folding>
-            <element signature="e#48#65#0" expanded="true" />
+            <element signature="e#0#16#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/matrix.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="630">
+          <caret line="94" column="20" selection-start-line="94" selection-start-column="20" selection-end-line="94" selection-end-column="20" />
+          <folding>
+            <element signature="e#48#67#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/args.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="171">
+          <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/controller.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="143">
-          <caret line="57" column="0" selection-start-line="57" selection-start-column="0" selection-end-line="57" selection-end-column="0" />
+        <state relative-caret-position="315">
+          <caret line="60" column="45" selection-start-line="60" selection-start-column="45" selection-end-line="60" selection-end-column="45" />
           <folding>
             <element signature="e#0#2#0" expanded="false" />
-            <element signature="e#48#71#0" expanded="true" />
-            <element signature="e#195#1144#0" expanded="false" />
-            <marker date="1476746454000" expanded="false" signature="3139:3543" ph="{...}" />
+            <element signature="e#2649#3570#0" expanded="false" />
           </folding>
         </state>
       </provider>

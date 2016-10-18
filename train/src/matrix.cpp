@@ -3,6 +3,9 @@
 //
 
 #include "matrix.h"
+#include <queue>
+#include <vector>
+#include <iostream>
 #include <random>
 
 namespace entity2vec{
@@ -58,5 +61,39 @@ namespace entity2vec{
         delete[] data_;
         data_ = new real[m_ * n_];
         in.read((char*) data_, m_ * n_ * sizeof(real));
+    }
+
+    std::vector<std::pair<real, int>> matrix::findSimilarRow(uint32_t i, uint32_t k) {
+        std::priority_queue<std::pair<real, int>> q;
+
+        real *target_arr, *temp_arr;
+        target_arr = new real[n_];
+        for (uint32_t di = 0; di < n_; ++di) {
+            target_arr[di] = data_[i * n_ + di];
+        }
+        vector target(n_, target_arr), temp(n_);
+        target.normalize();
+
+        for (uint32_t cand = 0; cand < m_; ++cand) {
+            for (uint32_t di = 0; di < n_; ++di) {
+                temp.setData(data_[cand*n_ + di],di);
+            }
+            temp.normalize();
+
+            //cosine sim
+            real sim = 0;
+            for (uint32_t di = 0; di < n_; ++di) {
+                sim += temp.data_[di] * target.data_[di];
+            }
+            q.push(std::pair<real , int>(sim, cand));
+        }
+
+        std::vector<std::pair<real, int>> result;
+        for (uint32_t i = 0; i < k; ++i) {
+            std::pair<double, int> pair = q.top();
+            result.push_back(pair);
+            q.pop();
+        }
+        return result;
     }
 }

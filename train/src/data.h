@@ -45,6 +45,7 @@ namespace entity2vec {
         uint32_t findProd(const std::string &prod) const;
         uint32_t getWordId(const std::string& word) const;
         uint32_t getProdId(const std::string& prod) const;
+        std::string getWord(uint32_t i) const;
         void addWord(const std::string& word);
         void addProd(const std::string& prod);
         std::vector<uint32_t> getCounts();

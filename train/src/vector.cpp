@@ -5,10 +5,30 @@
 #include "vector.h"
 #include "matrix.h"
 
+#include <math.h>
+
 namespace entity2vec {
     vector::vector(uint32_t m) {
         m_ = m;
         data_ = new real[m];
+    }
+
+    vector::vector(uint32_t m, real *arr) {
+        m_ = m;
+        data_ = new real[m];
+        for (uint32_t i = 0; i < m_; ++i) {
+            data_[i] = arr[i];
+        }
+    }
+
+    void vector::setData(real *arr) {
+        for (uint32_t i = 0; i < m_; ++i) {
+            data_[i] = arr[i];
+        }
+    }
+
+    void vector::setData(real val, uint32_t i) {
+        data_[i] = val;
     }
 
     uint32_t vector::size() {
@@ -45,6 +65,17 @@ namespace entity2vec {
             for (uint32_t j = 0; j < A.n_; j++) {
                 data_[i] += A.data_[i * A.n_ + j] * vec.data_[j];
             }
+        }
+    }
+
+    void vector::normalize() {
+        real norm = 0;
+        for (uint32_t i = 0; i < m_; i++) {
+            norm += data_[i];
+        }
+        norm = sqrt(norm);
+        for (uint32_t i = 0; i < m_; i++) {
+            data_[i] /= norm;
         }
     }
 }

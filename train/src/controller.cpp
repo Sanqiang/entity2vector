@@ -63,6 +63,7 @@ namespace entity2vec{
                 localTokenCount = 0;
                 if (threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
+
                 }
             }
         }
@@ -73,6 +74,16 @@ namespace entity2vec{
         ifs.close();
     }
 
+    void controller::printWords(uint32_t i, uint32_t k) {
+        std::vector<std::pair<real, int>> pairs = input_->findSimilarRow(i, k);
+
+        std::cout << "" << data_->getWord(i) << " : ";
+        for (auto it = pairs.begin(); it != pairs.end(); ++it){
+            std::cout << data_->getWord(it->second) << "\t";
+        }
+        std::cout << std::endl;
+    }
+
     void controller::printInfo(real progress, real loss) {
         real t = real(clock() - start) / CLOCKS_PER_SEC;
         real wst = real(tokenCount) / t;
@@ -81,11 +92,17 @@ namespace entity2vec{
         int etah = eta / 3600;
         int etam = (eta - etah * 3600) / 60;
         std::cout << std::fixed;
-        std::cout << "\rProgress: " << std::setprecision(1) << 100 * progress << "%";
-        std::cout << "  words/sec/thread: " << std::setprecision(0) << wst;
-        std::cout << "  lr: " << std::setprecision(6) << lr;
-        std::cout << "  loss: " << std::setprecision(6) << loss;
-        std::cout << "  eta: " << etah << "h" << etam << "m ";
+        std::cout << "Progress: " << std::setprecision(1) << 100 * progress << "%";
+        std::cout << "words/sec/thread: " << std::setprecision(0) << wst;
+        std::cout << "lr: " << std::setprecision(6) << lr;
+        std::cout << "loss: " << std::setprecision(6) << loss;
+        std::cout << "eta: " << etah << "h" << etam << "m ";
+        std::cout << std::endl;
+        printWords(1,10);
+        printWords(2,10);
+        printWords(3,10);
+        printWords(4,10);
+        printWords(5,10);
         std::cout << std::flush;
     }
 

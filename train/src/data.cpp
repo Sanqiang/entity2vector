@@ -81,6 +81,10 @@ namespace entity2vec {
         return prod2idx_[h];
     }
 
+    std::string data::getWord(uint32_t i) const {
+        return idx2words_[i].word;
+    }
+
     void data::readFromFile(std::istream &in) {
         std::string word;
         char c;
