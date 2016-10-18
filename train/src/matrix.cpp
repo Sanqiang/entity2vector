@@ -45,4 +45,18 @@ namespace entity2vec{
             data_[i * n_ + j] += a * vec.data_[j];
         }
     }
+
+    void matrix::save(std::ostream &out) {
+        out.write((char*) &m_, sizeof(uint32_t));
+        out.write((char*) &n_, sizeof(uint32_t));
+        out.write((char*) data_, m_ * n_ * sizeof(real));
+    }
+
+    void matrix::load(std::istream &in) {
+        in.read((char*) &m_, sizeof(uint32_t));
+        in.read((char*) &n_, sizeof(uint32_t));
+        delete[] data_;
+        data_ = new real[m_ * n_];
+        in.read((char*) data_, m_ * n_ * sizeof(real));
+    }
 }

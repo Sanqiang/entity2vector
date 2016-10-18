@@ -51,11 +51,13 @@ namespace entity2vec {
         const std::vector<uint32_t>& getNgrams(uint32_t i) const;
 
         void readFromFile(std::istream &in);
-        void initNgrams();
-        void computeNgrams(const std::string& word, std::vector<uint64_t>& ngrams);
         uint32_t getLine(std::istream& in, std::vector<uint32_t>& words, std::vector<uint32_t>& labels, std::minstd_rand& rng) const;
 
         uint32_t nwords();
+        uint32_t nprods();
+
+        void save(std::ostream& out) const;
+        void load(std::istream& in);
     };
 
 

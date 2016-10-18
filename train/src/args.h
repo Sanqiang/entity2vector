@@ -33,6 +33,9 @@ namespace entity2vec {
         std::string pretrainedVectors;
 
         args();
+
+        void save(std::ostream& out);
+        void load(std::istream& in);
     };
 }
 

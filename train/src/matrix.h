@@ -25,6 +25,8 @@ namespace entity2vec {
         real dotRow(const vector& vec, uint32_t i);
         void addRow(const vector& vec, uint32_t i, real a);
 
+        void save(std::ostream& out);
+        void load(std::istream& in);
     };
 }
 

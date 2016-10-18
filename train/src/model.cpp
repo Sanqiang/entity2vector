@@ -32,7 +32,6 @@ namespace entity2vec {
         }
     }
 
-
     real model::negativeSampling(uint32_t target, real lr) {
         real loss = 0.0;
         grad_.zero();
@@ -83,6 +82,10 @@ namespace entity2vec {
         loss_ += negativeSampling(target, lr);
         nexamples_ += 1;
         wi_->addRow(grad_, input, 1.0);
+    }
+
+    real model::getLoss() const {
+        return loss_ / nexamples_;
     }
 
 }

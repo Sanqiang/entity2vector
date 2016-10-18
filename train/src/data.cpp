@@ -114,13 +114,9 @@ namespace entity2vec {
                            std::minstd_rand &rng) const {
         std::uniform_real_distribution<> uniform(0, 1);
         std::string token;
-        int32_t ntokens = 0;
+        uint32_t ntokens = 0;
         words.clear();
         labels.clear();
-        if (in.eof()) {
-            in.clear();
-            in.seekg(std::streampos(0));
-        }
         uint8_t cur_mode = 0;
         std::string word;
         char c;
@@ -145,11 +141,16 @@ namespace entity2vec {
 
                 }else if(c == '\n'){
                     cur_mode = 0;
+                    break;
                 }
                 word.clear();
             }else{
                 word.push_back(c);
             }
+        }
+        if((c = sb.sbumpc()) == EOF){
+            in.clear();
+            in.seekg(std::streampos(0));
         }
         return ntokens;
     }
@@ -162,11 +163,67 @@ namespace entity2vec {
         return word_size_;
     }
 
+    uint32_t data::nprods() {
+        return prod_size_;
+    }
+
     std::vector<uint32_t> data::getCounts() {
         std::vector<uint32_t> counts;
         for (auto& w : idx2words_) {
             counts.push_back(w.count);
         }
         return counts;
+    }
+
+    void data::save(std::ostream &out) const {
+        out.write((char*) &word_size_, sizeof(uint32_t));
+        out.write((char*) &prod_size_, sizeof(uint32_t));
+        for (uint32_t i = 0; i < word_size_; i++) {
+            entry e = idx2words_[i];
+            out.write(e.word.data(), e.word.size() * sizeof(char));
+            out.put(0);
+            out.write((char*) &(e.count), sizeof(uint32_t));
+            out.write((char*) &(e.prod_id), sizeof(uint32_t));
+        }
+        for (uint32_t i = 0; i < prod_size_; i++) {
+            out.write(idx2prod_[i].data(), idx2prod_[i].size() * sizeof(char));
+            out.put(0);
+        }
+    }
+
+    void data::load(std::istream &in) {
+        idx2words_.clear();
+        idx2prod_.clear();
+        for (uint32_t i = 0; i < VOCAB_HASH_SIZE; i++) {
+            word2idx_[i] = -1;
+        }
+        prod2idx_.reserve(PROD_HASH_SIZE);
+        for (uint32_t i = 0; i < PROD_HASH_SIZE; i++) {
+            prod2idx_[i] = -1;
+        }
+        in.read((char*) &word_size_, sizeof(uint32_t));
+        in.read((char*) &prod_size_, sizeof(uint32_t));
+
+        for (uint32_t i = 0; i < word_size_; i++) {
+            char c;
+            entry e;
+            while ((c = in.get()) != 0) {
+                e.word.push_back(c);
+            }
+            in.read((char*) &e.count, sizeof(uint32_t));
+            in.read((char*) &e.prod_id, sizeof(uint32_t));
+            idx2words_.push_back(e);
+            word2idx_[findWord(e.word)] = i;
+        }
+        for (uint32_t i = 0; i < prod_size_; i++) {
+            char c;
+            std::string prod;
+            while ((c = in.get()) != 0) {
+                prod.push_back(c);
+            }
+            idx2prod_.push_back(prod);
+            prod2idx_[findWord(prod)] = i;
+        }
+
     }
 }
