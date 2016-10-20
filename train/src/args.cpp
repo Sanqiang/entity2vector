@@ -23,7 +23,8 @@ namespace entity2vec {
         label = "__label__";
         verbose = 2;
         pretrainedVectors = "";
-        input = "/Users/zhaosanqiang916/data/yelp/review_processed.txt";
+        //input = "/Users/zhaosanqiang916/data/yelp/review_processed.txt";
+        input = "/home/sanqiang/data/yelp/review_processed.txt";
     }
 
     void args::save(std::ostream &out) {

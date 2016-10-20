@@ -3,7 +3,7 @@
 //
 
 #include "data.h"
-
+#include <memory>
 #include <iostream>
 
 namespace entity2vec {

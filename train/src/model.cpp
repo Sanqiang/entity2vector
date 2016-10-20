@@ -4,6 +4,8 @@
 
 #include "model.h"
 #include "util.h"
+#include <memory>
+#include <algorithm>
 
 namespace entity2vec {
 
