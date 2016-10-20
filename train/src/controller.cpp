@@ -22,9 +22,10 @@ namespace entity2vec{
             exit(EXIT_FAILURE);
         }
 
+        std::cout<<"start reading file"<<std::endl;
         data_->readFromFile(ifs);
         ifs.close();
-
+        std::cout<<"finish reading file"<<std::endl;
         input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
         input_->uniform(1.0 / args_->dim);
 
@@ -43,6 +44,7 @@ namespace entity2vec{
     }
 
     void controller::trainThread(uint32_t threadId) {
+        std::cout<<"finish trainThread "<<std::endl;
         std::ifstream ifs(args_->input);
 
         model model(input_, output_, args_, threadId);
@@ -52,6 +54,7 @@ namespace entity2vec{
         std::vector<uint32_t> labels;
         const uint32_t ntokens = data_->nwords();
         uint32_t localTokenCount = 0;
+        uint32_t loop = 0;
         while (tokenCount < args_->epoch * ntokens){
             real progress = real(tokenCount) / (args_->epoch * ntokens);
             real lr = args_->lr * (1.0 - progress);
@@ -61,7 +64,7 @@ namespace entity2vec{
             if (localTokenCount > args_->lrUpdateRate) {
                 tokenCount += localTokenCount;
                 localTokenCount = 0;
-                if (threadId == 0 && args_->verbose > 1) {
+                if (loop++ % 1000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
 
                 }
@@ -103,6 +106,9 @@ namespace entity2vec{
         printWords(3,10);
         printWords(4,10);
         printWords(5,10);
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << std::endl;
         std::cout << std::flush;
     }
 

@@ -8,7 +8,7 @@ class TextProcess:
 
     @classmethod
     def process(cls, text):
-        text = text.lower()
+        text = text.lower().replace("\n"," ").replace("\t"," ").replace("\v"," ")
         text_processed = ""
         for sent in sent_tokenize(text):
             for token in TextProcess.tknzr.tokenize(sent):

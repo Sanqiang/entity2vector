@@ -40,15 +40,77 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="controller.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="controller.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/controller.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="60" column="45" selection-start-line="60" selection-start-column="45" selection-end-line="60" selection-end-column="45" />
+            <state relative-caret-position="195">
+              <caret line="25" column="22" selection-start-line="25" selection-start-column="22" selection-end-line="25" selection-end-column="22" />
               <folding>
                 <element signature="e#0#2#0" expanded="false" />
-                <element signature="e#2649#3570#0" expanded="false" />
+                <element signature="e#2855#3872#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="app.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/app.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="165">
+              <caret line="14" column="10" selection-start-line="14" selection-start-column="10" selection-end-line="14" selection-end-column="10" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="controller.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/controller.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="215">
+              <caret line="30" column="13" selection-start-line="30" selection-start-column="13" selection-end-line="30" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="matrix.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/matrix.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="607">
+              <caret line="87" column="0" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
+              <folding>
+                <element signature="e#48#67#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="data.cpp" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/data.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="100" column="14" selection-start-line="100" selection-start-column="14" selection-end-line="100" selection-end-column="14" />
+              <folding>
+                <element signature="e#540#776#0" expanded="false" />
+                <element signature="e#1171#1398#0" expanded="false" />
+                <element signature="e#1404#1658#0" expanded="false" />
+                <element signature="e#1664#1926#0" expanded="false" />
+                <element signature="e#1932#2061#0" expanded="false" />
+                <element signature="e#2067#2196#0" expanded="false" />
+                <element signature="e#4697#4806#0" expanded="false" />
+                <element signature="e#4812#4870#0" expanded="false" />
+                <element signature="e#4940#5134#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="args.cpp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/args.cpp">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="25" column="66" selection-start-line="25" selection-start-column="66" selection-end-line="25" selection-end-column="66" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -88,7 +150,6 @@
         <option value="$PROJECT_DIR$/src/util.cpp" />
         <option value="$PROJECT_DIR$/src/util.h" />
         <option value="$PROJECT_DIR$/src/args.h" />
-        <option value="$PROJECT_DIR$/src/args.cpp" />
         <option value="$PROJECT_DIR$/src/vector.cpp" />
         <option value="$PROJECT_DIR$/src/vector.h" />
         <option value="$PROJECT_DIR$/src/model.cpp" />
@@ -99,9 +160,10 @@
         <option value="$PROJECT_DIR$/fast_text/dictionary.cc" />
         <option value="$PROJECT_DIR$/src/controller.h" />
         <option value="$PROJECT_DIR$/src/data.h" />
-        <option value="$PROJECT_DIR$/src/data.cpp" />
         <option value="$PROJECT_DIR$/src/matrix.cpp" />
+        <option value="$PROJECT_DIR$/src/args.cpp" />
         <option value="$PROJECT_DIR$/src/controller.cpp" />
+        <option value="$PROJECT_DIR$/src/data.cpp" />
       </list>
     </option>
   </component>
@@ -437,12 +499,12 @@
       <workItem from="1475774659582" duration="23531000" />
       <workItem from="1476107948539" duration="50874000" />
       <workItem from="1476388495414" duration="55723000" />
-      <workItem from="1476681733755" duration="36801000" />
+      <workItem from="1476681733755" duration="41255000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="180039000" />
+    <option name="totallyTimeSpent" value="184493000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="52" y="23" width="1388" height="877" extended-state="0" />
@@ -515,17 +577,12 @@
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/controller.cpp</url>
-          <line>77</line>
-          <option name="timeStamp" value="43" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/src/matrix.cpp</url>
-          <line>87</line>
-          <option name="timeStamp" value="44" />
+          <url>file://$PROJECT_DIR$/src/data.cpp</url>
+          <line>100</line>
+          <option name="timeStamp" value="52" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="45" />
+      <option name="time" value="53" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -667,14 +724,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/app.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="120">
-          <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/util.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
@@ -714,16 +763,6 @@
         <state relative-caret-position="171">
           <caret line="232" column="0" selection-start-line="232" selection-start-column="0" selection-end-line="232" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/args.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="79" selection-start-line="25" selection-start-column="79" selection-end-line="25" selection-end-column="79" />
-          <folding>
-            <element signature="e#48#65#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -930,33 +969,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/controller.h">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="20" column="26" selection-start-line="20" selection-start-column="26" selection-end-line="20" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/data.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="84" column="34" selection-start-line="84" selection-start-column="34" selection-end-line="84" selection-end-column="34" />
-          <folding>
-            <element signature="e#540#776#0" expanded="false" />
-            <element signature="e#1171#1398#0" expanded="false" />
-            <element signature="e#1404#1658#0" expanded="false" />
-            <element signature="e#1664#1926#0" expanded="false" />
-            <element signature="e#1932#2061#0" expanded="false" />
-            <element signature="e#2067#2196#0" expanded="false" />
-            <marker date="1476821661000" expanded="false" signature="2336:3138" ph="{...}" />
-            <marker date="1476821661000" expanded="false" signature="4673:4719" ph="{...}" />
-            <marker date="1476821661000" expanded="false" signature="4749:4783" ph="{...}" />
-            <marker date="1476821661000" expanded="false" signature="4893:5047" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/data.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="336">
@@ -975,16 +987,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/matrix.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="630">
-          <caret line="94" column="20" selection-start-line="94" selection-start-column="20" selection-end-line="94" selection-end-column="20" />
-          <folding>
-            <element signature="e#48#67#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -996,18 +998,70 @@
     <entry file="file://$PROJECT_DIR$/src/args.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="171">
-          <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
+          <caret line="16" column="29" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/args.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="25" column="66" selection-start-line="25" selection-start-column="66" selection-end-line="25" selection-end-column="66" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/matrix.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="607">
+          <caret line="87" column="0" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
+          <folding>
+            <element signature="e#48#67#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="14" column="10" selection-start-line="14" selection-start-column="10" selection-end-line="14" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controller.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="30" column="13" selection-start-line="30" selection-start-column="13" selection-end-line="30" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/controller.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="60" column="45" selection-start-line="60" selection-start-column="45" selection-end-line="60" selection-end-column="45" />
+        <state relative-caret-position="195">
+          <caret line="25" column="22" selection-start-line="25" selection-start-column="22" selection-end-line="25" selection-end-column="22" />
           <folding>
             <element signature="e#0#2#0" expanded="false" />
-            <element signature="e#2649#3570#0" expanded="false" />
+            <element signature="e#2855#3872#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/data.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="100" column="14" selection-start-line="100" selection-start-column="14" selection-end-line="100" selection-end-column="14" />
+          <folding>
+            <element signature="e#540#776#0" expanded="false" />
+            <element signature="e#1171#1398#0" expanded="false" />
+            <element signature="e#1404#1658#0" expanded="false" />
+            <element signature="e#1664#1926#0" expanded="false" />
+            <element signature="e#1932#2061#0" expanded="false" />
+            <element signature="e#2067#2196#0" expanded="false" />
+            <element signature="e#4697#4806#0" expanded="false" />
+            <element signature="e#4812#4870#0" expanded="false" />
+            <element signature="e#4940#5134#0" expanded="false" />
           </folding>
         </state>
       </provider>

@@ -18,12 +18,12 @@ namespace entity2vec {
         minn = 0;
         maxn = 6;
         thread = 1;
-        lrUpdateRate = 100;
+        lrUpdateRate = 0;
         t = 1e-4;
         label = "__label__";
         verbose = 2;
         pretrainedVectors = "";
-        input = "/Users/zhaosanqiang916/data/yelp/review_processed_sample.txt";
+        input = "/Users/zhaosanqiang916/data/yelp/review_processed.txt";
     }
 
     void args::save(std::ostream &out) {

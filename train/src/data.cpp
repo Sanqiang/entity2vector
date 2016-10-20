@@ -86,6 +86,7 @@ namespace entity2vec {
     }
 
     void data::readFromFile(std::istream &in) {
+        uint64_t l = 0;
         std::string word;
         char c;
         std::streambuf& sb = *in.rdbuf();
@@ -93,6 +94,7 @@ namespace entity2vec {
             if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
                 if(!word.empty()){
                     if(cur_mode == 0){
+                        std::cout<<word<<"\t"<<l++<<std::endl;
                         addProd(word);
                         cur_prod_id = prod2idx_[findProd(word)];
                     }else if(cur_mode == 1){
