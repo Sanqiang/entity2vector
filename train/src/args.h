@@ -10,7 +10,8 @@
 namespace entity2vec {
     class args {
     public:
-        std::string input;
+        std::string input_data;
+        std::string input_pretrain;
         std::string test;
         std::string output;
         double lr;

@@ -6,6 +6,8 @@
 #include "util.h"
 #include <memory>
 #include <algorithm>
+#include <fstream>
+#include "data.h"
 
 namespace entity2vec {
 

@@ -16,7 +16,7 @@ namespace entity2vec{
         args_ = args;
         data_ = std::make_shared<data>(args_);
 
-        std::ifstream ifs(args_->input);
+        std::ifstream ifs(args_->input_data);
         if (!ifs.is_open()) {
             std::cerr << "Input file cannot be opened!" << std::endl;
             exit(EXIT_FAILURE);
@@ -26,11 +26,15 @@ namespace entity2vec{
         data_->readFromFile(ifs);
         ifs.close();
         std::cout<<"finish reading file"<<std::endl;
-        input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
+        input_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
         input_->uniform(1.0 / args_->dim);
 
-        output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
+        output_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
         output_->zero();
+
+        std::cout<<"start reading pretraining file"<<std::endl;
+        populate_pretraining();
+        std::cout<<"finish reading pretraining file"<<std::endl;
 
         start = clock();
         tokenCount = 0;
@@ -45,7 +49,7 @@ namespace entity2vec{
 
     void controller::trainThread(uint32_t threadId) {
         std::cout<<"finish trainThread "<<std::endl;
-        std::ifstream ifs(args_->input);
+        std::ifstream ifs(args_->input_data);
 
         model model(input_, output_, args_, threadId);
         model.setTargetCounts(data_->getCounts());
@@ -59,12 +63,12 @@ namespace entity2vec{
             real progress = real(tokenCount) / (args_->epoch * ntokens);
             real lr = args_->lr * (1.0 - progress);
             localTokenCount += data_->getLine(ifs, line, labels, model.rng);
-            skipgram(model, lr, line);
+            //skipgram(model, lr, line);
 
             if (localTokenCount > args_->lrUpdateRate) {
                 tokenCount += localTokenCount;
                 localTokenCount = 0;
-                if (loop++ % 1000 == 0 && threadId == 0 && args_->verbose > 1) {
+                if (loop++ % 100000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
 
                 }
@@ -77,10 +81,48 @@ namespace entity2vec{
         ifs.close();
     }
 
-    void controller::printWords(uint32_t i, uint32_t k) {
+    void controller::populate_pretraining() {
+        std::ifstream ifs(args_->input_pretrain);
+        if (!ifs.is_open()) {
+            std::cerr << "Input file cannot be opened!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        uint8_t cur_mode = 0; // 0 for words, 1 for vector
+        uint32_t cur_vector_idx = 0, cur_word_idx;
+        std::string word;
+        char c;
+        std::streambuf& sb = *ifs.rdbuf();
+        while ((c = sb.sbumpc()) != EOF) {
+            if(c == '\n'){ break;}
+        } //pass the first line
+        while ((c = sb.sbumpc()) != EOF) {
+            if (c == ' ' || c == '\n') {
+                if(!word.empty()){
+                    if(cur_mode == 0){
+                        cur_word_idx = data_->getWordId(word);
+                        cur_vector_idx = 0;
+                    }else if(cur_mode == 1){
+                        input_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
+                    }
+                }
+
+                if(c == ' ' || cur_mode == 0){
+                    cur_mode = 1;
+                }else if(c == '\n'){
+                    cur_mode = 0;
+                }
+                word.clear();
+            }else{
+                word.push_back(c);
+            }
+        }
+    }
+
+    void controller::printWords(std::string word, uint32_t k) {
+        uint32_t i = data_->getWordId(word);
         std::vector<std::pair<real, int>> pairs = input_->findSimilarRow(i, k);
 
-        std::cout << "" << data_->getWord(i) << " : ";
+        std::cout << "" <<word<< " : ";
         for (auto it = pairs.begin(); it != pairs.end(); ++it){
             std::cout << data_->getWord(it->second) << "\t";
         }
@@ -101,11 +143,9 @@ namespace entity2vec{
         std::cout << "loss: " << std::setprecision(6) << loss;
         std::cout << "eta: " << etah << "h" << etam << "m ";
         std::cout << std::endl;
-        printWords(1,10);
-        printWords(2,10);
-        printWords(3,10);
-        printWords(4,10);
-        printWords(5,10);
+        printWords("steak",10);
+        //printWords("seafood",10);
+        //printWords("yummy",10);
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;

@@ -12,6 +12,7 @@
 #include "model.h"
 #include "args.h"
 #include "data.h"
+#include <atomic>
 
 namespace entity2vec {
 
@@ -31,11 +32,13 @@ namespace entity2vec {
         void train(std::shared_ptr<args> args);
         void skipgram(model& model, real lr, const std::vector<uint32_t>& line);
         void printInfo(real progress, real loss);
-        void printWords(uint32_t i, uint32_t k);
+        void printWords(std::string word, uint32_t k);
 
         void saveModel();
         void loadModel(std::istream& in);
         void loadModel(const std::string& filename);
+
+        void populate_pretraining();
 
     };
 }

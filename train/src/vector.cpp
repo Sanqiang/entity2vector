@@ -71,7 +71,7 @@ namespace entity2vec {
     void vector::normalize() {
         real norm = 0;
         for (uint32_t i = 0; i < m_; i++) {
-            norm += data_[i];
+            norm += data_[i]*data_[i];
         }
         norm = sqrt(norm);
         for (uint32_t i = 0; i < m_; i++) {

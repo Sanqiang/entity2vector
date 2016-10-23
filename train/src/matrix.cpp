@@ -63,6 +63,10 @@ namespace entity2vec{
         in.read((char*) data_, m_ * n_ * sizeof(real));
     }
 
+    void matrix::setValue(uint32_t m, uint32_t n, real val) {
+        data_[m*n_ + n] = val;
+    }
+
     std::vector<std::pair<real, int>> matrix::findSimilarRow(uint32_t i, uint32_t k) {
         std::priority_queue<std::pair<real, int>> q;
 

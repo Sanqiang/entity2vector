@@ -5,13 +5,14 @@
 #include "args.h"
 
 #include <fstream>
+#include <string>
 
 namespace entity2vec {
     args::args() {
         lr = 0.05;
-        dim = 100;
+        dim = 300;
         ws = 5;
-        epoch = 500;
+        epoch = 1000000000000;
         minCount = 5;
         neg = 5;
         wordNgrams = 1;
@@ -23,8 +24,9 @@ namespace entity2vec {
         label = "__label__";
         verbose = 2;
         pretrainedVectors = "";
-        //input = "/Users/zhaosanqiang916/data/yelp/review_processed.txt";
-        input = "/home/sanqiang/data/yelp/review_processed.txt";
+        std::string base =  "/home/sanqiang/";//getenv("HOME");
+        input_data = base + "/data/yelp/review_processed.txt";
+        input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
     }
 
     void args::save(std::ostream &out) {

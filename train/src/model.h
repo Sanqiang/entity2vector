@@ -11,6 +11,8 @@
 #include <random>
 #include <iostream>
 #include <vector>
+#include <memory>
+#include "data.h"
 
 namespace entity2vec {
     class model {

@@ -1,9 +1,7 @@
 #include "data.h"
 #include <fstream>
 #include "util.h"
-#include "args.h"
 #include "controller.h"
-#include <memory>
 
 using namespace entity2vec;
 
@@ -15,5 +13,6 @@ int main(int argc, char** argv) {
     controller con;
     con.train(a);
 
+    exit(0);
 
 }

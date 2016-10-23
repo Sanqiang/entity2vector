@@ -10,19 +10,20 @@
 #include <vector>
 #include <string>
 #include <random>
+#include <memory>
 
 namespace entity2vec {
     struct entry {
         std::string word;
         uint32_t count;
         uint32_t prod_id;
-        std::vector<uint32_t> subwords;
+        //std::vector<uint32_t> subwords;
     };
 
     class data {
     private:
         static const uint32_t VOCAB_HASH_SIZE = 30000000;
-        static const uint32_t PROD_HASH_SIZE = 50000;
+        static const uint32_t PROD_HASH_SIZE = 500000;
         static const uint32_t MAX_LINE_SIZE = 1024;
 
         uint8_t cur_mode = 0; //0:prod 1:text // 0:user 1:prod 2:rating 3:text
@@ -49,7 +50,6 @@ namespace entity2vec {
         void addWord(const std::string& word);
         void addProd(const std::string& prod);
         std::vector<uint32_t> getCounts();
-        const std::vector<uint32_t>& getNgrams(uint32_t i) const;
 
         void readFromFile(std::istream &in);
         uint32_t getLine(std::istream& in, std::vector<uint32_t>& words, std::vector<uint32_t>& labels, std::minstd_rand& rng) const;

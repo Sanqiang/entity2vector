@@ -1,6 +1,7 @@
-import os
-from text_process import TextProcess
 import json
+import os
+
+from util.text_process import TextProcess
 
 home = os.environ["HOME"]
 path = "".join((home, "/data/yelp/review.json"))

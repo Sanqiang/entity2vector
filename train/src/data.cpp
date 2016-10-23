@@ -15,12 +15,15 @@ namespace entity2vec {
         prod_size_ = 0;
         word2idx_.resize(VOCAB_HASH_SIZE);
         for (uint32_t i = 0; i < VOCAB_HASH_SIZE; i++) {
-            word2idx_[i] = -1;
+            word2idx_[i] = 0;
         }
         prod2idx_.reserve(PROD_HASH_SIZE);
         for (uint32_t i = 0; i < PROD_HASH_SIZE; i++) {
-            prod2idx_[i] = -1;
+            prod2idx_[i] = 0;
         }
+
+        //for UNK
+        addWord("<UNK>");
     }
 
     uint32_t data::hash(const std::string &str) const {
@@ -34,7 +37,7 @@ namespace entity2vec {
 
     void data::addWord(const std::string &word) {
         uint32_t h = findWord(word);
-        if (word2idx_[h] == -1) {
+        if (word2idx_[h] == 0) {
             entry e;
             e.word = word;
             e.prod_id = cur_prod_id;
@@ -48,7 +51,7 @@ namespace entity2vec {
 
     void data::addProd(const std::string &prod) {
         uint32_t h = findProd(prod);
-        if (prod2idx_[h] == -1) {
+        if (prod2idx_[h] == 0) {
             prod2idx_[h] = prod_size_++;
             idx2prod_.push_back(prod);
         }else{
@@ -57,7 +60,7 @@ namespace entity2vec {
 
     uint32_t data::findProd(const std::string &prod) const {
         uint32_t h = hash(prod) % PROD_HASH_SIZE;
-        while (prod2idx_[h] != -1 && idx2prod_[prod2idx_[h]] != prod) {
+        while (prod2idx_[h] != 0 && idx2prod_[prod2idx_[h]] != prod) {
             h = (h + 1) % PROD_HASH_SIZE;
         }
         return h;
@@ -65,7 +68,7 @@ namespace entity2vec {
 
     uint32_t data::findWord(const std::string &word) const {
         uint32_t h = hash(word) % VOCAB_HASH_SIZE;
-        while (word2idx_[h] != -1 && idx2words_[word2idx_[h]].word != word) {
+        while (word2idx_[h] != 0 && idx2words_[word2idx_[h]].word != word) {
             h = (h + 1) % VOCAB_HASH_SIZE;
         }
         return h;
@@ -86,7 +89,6 @@ namespace entity2vec {
     }
 
     void data::readFromFile(std::istream &in) {
-        uint64_t l = 0;
         std::string word;
         char c;
         std::streambuf& sb = *in.rdbuf();
@@ -94,7 +96,6 @@ namespace entity2vec {
             if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
                 if(!word.empty()){
                     if(cur_mode == 0){
-                        std::cout<<word<<"\t"<<l++<<std::endl;
                         addProd(word);
                         cur_prod_id = prod2idx_[findProd(word)];
                     }else if(cur_mode == 1){
@@ -161,10 +162,6 @@ namespace entity2vec {
         return ntokens;
     }
 
-    const std::vector<uint32_t>& data::getNgrams(uint32_t i) const {
-        return idx2words_[i].subwords;
-    }
-
     uint32_t data::nwords() {
         return word_size_;
     }
@@ -201,11 +198,11 @@ namespace entity2vec {
         idx2words_.clear();
         idx2prod_.clear();
         for (uint32_t i = 0; i < VOCAB_HASH_SIZE; i++) {
-            word2idx_[i] = -1;
+            word2idx_[i] = 0;
         }
         prod2idx_.reserve(PROD_HASH_SIZE);
         for (uint32_t i = 0; i < PROD_HASH_SIZE; i++) {
-            prod2idx_[i] = -1;
+            prod2idx_[i] = 0;
         }
         in.read((char*) &word_size_, sizeof(uint32_t));
         in.read((char*) &prod_size_, sizeof(uint32_t));
