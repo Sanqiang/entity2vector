@@ -5,6 +5,11 @@
 #include "data.h"
 #include <memory>
 #include <iostream>
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <unordered_map>
+#include <cctype>
 
 namespace entity2vec {
 
@@ -115,6 +120,11 @@ namespace entity2vec {
                 word.push_back(c);
             }
         }
+        threshold(args_->minCount);
+        if (args_->verbose > 0) {
+            std::cout << "Number of words:  " << word_size_ << std::endl;
+            std::cout << "Number of prods:  " << prod_size_ << std::endl;
+        }
     }
 
     uint32_t data::getLine(std::istream &in, std::vector<uint32_t> &words, std::vector<uint32_t> &labels,
@@ -176,6 +186,24 @@ namespace entity2vec {
             counts.push_back(w.count);
         }
         return counts;
+    }
+
+    void data::threshold(uint64_t t) {
+        sort(idx2words_.begin(), idx2words_.end(), [](const entry& e1, const entry& e2) {
+            return e1.count > e2.count;
+        });
+        idx2words_.erase(remove_if(idx2words_.begin(), idx2words_.end(), [&](const entry& e) {
+            return e.count < t;
+        }), idx2words_.end());
+        idx2words_.shrink_to_fit();
+        word_size_ = 0;
+        for (int32_t i = 0; i < VOCAB_HASH_SIZE; i++) {
+            word2idx_[i] = 0;
+        }
+        for (auto it = idx2words_.begin(); it != idx2words_.end(); ++it) {
+            uint32_t h = findWord(it->word);
+            word2idx_[h] = word_size_++;
+        }
     }
 
     void data::save(std::ostream &out) const {

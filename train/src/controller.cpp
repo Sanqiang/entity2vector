@@ -9,6 +9,8 @@
 #include <fstream>
 #include <thread>
 #include <iomanip>
+#include "util.h"
+#include <regex>
 
 namespace entity2vec{
 
@@ -32,9 +34,9 @@ namespace entity2vec{
         output_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
         output_->zero();
 
-        std::cout<<"start reading pretraining file"<<std::endl;
-        populate_pretraining();
-        std::cout<<"finish reading pretraining file"<<std::endl;
+        //std::cout<<"start reading pretraining file"<<std::endl;
+        //populate_pretraining();
+        //std::cout<<"finish reading pretraining file"<<std::endl;
 
         start = clock();
         tokenCount = 0;
@@ -48,8 +50,11 @@ namespace entity2vec{
     }
 
     void controller::trainThread(uint32_t threadId) {
-        std::cout<<"finish trainThread "<<std::endl;
-        std::ifstream ifs(args_->input_data);
+        //std::ifstream ifs(args_->input_data);
+        std::string path = args_->input_data_pattern;
+        path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
+        std::ifstream ifs(path);
+        std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
 
         model model(input_, output_, args_, threadId);
         model.setTargetCounts(data_->getCounts());
@@ -63,14 +68,13 @@ namespace entity2vec{
             real progress = real(tokenCount) / (args_->epoch * ntokens);
             real lr = args_->lr * (1.0 - progress);
             localTokenCount += data_->getLine(ifs, line, labels, model.rng);
-            //skipgram(model, lr, line);
+            skipgram(model, lr, line);
 
             if (localTokenCount > args_->lrUpdateRate) {
                 tokenCount += localTokenCount;
                 localTokenCount = 0;
                 if (loop++ % 100000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
-
                 }
             }
         }
@@ -144,8 +148,8 @@ namespace entity2vec{
         std::cout << "eta: " << etah << "h" << etam << "m ";
         std::cout << std::endl;
         printWords("steak",10);
-        //printWords("seafood",10);
-        //printWords("yummy",10);
+        printWords("seafood",10);
+        printWords("yummy",10);
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;

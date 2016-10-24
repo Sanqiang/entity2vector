@@ -12,13 +12,13 @@ namespace entity2vec {
         lr = 0.05;
         dim = 300;
         ws = 5;
-        epoch = 1000000000000;
+        epoch = 1000000;
         minCount = 5;
         neg = 5;
         wordNgrams = 1;
         minn = 0;
         maxn = 6;
-        thread = 1;
+        thread = 8;
         lrUpdateRate = 0;
         t = 1e-4;
         label = "__label__";
@@ -26,6 +26,7 @@ namespace entity2vec {
         pretrainedVectors = "";
         std::string base =  "/home/sanqiang/";//getenv("HOME");
         input_data = base + "/data/yelp/review_processed.txt";
+        input_data_pattern = base + "/data/yelp/review_processed_{i}.txt";
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
     }
 

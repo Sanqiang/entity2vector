@@ -57,6 +57,8 @@ namespace entity2vec {
         uint32_t nwords();
         uint32_t nprods();
 
+        void threshold(uint64_t t);
+
         void save(std::ostream& out) const;
         void load(std::istream& in);
     };

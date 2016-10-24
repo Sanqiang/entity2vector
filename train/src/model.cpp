@@ -50,7 +50,7 @@ namespace entity2vec {
     }
 
     uint32_t model::getNegative(uint32_t target) {
-        int32_t negative;
+        uint32_t negative;
         do {
             negative = negatives[negpos];
             negpos = (negpos + 1) % negatives.size();
