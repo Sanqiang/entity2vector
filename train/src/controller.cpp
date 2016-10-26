@@ -56,15 +56,15 @@ namespace entity2vec{
         std::ifstream ifs(path);
         std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
 
-        model model(input_, output_, args_, threadId);
-        model.setTargetCounts(data_->getCounts());
+        model model(input_, output_, args_, data_, threadId);
+        model.initWordNegSampling();
 
         std::vector<uint32_t> line;
         std::vector<uint32_t> labels;
         const uint32_t ntokens = data_->nwords();
         uint32_t localTokenCount = 0;
         uint32_t loop = 0;
-        while (tokenCount < args_->epoch * ntokens){
+        while (tokenCount < args_->epoch * ntokens || 1){
             real progress = real(tokenCount) / (args_->epoch * ntokens);
             real lr = args_->lr * (1.0 - progress);
             localTokenCount += data_->getLine(ifs, line, labels, model.rng);

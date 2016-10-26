@@ -19,6 +19,7 @@ namespace entity2vec {
         std::shared_ptr<matrix> wi_;
         std::shared_ptr<matrix> wo_;
         std::shared_ptr<args> args_;
+        std::shared_ptr<data> data_;
 
         vector hidden_;
         vector output_;
@@ -26,15 +27,17 @@ namespace entity2vec {
         uint32_t hsz_;
         uint32_t isz_;
         uint32_t osz_;
+        uint32_t n_words_;
+        uint32_t n_prods_;
         real loss_;
         uint32_t nexamples_;
 
-        std::vector<uint32_t> negatives;
+        std::vector<uint32_t> word_negatives;
         size_t negpos;
 
         static const int32_t NEGATIVE_TABLE_SIZE = 10000000;
     public:
-        model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, uint32_t seed);
+        model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, std::shared_ptr<data> data, uint32_t seed);
 
         real binaryLogistic(uint32_t target, bool label, real lr);
         real negativeSampling(uint32_t target, real lr);
@@ -42,9 +45,9 @@ namespace entity2vec {
         uint32_t getNegative(uint32_t target);
 
         void computeHidden(uint32_t input, vector& hidden);
-        void initTableNegatives(const std::vector<uint32_t>& counts);
         void update(uint32_t input, uint32_t target, real lr);
-        void setTargetCounts(const std::vector<uint32_t>& counts);
+        void initTableWordNegatives(const std::vector<uint32_t> &counts);
+        void initWordNegSampling();
 
         std::minstd_rand rng;
     };

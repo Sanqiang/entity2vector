@@ -12,7 +12,7 @@ namespace entity2vec {
         lr = 0.05;
         dim = 300;
         ws = 5;
-        epoch = 100;
+        epoch = 1000000;
         minCount = 5;
         neg = 5;
         wordNgrams = 1;

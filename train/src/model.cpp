@@ -11,7 +11,7 @@
 
 namespace entity2vec {
 
-    model::model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, uint32_t seed):
+    model::model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, std::shared_ptr<data> data, uint32_t seed):
             hidden_(args->dim), output_(wo->m_), grad_(args->dim), rng(seed) {
         wi_ = wi;
         wo_ = wo;
@@ -22,6 +22,9 @@ namespace entity2vec {
         negpos = 0;
         loss_ = 0.0;
         nexamples_ = 1;
+        data_ = data;
+        n_words_ = data_->word_size_;
+        n_prods_ = data_->prod_size_;
     }
 
     real model::binaryLogistic(uint32_t target, bool label, real lr) {
@@ -51,10 +54,21 @@ namespace entity2vec {
 
     uint32_t model::getNegative(uint32_t target) {
         uint32_t negative;
-        do {
-            negative = negatives[negpos];
-            negpos = (negpos + 1) % negatives.size();
-        } while (target == negative);
+        if(target < n_words_){ //target is word
+            do {
+                negative = word_negatives[negpos];
+                negpos = (negpos + 1) % word_negatives.size();
+            } while (target == negative);
+        }else{ //target is entity
+            do {
+                negative = word_negatives[negpos];
+                negpos = (negpos + 1) % word_negatives.size();
+                if(!data_->checkWordInProd(negative, target-data_->nwords())){
+                    break;
+                }
+            } while (1);
+        }
+
         return negative;
     }
 
@@ -63,7 +77,7 @@ namespace entity2vec {
         hidden.addRow(*wi_, input);
     }
 
-    void model::initTableNegatives(const std::vector<uint32_t> &counts) {
+    void model::initTableWordNegatives(const std::vector<uint32_t> &counts) {
         real z = 0.0;
         for (size_t i = 0; i < counts.size(); i++) {
             z += pow(counts[i], 0.5);
@@ -71,14 +85,15 @@ namespace entity2vec {
         for (size_t i = 0; i < counts.size(); i++) {
             real c = pow(counts[i], 0.5);
             for (size_t j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
-                negatives.push_back(i);
+                word_negatives.push_back(i);
             }
         }
-        std::shuffle(negatives.begin(), negatives.end(), rng);
+        std::shuffle(word_negatives.begin(), word_negatives.end(), rng);
+
     }
 
-    void model::setTargetCounts(const std::vector<uint32_t> &counts) {
-        initTableNegatives(counts);
+    void model::initWordNegSampling() {
+        initTableWordNegatives(data_->getWordCounts());
     }
 
     void model::update(uint32_t input, uint32_t target, real lr) {
