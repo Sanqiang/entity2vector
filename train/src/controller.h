@@ -30,11 +30,11 @@ namespace entity2vec {
         void trainThread(uint32_t threadId);
 
         void train(std::shared_ptr<args> args);
-        void skipgram(model& model, real lr, const std::vector<uint32_t>& line);
+        void skipgram(model& model, real lr, const std::vector<uint32_t>& line, const std::vector<uint32_t>& labels);
         void printInfo(real progress, real loss);
         void printWords(std::string word, uint32_t k);
 
-        void saveModel();
+        void saveModel(std::string name);
         void loadModel(std::istream& in);
         void loadModel(const std::string& filename);
 

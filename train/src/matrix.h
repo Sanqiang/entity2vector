@@ -31,7 +31,7 @@ namespace entity2vec {
 
         void setValue(uint32_t m, uint32_t n, real val);
 
-        std::vector<std::pair<real, int>> findSimilarRow(uint32_t target, uint32_t k);
+        std::vector<std::pair<real, int>> findSimilarRow(uint32_t target, uint32_t k, uint32_t range_start, uint32_t range_end);
     };
 }
 

@@ -67,7 +67,7 @@ namespace entity2vec{
         data_[m*n_ + n] = val;
     }
 
-    std::vector<std::pair<real, int>> matrix::findSimilarRow(uint32_t i, uint32_t k) {
+    std::vector<std::pair<real, int>> matrix::findSimilarRow(uint32_t i, uint32_t k, uint32_t range_start, uint32_t range_end) {
         std::priority_queue<std::pair<real, int>> q;
 
         real *target_arr, *temp_arr;
@@ -78,7 +78,7 @@ namespace entity2vec{
         vector target(n_, target_arr), temp(n_);
         target.normalize();
 
-        for (uint32_t cand = 0; cand < m_; ++cand) {
+        for (uint32_t cand = range_start; cand <= range_end; ++cand) {
             for (uint32_t di = 0; di < n_; ++di) {
                 temp.setData(data_[cand*n_ + di],di);
             }
