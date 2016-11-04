@@ -47,6 +47,7 @@ namespace entity2vec {
         uint32_t h = getWordHash(word);
 
         if (word2idx_[h] == 0) {
+            //todo: word comfilct
             entry_word e;
             e.word = word;
             e.prod_id = cur_prod_id;

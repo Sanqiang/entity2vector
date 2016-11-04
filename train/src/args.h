@@ -34,6 +34,11 @@ namespace entity2vec {
         uint8_t verbose;
         std::string pretrainedVectors;
 
+        uint8_t prod_flag;
+        uint8_t pretraining_flag;
+        uint8_t load_model_flag;
+        std::string load_model;
+
         args();
 
         void save(std::ostream& out);

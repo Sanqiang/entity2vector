@@ -12,13 +12,13 @@ namespace entity2vec {
         lr = 0.05;
         dim = 300;
         ws = 5;
-        epoch = 1000000;
-        minCount = 5;
+        epoch = 100000;
+        minCount = 0 ;
         neg = 5;
         wordNgrams = 1;
         minn = 0;
         maxn = 6;
-        thread = 8;
+        thread = 1;
         lrUpdateRate = 0;
         t = 1e-4;
         label = "__label__";
@@ -29,6 +29,12 @@ namespace entity2vec {
         input_data_pattern = base + "/data/yelp/review_processed_{i}.txt";
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
         output = base + "/data/model/";
+
+        prod_flag = 0;
+        pretraining_flag = 0;
+
+        load_model_flag = 0;
+        load_model = output + "test1.bin";
     }
 
     void args::save(std::ostream &out) {

@@ -10,12 +10,14 @@
 #include <thread>
 #include <iomanip>
 #include "util.h"
+#include "args.h"
 #include <regex>
 
 namespace entity2vec{
 
     void controller::train(std::shared_ptr<args> args) {
         args_ = args;
+
         data_ = std::make_shared<data>(args_);
 
         std::ifstream ifs(args_->input_data);
@@ -28,15 +30,30 @@ namespace entity2vec{
         data_->readFromFile(ifs);
         ifs.close();
         std::cout<<"finish reading file"<<std::endl;
-        input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
-        input_->uniform(1.0 / args_->dim);
 
-        output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
-        output_->zero();
+        if(args_->load_model_flag){
+            loadModel(args->load_model);
+        }else{
+            if(args_->prod_flag){
+                input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
+                input_->uniform(1.0 / args_->dim);
 
-        //std::cout<<"start reading pretraining file"<<std::endl;
-        //populate_pretraining();
-        //std::cout<<"finish reading pretraining file"<<std::endl;
+                output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
+                output_->zero();
+            }else{
+                input_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
+                input_->uniform(1.0 / args_->dim);
+
+                output_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
+                output_->zero();
+            }
+
+            if(args_->pretraining_flag) {
+                std::cout << "start reading pretraining file" << std::endl;
+                populate_pretraining();
+                std::cout << "finish reading pretraining file" << std::endl;
+            }
+        }
 
         start = clock();
         tokenCount = 0;
@@ -75,7 +92,7 @@ namespace entity2vec{
                 localTokenCount = 0;
                 if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
-                    saveModel("test" + std::to_string(threadId));
+                    saveModel("test" + std::to_string(loop));
                 }
             }
         }
@@ -150,7 +167,9 @@ namespace entity2vec{
         std::cout << std::endl;
         printWords("steak",10);
         printWords("seafood",10);
-        printWords("yummy",10);
+        printWords("delici",10);
+        printWords("yummi",10);
+        printWords("good",10);
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
@@ -168,8 +187,10 @@ namespace entity2vec{
                 }
             }
             //entity embedding
-            for (uint32_t l = 0; l < label.size(); l++) {
-                model.update(label[l] + data_->nwords(), line[w], lr);
+            if(args_->prod_flag) {
+                for (uint32_t l = 0; l < label.size(); l++) {
+                    model.update(label[l] + data_->nwords(), line[w], lr);
+                }
             }
         }
     }
@@ -183,13 +204,32 @@ namespace entity2vec{
             exit(EXIT_FAILURE);
         }
         args_->save(ofs);
-        data_->save(ofs);
+        //data_->save(ofs); //todo data serialize
         input_->save(ofs);
         output_->save(ofs);
         ofs.close();
     }
 
-    void controller::loadModel(std::istream &in) {}
+    void controller::loadModel(std::istream &in) {
+        //data_ = std::make_shared<data>(args_);
+        input_ = std::make_shared<matrix>();
+        output_ = std::make_shared<matrix>();
+        args_->load(in);
+        //data_->load(in); //todo data serialize
+        input_->load(in);
+        output_->load(in);
+        model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
+        model_->initWordNegSampling();
+    }
 
-    void controller::loadModel(const std::string &filename) {}
+    void controller::loadModel(const std::string &filename) {
+        args_ = std::make_shared<args>();
+        std::ifstream ifs(filename, std::ifstream::binary);
+        if (!ifs.is_open()) {
+            std::cerr << "Model file cannot be opened for loading!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        loadModel(ifs);
+        ifs.close();
+    }
 }
