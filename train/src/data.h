@@ -36,7 +36,6 @@ namespace entity2vec {
         static const uint32_t PROD_HASH_SIZE = 500000;
         static const uint32_t MAX_LINE_SIZE = 1024;
 
-        uint8_t cur_mode = 0; //0:prod 1:text // 0:user 1:prod 2:rating 3:text
         uint32_t cur_prod_id;
 
         std::shared_ptr<args> args_;

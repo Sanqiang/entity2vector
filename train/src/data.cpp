@@ -17,7 +17,6 @@ namespace entity2vec {
 
     data::data(std::shared_ptr<args> args) {
         args_ = args;
-        cur_mode = 0;
         word_size_ = 0;
         prod_size_ = 0;
         word2idx_.resize(VOCAB_HASH_SIZE);
@@ -47,7 +46,6 @@ namespace entity2vec {
         uint32_t h = getWordHash(word);
 
         if (word2idx_[h] == 0) {
-            //todo: word comfilct
             entry_word e;
             e.word = word;
             e.prod_id = cur_prod_id;
@@ -141,6 +139,7 @@ namespace entity2vec {
     void data::readFromFile(std::istream &in) {
         std::string word;
         char c;
+        uint8_t cur_mode = 0; //0:prod 1:text // 0:user 1:prod 2:rating 3:text
         std::streambuf& sb = *in.rdbuf();
         while ((c = sb.sbumpc()) != EOF) {
             if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
@@ -154,7 +153,7 @@ namespace entity2vec {
                 }
 
                 if(c == '\t'){
-                    cur_mode++;
+                    cur_mode = 1;
                 }else if(c == '\v'){
 
                 }else if(c == '\n'){
@@ -200,7 +199,7 @@ namespace entity2vec {
                 }
 
                 if(c == '\t'){
-                    cur_mode++;
+                    cur_mode = 1;
                 }else if(c == '\v'){
 
                 }else if(c == '\n'){
