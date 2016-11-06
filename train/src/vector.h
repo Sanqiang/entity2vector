@@ -18,11 +18,11 @@ namespace entity2vec {
         explicit vector(uint32_t m);
         explicit vector(uint32_t m, real *arr);
         void setData(real *arr);
-        void setData(real val, uint32_t i);
+        void setData(real val, int64_t i);
         uint32_t size();
         void zero();
-        void addRow(const matrix& A, uint32_t i);
-        void addRow(const matrix& A, uint32_t i, real a);
+        void addRow(const matrix& A, int64_t i);
+        void addRow(const matrix& A, int64_t i, real a);
         void mul(real a);
         void mul(const matrix& A, const matrix& vec);
         void normalize();

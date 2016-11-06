@@ -23,13 +23,13 @@ namespace entity2vec {
 
         void uniform(real a);
         void zero();
-        real dotRow(const vector& vec, uint32_t i);
-        void addRow(const vector& vec, uint32_t i, real a);
+        real dotRow(const vector& vec, int64_t i);
+        void addRow(const vector& vec, int64_t i, real a);
 
         void save(std::ostream& out);
         void load(std::istream& in);
 
-        void setValue(uint32_t m, uint32_t n, real val);
+        void setValue(int64_t m, int64_t n, real val);
 
         std::vector<std::pair<real, int>> findSimilarRow(uint32_t target, uint32_t k, uint32_t range_start, uint32_t range_end);
     };

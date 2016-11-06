@@ -18,24 +18,24 @@ namespace entity2vec {
         wordNgrams = 1;
         minn = 0;
         maxn = 6;
-        thread = 3;
+        thread = 8;
         lrUpdateRate = 0;
         t = 1e-4;
         label = "__label__";
         verbose = 2;
         pretrainedVectors = "";
         std::string base =  "/home/sanqiang/";//getenv("HOME");
+        //input_data = base + "/data/yelp/review_processed.txt";
         input_data = base + "/data/yelp/review_processed.txt";
         input_data_pattern = base + "/data/yelp/review_processed_{i}.txt";
-        //input_data_pattern = base + "/data/yelp/review_processed2.txt";
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
         output = base + "/data/model/";
 
         prod_flag = 0;
         pretraining_flag = 0;
 
-        load_model_flag = 0;
-        load_model = output + "test1.bin";
+        load_model_flag = 1;
+        load_model = output + "test300001.bin";
     }
 
     void args::save(std::ostream &out) {

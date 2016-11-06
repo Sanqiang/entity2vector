@@ -27,7 +27,7 @@ namespace entity2vec {
         }
     }
 
-    void vector::setData(real val, uint32_t i) {
+    void vector::setData(real val, int64_t i) {
         data_[i] = val;
     }
 
@@ -41,13 +41,13 @@ namespace entity2vec {
         }
     }
 
-    void vector::addRow(const matrix &A, uint32_t i) {
+    void vector::addRow(const matrix &A, int64_t i) {
         for (uint32_t j = 0; j < A.n_; j++) {
             data_[j] += A.data_[i * A.n_ + j];
         }
     }
 
-    void vector::addRow(const matrix &A, uint32_t i, real a) {
+    void vector::addRow(const matrix &A, int64_t i, real a) {
         for (uint32_t j = 0; j < A.n_; j++) {
             data_[j] += a * A.data_[i * A.n_ + j];
         }

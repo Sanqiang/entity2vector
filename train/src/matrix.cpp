@@ -35,16 +35,16 @@ namespace entity2vec{
         }
     }
 
-    real matrix::dotRow(const vector &vec, uint32_t i) {
+    real matrix::dotRow(const vector &vec, int64_t i) {
         real d = 0.0;
-        for (uint32_t j = 0; j < n_; j++) {
+        for (int64_t j = 0; j < n_; j++) {
             d += data_[i * n_ + j] * vec.data_[j];
         }
         return d;
     }
 
-    void matrix::addRow(const vector &vec, uint32_t i, real a) {
-        for (uint32_t j = 0; j < n_; j++) {
+    void matrix::addRow(const vector &vec, int64_t i, real a) {
+        for (int64_t j = 0; j < n_; j++) {
             data_[i * n_ + j] += a * vec.data_[j];
         }
     }
@@ -63,7 +63,7 @@ namespace entity2vec{
         in.read((char*) data_, m_ * n_ * sizeof(real));
     }
 
-    void matrix::setValue(uint32_t m, uint32_t n, real val) {
+    void matrix::setValue(int64_t m, int64_t n, real val) {
         data_[m*n_ + n] = val;
     }
 

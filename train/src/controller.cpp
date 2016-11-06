@@ -18,22 +18,22 @@ namespace entity2vec{
     void controller::train(std::shared_ptr<args> args) {
         args_ = args;
 
-        data_ = std::make_shared<data>(args_);
-
-        std::ifstream ifs(args_->input_data);
-        if (!ifs.is_open()) {
-            std::cerr << "Input file cannot be opened!" << std::endl;
-            exit(EXIT_FAILURE);
-        }
-
-        std::cout<<"start reading file"<<std::endl;
-        data_->readFromFile(ifs);
-        ifs.close();
-        std::cout<<"finish reading file"<<std::endl;
-
         if(args_->load_model_flag){
             loadModel(args->load_model);
         }else{
+            data_ = std::make_shared<data>(args_);
+
+            std::ifstream ifs(args_->input_data);
+            if (!ifs.is_open()) {
+                std::cerr << "Input file cannot be opened!" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            std::cout<<"start reading file"<<std::endl;
+            data_->readFromFile(ifs);
+            ifs.close();
+            std::cout<<"finish reading file"<<std::endl;
+
             if(args_->prod_flag){
                 input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
                 input_->uniform(1.0 / args_->dim);
@@ -67,17 +67,18 @@ namespace entity2vec{
     }
 
     void controller::trainThread(uint32_t threadId) {
-        //std::ifstream ifs(args_->input_data);
         std::string path = args_->input_data_pattern;
         path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
+        //std::string path = args_->input_data;
+
         std::ifstream ifs(path);
         std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
 
         model model(input_, output_, args_, data_, threadId);
         model.initWordNegSampling();
 
-        std::vector<uint32_t> line;
-        std::vector<uint32_t> labels;
+        std::vector<int64_t> line;
+        std::vector<int64_t> labels;
         const uint32_t ntokens = data_->nwords();
         uint32_t localTokenCount = 0;
         uint32_t loop = 0;
@@ -87,12 +88,12 @@ namespace entity2vec{
             localTokenCount += data_->getLine(ifs, line, labels, model.rng);
             skipgram(model, lr, line, labels);
 
-            if (localTokenCount > args_->lrUpdateRate) {
+            if (localTokenCount > args_->lrUpdateRate || 1) {
                 tokenCount += localTokenCount;
                 localTokenCount = 0;
                 if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
-                    saveModel("test" + std::to_string(loop));
+                    //saveModel("test" + std::to_string(loop));
                 }
             }
         }
@@ -176,19 +177,28 @@ namespace entity2vec{
         std::cout << std::flush;
     }
 
-    void controller::skipgram(model &model, real lr, const std::vector<uint32_t> &line, const std::vector<uint32_t> &label) {
+    void controller::skipgram(model &model, real lr, const std::vector<int64_t> &line, const std::vector<int64_t> &label) {
         std::uniform_int_distribution<> uniform(1, args_->ws);
         for (uint32_t w = 0; w < line.size(); w++) {
+            if(line[w] < 0){
+                continue;
+            }
             //word embedding
             int32_t boundary = uniform(model.rng);
             for (int32_t c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.size()) {
+                    if(line[w + c] < 0){
+                        continue;
+                    }
                     model.update(line[w], line[w + c], lr);
                 }
             }
             //entity embedding
             if(args_->prod_flag) {
                 for (uint32_t l = 0; l < label.size(); l++) {
+                    if(label[l]  < 0){
+                        continue;
+                    }
                     model.update(label[l] + data_->nwords(), line[w], lr);
                 }
             }
@@ -204,18 +214,18 @@ namespace entity2vec{
             exit(EXIT_FAILURE);
         }
         args_->save(ofs);
-        //data_->save(ofs); //todo data serialize
+        data_->save(ofs);
         input_->save(ofs);
         output_->save(ofs);
         ofs.close();
     }
 
     void controller::loadModel(std::istream &in) {
-        //data_ = std::make_shared<data>(args_);
+        data_ = std::make_shared<data>(args_);
         input_ = std::make_shared<matrix>();
         output_ = std::make_shared<matrix>();
         args_->load(in);
-        //data_->load(in); //todo data serialize
+        data_->load(in);
         input_->load(in);
         output_->load(in);
         model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
