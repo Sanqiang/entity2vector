@@ -67,9 +67,9 @@ namespace entity2vec{
     }
 
     void controller::trainThread(uint32_t threadId) {
-        std::string path = args_->input_data_pattern;
-        path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
-        //std::string path = args_->input_data;
+        //std::string path = args_->input_data_pattern;
+        //path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
+        std::string path = args_->input_data;
 
         std::ifstream ifs(path);
         std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
@@ -94,6 +94,7 @@ namespace entity2vec{
                 if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
                     //saveModel("test" + std::to_string(loop));
+                    break;
                 }
             }
         }
@@ -166,11 +167,11 @@ namespace entity2vec{
         std::cout << "loss: " << std::setprecision(6) << loss;
         std::cout << "eta: " << etah << "h" << etam << "m ";
         std::cout << std::endl;
-        printWords("steak",10);
-        printWords("seafood",10);
-        printWords("delici",10);
-        printWords("yummi",10);
-        printWords("good",10);
+//        printWords("steak",10);
+//        printWords("seafood",10);
+//        printWords("delici",10);
+//        printWords("yummi",10);
+//        printWords("good",10);
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
@@ -232,9 +233,10 @@ namespace entity2vec{
         model_->initWordNegSampling();
     }
 
-    void controller::loadModel(const std::string &filename) {
+    void controller::loadModel(const std::string &name) {
+        std::string path =args_->output + name  + ".bin";
         args_ = std::make_shared<args>();
-        std::ifstream ifs(filename, std::ifstream::binary);
+        std::ifstream ifs(path, std::ifstream::binary);
         if (!ifs.is_open()) {
             std::cerr << "Model file cannot be opened for loading!" << std::endl;
             exit(EXIT_FAILURE);

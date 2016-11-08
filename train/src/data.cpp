@@ -320,8 +320,8 @@ namespace entity2vec {
                     word.push_back(c);
                 }
 
-                e.idx2words_.push_back(word);
-                e.word2idx_[getWordHashRegardingProd(word, e.prod)] = j;
+                idx2prod_[i].idx2words_.push_back(word);
+                idx2prod_[i].word2idx_[getWordHashRegardingProd(word, e.prod)] = j;
             }
 
 

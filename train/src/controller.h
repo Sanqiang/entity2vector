@@ -18,15 +18,17 @@ namespace entity2vec {
 
     class controller {
     private:
+
+        std::atomic<uint32_t> tokenCount;
+
+        clock_t start;
+    public:
         std::shared_ptr<args> args_;
         std::shared_ptr<data> data_;
         std::shared_ptr<matrix> input_;
         std::shared_ptr<matrix> output_;
         std::shared_ptr<model> model_;
-        std::atomic<uint32_t> tokenCount;
 
-        clock_t start;
-    public:
         void trainThread(uint32_t threadId);
 
         void train(std::shared_ptr<args> args);

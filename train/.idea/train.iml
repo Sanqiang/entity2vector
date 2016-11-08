@@ -9,7 +9,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/args.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/vector.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/util.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/src/app.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/matrix.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/model.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/data.h" isTestSource="false" />
@@ -18,6 +17,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/util.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/data.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/unit_test/test_serialize.cpp" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
