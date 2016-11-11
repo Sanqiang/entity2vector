@@ -13,7 +13,7 @@ namespace entity2vec {
         dim = 300;
         ws = 5;
         epoch = 100000;
-        minCount = 0 ;
+        minCount = 3;
         neg = 5;
         wordNgrams = 1;
         minn = 0;
@@ -25,8 +25,9 @@ namespace entity2vec {
         verbose = 2;
         pretrainedVectors = "";
         std::string base =  "/home/sanqiang/";//getenv("HOME");
-        input_data = base + "/data/yelp/review_processed_sample.txt";
-        //input_data = base + "/data/yelp/review_processed.txt";
+        //input_data = base + "/data/aan/paper_processed_nostem_3.txt";
+        input_data = base + "/data/yelp/review_processed.txt";
+        //input_data = base + "/data/yelp/review_processed_nostem_7.txt";
         input_data_pattern = base + "/data/yelp/review_processed_{i}.txt";
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
         output = base + "/data/model/";
@@ -34,8 +35,8 @@ namespace entity2vec {
         prod_flag = 0;
         pretraining_flag = 0;
 
-        load_model_flag = 1;
-        load_model = output + "test1.bin";
+        load_model_flag = 0;
+        load_model = "newb330001";
     }
 
     void args::save(std::ostream &out) {
@@ -52,6 +53,7 @@ namespace entity2vec {
         out.write((char*) &(maxn), sizeof(uint32_t));
         out.write((char*) &(lrUpdateRate), sizeof(uint32_t));
         out.write((char*) &(t), sizeof(double));
+        out.write((char*) &(lr), sizeof(double));
     }
 
     void args::load(std::istream &in) {
@@ -68,6 +70,7 @@ namespace entity2vec {
         in.read((char*) &(maxn), sizeof(uint32_t));
         in.read((char*) &(lrUpdateRate), sizeof(uint32_t));
         in.read((char*) &(t), sizeof(double));
+        in.read((char*) &(lr), sizeof(double));
     }
 
 }

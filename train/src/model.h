@@ -35,9 +35,13 @@ namespace entity2vec {
         std::vector<uint32_t> word_negatives;
         size_t negpos;
 
-        static const int32_t NEGATIVE_TABLE_SIZE = 10000000;
     public:
+        static const int32_t NEGATIVE_TABLE_SIZE = 10000000;
+
         model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, std::shared_ptr<data> data, uint32_t seed);
+
+        void save(std::ostream& out);
+        void load(std::istream& in);
 
         real binaryLogistic(uint32_t target, bool label, real lr);
         real negativeSampling(uint32_t target, real lr);

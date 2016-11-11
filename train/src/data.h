@@ -37,9 +37,9 @@ namespace entity2vec {
         int64_t cur_prod_id;
         std::shared_ptr<args> args_;
     public:
-        static const int64_t VOCAB_HASH_SIZE = 30000000;
-        static const int64_t SUB_VOCAB_HASH_SIZE = 10000;
-        static const int64_t PROD_HASH_SIZE = 500000;
+        static const int64_t VOCAB_HASH_SIZE = 100000000;
+        static const int64_t SUB_VOCAB_HASH_SIZE = 1000005;
+        static const int64_t PROD_HASH_SIZE = 10000;
         static const int32_t MAX_LINE_SIZE = 1024;
 
         uint64_t word_size_;

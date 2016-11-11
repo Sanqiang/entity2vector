@@ -11,14 +11,16 @@ class TextProcess:
     stemmer = PorterStemmer()
 
     @classmethod
-    def process_word(cls, word):
+    def process_word(cls, word, stem_flag = True, validate_flag = True):
         word = word.lower()
-        if len(word) <= 1 or len(word) >= 16:
-            return TextProcess.UNK
-        for ch in word:
-            if not ch.isalpha():
+        if validate_flag:
+            if len(word) <= 1 or len(word) >= 16:
                 return TextProcess.UNK
-        word = TextProcess.stemmer.stem(word,0,len(word)-1)
+            for ch in word:
+                if not ch.isalpha():
+                    return TextProcess.UNK
+        if stem_flag:
+            word = TextProcess.stemmer.stem(word,0,len(word)-1)
 
         return word
 
@@ -28,7 +30,7 @@ class TextProcess:
         text_processed = ""
         for sent in sent_tokenize(text):
             for token in TextProcess.tknzr.tokenize(sent):
-                text_processed = " ".join((text_processed, TextProcess.process_word(token)))
+                text_processed = " ".join((text_processed, TextProcess.process_word(token, stem_flag=False, validate_flag=False)))
             text_processed = "".join((text_processed,"\v"))
         return text_processed
 

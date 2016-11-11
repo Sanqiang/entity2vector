@@ -53,6 +53,9 @@ namespace entity2vec{
                 populate_pretraining();
                 std::cout << "finish reading pretraining file" << std::endl;
             }
+
+            model_ = std::make_shared<model>(input_, output_, args_, data_, 0);
+            model_->initWordNegSampling();
         }
 
         start = clock();
@@ -67,39 +70,39 @@ namespace entity2vec{
     }
 
     void controller::trainThread(uint32_t threadId) {
-        //std::string path = args_->input_data_pattern;
-        //path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
-        std::string path = args_->input_data;
+        std::string path = args_->input_data_pattern;
+        path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
+        //std::string path = args_->input_data;
 
         std::ifstream ifs(path);
         std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
 
-        model model(input_, output_, args_, data_, threadId);
-        model.initWordNegSampling();
+//        model model(input_, output_, args_, data_, threadId);
+//        model.initWordNegSampling();
+        model_->initWordNegSampling();
 
         std::vector<int64_t> line;
         std::vector<int64_t> labels;
         const uint32_t ntokens = data_->nwords();
         uint32_t localTokenCount = 0;
         uint32_t loop = 0;
-        while (tokenCount < args_->epoch * ntokens || 1){
+        while (tokenCount < args_->epoch * ntokens){
             real progress = real(tokenCount) / (args_->epoch * ntokens);
-            real lr = args_->lr * (1.0 - progress);
-            localTokenCount += data_->getLine(ifs, line, labels, model.rng);
-            skipgram(model, lr, line, labels);
+            real lr = args_->lr /** (1.0 - progress)*/;
+            localTokenCount += data_->getLine(ifs, line, labels, model_->rng);
+            skipgram(lr, line, labels);
 
             if (localTokenCount > args_->lrUpdateRate || 1) {
                 tokenCount += localTokenCount;
                 localTokenCount = 0;
                 if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
-                    printInfo(progress, model.getLoss());
-                    //saveModel("test" + std::to_string(loop));
-                    break;
+                    printInfo(progress, model_->getLoss());
+                    saveModel("newb" + std::to_string(loop));
                 }
             }
         }
         if (threadId == 0 && args_->verbose > 0) {
-            printInfo(1.0, model.getLoss());
+            printInfo(1.0, model_->getLoss());
             std::cout << std::endl;
         }
         ifs.close();
@@ -167,31 +170,31 @@ namespace entity2vec{
         std::cout << "loss: " << std::setprecision(6) << loss;
         std::cout << "eta: " << etah << "h" << etam << "m ";
         std::cout << std::endl;
-//        printWords("steak",10);
-//        printWords("seafood",10);
-//        printWords("delici",10);
-//        printWords("yummi",10);
-//        printWords("good",10);
+        printWords("steak",10);
+        printWords("seafood",10);
+        printWords("delici",10);
+        printWords("yummi",10);
+        printWords("good",10);
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::flush;
     }
 
-    void controller::skipgram(model &model, real lr, const std::vector<int64_t> &line, const std::vector<int64_t> &label) {
+    void controller::skipgram(real lr, const std::vector<int64_t> &line, const std::vector<int64_t> &label) {
         std::uniform_int_distribution<> uniform(1, args_->ws);
         for (uint32_t w = 0; w < line.size(); w++) {
             if(line[w] < 0){
                 continue;
             }
             //word embedding
-            int32_t boundary = uniform(model.rng);
+            int32_t boundary = uniform(model_->rng);
             for (int32_t c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.size()) {
                     if(line[w + c] < 0){
                         continue;
                     }
-                    model.update(line[w], line[w + c], lr);
+                    model_->update(line[w], line[w + c], lr);
                 }
             }
             //entity embedding
@@ -200,7 +203,7 @@ namespace entity2vec{
                     if(label[l]  < 0){
                         continue;
                     }
-                    model.update(label[l] + data_->nwords(), line[w], lr);
+                    model_->update(label[l] + data_->nwords(), line[w], lr);
                 }
             }
         }
@@ -218,6 +221,7 @@ namespace entity2vec{
         data_->save(ofs);
         input_->save(ofs);
         output_->save(ofs);
+        model_->save(ofs);
         ofs.close();
     }
 
@@ -231,6 +235,7 @@ namespace entity2vec{
         output_->load(in);
         model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
         model_->initWordNegSampling();
+        model_->load(in);
     }
 
     void controller::loadModel(const std::string &name) {

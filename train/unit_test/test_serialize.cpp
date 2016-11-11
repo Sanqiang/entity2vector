@@ -68,6 +68,8 @@ int main(int argc, char** argv){
         assert(con1->data_->prod2idx_[i] == con2->data_->prod2idx_[i]);
     }
 
+    //args
+    assert(con1->args_->lr == con2->args_->lr);
 
 }
 

@@ -5,7 +5,7 @@ from util.text_process import TextProcess
 
 home = os.environ["HOME"]
 path = "".join((home, "/data/aan/papers_text/"))
-path_processed = "".join((home, "/data/aan/paper_processed.txt"))
+path_processed = "".join((home, "/data/aan/paper_processed_nostem.txt"))
 f_processed = open(path_processed, "w")
 
 business_id = "aRkYtXfmEKYG-eTDf_qUsw"
@@ -18,6 +18,7 @@ for root, dirs, filenames in os.walk(path):
             temp_f = open(temp_path, "r")
             for temp_line in temp_f:
                 text = TextProcess.process(temp_line)
+                text = "".join((text, "\n"))
                 line_processed = "\t".join((business_id, text))
                 batch = "".join((batch, line_processed))
                 if len(batch) > 100000:

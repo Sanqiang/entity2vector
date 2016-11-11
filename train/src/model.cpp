@@ -106,4 +106,18 @@ namespace entity2vec {
     real model::getLoss() const {
         return loss_ / nexamples_;
     }
+
+    void model::load(std::istream &in) {
+        for (int32_t i = 0; i < NEGATIVE_TABLE_SIZE; ++i) {
+            int32_t temp;
+            in.read((char*) &temp, sizeof(int32_t));
+            word_negatives.push_back(temp);
+        }
+    }
+
+    void model::save(std::ostream &out) {
+        for (int32_t i = 0; i < NEGATIVE_TABLE_SIZE; ++i) {
+            out.write((char*) &(word_negatives[i]), sizeof(int32_t));
+        }
+    }
 }

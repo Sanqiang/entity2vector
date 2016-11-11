@@ -6,7 +6,7 @@ from util.text_process import TextProcess
 k = 8
 
 home = os.environ["HOME"]
-path_processed = "".join((home, "/data/yelp/review_processed_nostem"))
+path_processed = "".join((home, "/data/aan/paper_processed_nostem"))
 path_processed_origin = "".join((path_processed, ".txt"))
 fs = []
 
