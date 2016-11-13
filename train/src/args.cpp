@@ -13,7 +13,7 @@ namespace entity2vec {
         dim = 300;
         ws = 5;
         epoch = 100000;
-        minCount = 3;
+        minCount = 0;
         neg = 5;
         wordNgrams = 1;
         minn = 0;
@@ -24,9 +24,9 @@ namespace entity2vec {
         label = "__label__";
         verbose = 2;
         pretrainedVectors = "";
-        std::string base =  "/home/sanqiang/";//getenv("HOME");
+        std::string base =  getenv("HOME");
         //input_data = base + "/data/aan/paper_processed_nostem_3.txt";
-        input_data = base + "/data/yelp/review_processed.txt";
+        input_data = base + "/data/yelp/review_processed_sample.txt";
         //input_data = base + "/data/yelp/review_processed_nostem_7.txt";
         input_data_pattern = base + "/data/yelp/review_processed_{i}.txt";
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
@@ -35,8 +35,8 @@ namespace entity2vec {
         prod_flag = 0;
         pretraining_flag = 0;
 
-        load_model_flag = 0;
-        load_model = "newb330001";
+        load_model_flag = 1;
+        load_model = "newb1";
     }
 
     void args::save(std::ostream &out) {

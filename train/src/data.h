@@ -54,6 +54,9 @@ namespace entity2vec {
         uint64_t word_size_;
         uint64_t prod_size_;
         uint64_t tag_size_;
+        uint64_t word_prod_size_;
+        uint64_t word_tag_size_;
+        uint64_t tag_prod_size_;
 
         std::vector<int64_t> word2idx_;
         std::vector<entry_word> idx2words_;

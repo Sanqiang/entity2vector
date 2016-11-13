@@ -48,14 +48,6 @@ namespace entity2vec{
                 output_->zero();
             }
 
-            if(args_->tag_flag){
-                std::ifstream ifs_tag(args_->input_tag);
-                if (!ifs_tag.is_open()) {
-                    std::cerr << "Input file cannot be opened!" << std::endl;
-                    exit(EXIT_FAILURE);
-                }
-            }
-
             if(args_->pretraining_flag) {
                 std::cout << "start reading pretraining file" << std::endl;
                 populate_pretraining();
@@ -103,6 +95,7 @@ namespace entity2vec{
                 if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
                     saveModel("newb" + std::to_string(loop));
+                    break;
                 }
             }
         }
@@ -175,11 +168,13 @@ namespace entity2vec{
         std::cout << "loss: " << std::setprecision(6) << loss;
         std::cout << "eta: " << etah << "h" << etam << "m ";
         std::cout << std::endl;
-        printWords("steak",10);
-        printWords("seafood",10);
-        printWords("delici",10);
-        printWords("yummi",10);
-        printWords("good",10);
+        if(args_->verbose > 2) {
+            printWords("steak", 10);
+            printWords("seafood", 10);
+            printWords("delici", 10);
+            printWords("yummi", 10);
+            printWords("good", 10);
+        }
         std::cout << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;
