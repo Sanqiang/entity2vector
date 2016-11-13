@@ -19,6 +19,14 @@ namespace entity2vec {
         args_ = args;
         word_size_ = 0;
         prod_size_ = 0;
+        tag_size_ = 0;
+        idx2words_.clear();
+        idx2prod_.clear();
+        idx2tag_.clear();
+        idx2cor_word_prod_.clear();
+        idx2cor_word_tag_.clear();
+        idx2cor_tag_prod_.clear();
+
         word2idx_.resize(VOCAB_HASH_SIZE);
         for (int64_t i = 0; i < VOCAB_HASH_SIZE; i++) {
             word2idx_[i] = -1;
@@ -26,6 +34,23 @@ namespace entity2vec {
         prod2idx_.reserve(PROD_HASH_SIZE);
         for (int64_t i = 0; i < PROD_HASH_SIZE; i++) {
             prod2idx_[i] = -1;
+        }
+        tag2idx_.reserve(TAG_HASH_SIZE);
+        for (int64_t i = 0; i < TAG_HASH_SIZE; i++) {
+            tag2idx_[i] = -1;
+        }
+
+        cor_word_prod2idx_.reserve(WORD_PROD_HASH_SIZE);
+        for (int64_t i = 0; i < WORD_PROD_HASH_SIZE; i++) {
+            cor_word_prod2idx_[i] = -1;
+        }
+        cor_word_tag2idx_.reserve(WORD_TAG_HASH_SIZE);
+        for (int64_t i = 0; i < WORD_TAG_HASH_SIZE; i++) {
+            cor_word_tag2idx_[i] = -1;
+        }
+        cor_tag_prod2idx_.reserve(TAG_PROD_HASH_SIZE);
+        for (int64_t i = 0; i < TAG_PROD_HASH_SIZE; i++) {
+            cor_tag_prod2idx_[i] = -1;
         }
     }
 
@@ -44,21 +69,35 @@ namespace entity2vec {
         if (word2idx_[h] == -1) {
             entry_word e;
             e.word = word;
-            e.prod_id = cur_prod_id;
             e.count = 1;
 
             word2idx_[h] = word_size_++;
             idx2words_.push_back(e);
+
+            addCorPair(word,cur_prod,1);
+            for (uint32_t i = 0; i < cur_tags.size(); ++i) {
+                addCorPair(word,cur_tags[i],2);
+            }
+
         } else {
             idx2words_[word2idx_[h]].count++;
         }
+    }
 
-        //process entry_prod
-        h = getWordHashRegardingProd(word, idx2prod_[cur_prod_id].prod);
-        if(idx2prod_[cur_prod_id].word2idx_[h] == -1) {
-            idx2prod_[cur_prod_id].idx2words_.push_back(word);
-            idx2prod_[cur_prod_id].word2idx_[h] = idx2prod_[cur_prod_id].idx2words_.size()-1;
-            idx2prod_[cur_prod_id].word_count++;
+    void data::addTag(const std::string &tag) {
+        int64_t h = getTagHash(tag);
+        if (word2idx_[h] == -1) {
+            entry_tag e;
+            e.tag = tag;
+            e.count = 1;
+            e.word_count = 0;
+
+            tag2idx_[h] = tag_size_++;
+            idx2tag_.push_back(e);
+
+            addCorPair(tag, cur_prod,3);
+        }else{
+            idx2tag_[tag2idx_[h]].count++;
         }
     }
 
@@ -69,10 +108,6 @@ namespace entity2vec {
             e.prod = prod;
             e.count = 1;
             e.word_count = 0;
-            e.word2idx_.resize(SUB_VOCAB_HASH_SIZE);
-            for (int64_t i = 0; i < SUB_VOCAB_HASH_SIZE; i++) {
-                e.word2idx_[i] = -1;
-            }
 
             prod2idx_[h] = prod_size_++;
             idx2prod_.push_back(e);
@@ -97,23 +132,72 @@ namespace entity2vec {
         return h;
     }
 
-    int64_t data::getWordHashRegardingProd(const std::string &word, const std::string &prod) const {
-        int64_t h = hash(word) % SUB_VOCAB_HASH_SIZE;
-        entry_prod e = idx2prod_[getProdId(prod)];
-        while (e.word2idx_[h] != -1 && e.idx2words_[e.word2idx_[h]] != word) {
-            h = (h + 1) % SUB_VOCAB_HASH_SIZE;
+    int64_t data::getTagHash(const std::string &tag) const {
+        int64_t h = hash(tag) % TAG_HASH_SIZE;
+        while (word2idx_[h] != -1 && idx2tag_[tag2idx_[h]].tag != tag) {
+            h = (h + 1) % TAG_HASH_SIZE;
         }
         return h;
     }
 
-    bool data::checkWordInProd(const std::string &word, const std::string &prod) const {
-        int64_t h = getWordHashRegardingProd(word, prod);
-        int64_t pid = getProdId(prod);
-        return idx2prod_[pid].word2idx_[h] != -1;
+    int64_t data::getHashCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) const {
+        std::string key = pair1 + "_" + pair2;
+        return getHashCorPair(key, mode);
     }
 
-    bool data::checkWordInProd(int64_t wid, int64_t pid) const {
-        return checkWordInProd(idx2words_[wid].word, idx2prod_[pid].prod);
+    int64_t data::getHashCorPair(const std::string &key, uint8_t mode) const {
+        int64_t h = hash(key);
+        if(mode == 1){
+            h = h % WORD_PROD_HASH_SIZE;
+            while (cor_word_prod2idx_[h] != -1 && idx2cor_word_prod_[cor_word_prod2idx_[h]] != key) {
+                h = (h + 1) % WORD_PROD_HASH_SIZE;
+            }
+        }else if(mode == 2){
+            h = h % WORD_TAG_HASH_SIZE;
+            while (cor_word_tag2idx_[h] != -1 && idx2cor_word_tag_[cor_word_tag2idx_[h]] != key) {
+                h = (h + 1) % WORD_TAG_HASH_SIZE;
+            }
+        }else if(mode == 3){
+            h = h % TAG_PROD_HASH_SIZE;
+            while (cor_tag_prod2idx_[h] != -1 && idx2cor_tag_prod_[cor_tag_prod2idx_[h]] != key) {
+                h = (h + 1) % TAG_PROD_HASH_SIZE;
+            }
+        }
+        return h;
+    }
+
+    bool data::checkCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) const {
+        int64_t h = getHashCorPair(pair1, pair2, mode);
+        if(mode == 1){
+            h = h % WORD_PROD_HASH_SIZE;
+        }else if(mode == 2){
+            h = h % WORD_TAG_HASH_SIZE;
+        }else if(mode == 3){
+            h = h % TAG_PROD_HASH_SIZE;
+        }
+        return h != -1;
+    }
+
+    void data::addCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) {
+        int h = getHashCorPair(pair1, pair2, mode);
+        std::string key = pair1 + "_" + pair2;
+        if(mode == 1){
+            if(cor_word_prod2idx_[h] == -1){
+                cor_word_prod2idx_[h] = idx2cor_word_prod_.size();
+                idx2cor_word_prod_.push_back(key);
+            }
+        }else if(mode == 2){
+            if(cor_word_tag2idx_[h] == -1){
+                cor_word_tag2idx_[h] = idx2cor_word_tag_.size();
+                idx2cor_word_tag_.push_back(key);
+            }
+        }else if(mode == 3){
+            if(cor_tag_prod2idx_[h] == -1){
+                cor_tag_prod2idx_[h] = idx2cor_tag_prod_.size();
+                idx2cor_tag_prod_.push_back(key);
+            }
+        }
+
     }
 
     int64_t data::getWordId(const std::string &word) const {
@@ -126,6 +210,11 @@ namespace entity2vec {
         return prod2idx_[h];
     }
 
+    int64_t data::getTagId(const std::string &tag) const {
+        int64_t h = getTagHash(tag);
+        return prod2idx_[h];
+    }
+
     std::string data::getWord(uint32_t i) const {
         return idx2words_[i].word;
     }
@@ -133,25 +222,29 @@ namespace entity2vec {
     void data::readFromFile(std::istream &in) {
         std::string word;
         char c;
-        uint8_t cur_mode = 0; //0:prod 1:text // 0:user 1:prod 2:rating 3:text
+        uint8_t cur_mode = 0; //0:prod 1:tag 2:text // 0:user 1:prod 2:rating 3:text
         std::streambuf& sb = *in.rdbuf();
         while ((c = sb.sbumpc()) != EOF) {
             if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
                 if(!word.empty()){
                     if(cur_mode == 0){
                         addProd(word);
-                        cur_prod_id = prod2idx_[getProdHash(word)];
+                        cur_prod = word;
                     }else if(cur_mode == 1){
+                        addTag(word);
+                        cur_tags.push_back(word);
+                    }else if(cur_mode == 2){
                         addWord(word);
                     }
                 }
-
                 if(c == '\t'){
-                    cur_mode = 1;
+                    cur_mode++;
                 }else if(c == '\v'){
 
                 }else if(c == '\n'){
                     cur_mode = 0;
+                    cur_prod = UNK;
+                    cur_tags.clear();
                 }
                 word.clear();
             }else{
@@ -165,13 +258,14 @@ namespace entity2vec {
         }
     }
 
-    uint32_t data::getLine(std::istream &in, std::vector<int64_t> &words, std::vector<int64_t> &labels,
+    uint32_t data::getLine(std::istream &in, std::vector<int64_t> &words, std::vector<int64_t> &prods, std::vector<int64_t> &tags,
                            std::minstd_rand &rng) const {
         std::uniform_real_distribution<> uniform(0, 1);
         std::string token;
         uint32_t ntokens = 0;
         words.clear();
-        labels.clear();
+        prods.clear();
+        tags.clear();
         uint8_t cur_mode = 0;
         std::string word;
         char c;
@@ -179,19 +273,21 @@ namespace entity2vec {
         while ((c = sb.sbumpc()) != EOF) {
             if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
                 if(!word.empty()){
-                    if(cur_mode == 1){
+                    if(cur_mode == 0){
+                        int64_t pid = getProdId(word);
+                        prods.push_back(pid);
+                    }else if(cur_mode == 1){
                         int64_t wid = getWordId(word);
                         words.push_back(wid);
-                        //if (wid < 0) continue;
                         ntokens++;
-                    }else if(cur_mode == 0){
-                        int64_t pid = getProdId(word);
-                        labels.push_back(pid);
+                    }else if(cur_mode == 2){
+                        int64_t tid = getTagId(word);
+                        tags.push_back(tid);
                     }
                 }
 
                 if(c == '\t'){
-                    cur_mode = 1;
+                    cur_mode++;
                 }else if(c == '\v'){
 
                 }else if(c == '\n'){
@@ -247,56 +343,100 @@ namespace entity2vec {
     void data::save(std::ostream &out) const {
         out.write((char*) &word_size_, sizeof(uint64_t));
         out.write((char*) &prod_size_, sizeof(uint64_t));
-        for (uint64_t i = 0; i < word_size_; i++) {
+        out.write((char*) &tag_size_, sizeof(uint64_t));
+
+        for (int64_t i = 0; i < word_size_; i++) {
             entry_word e = idx2words_[i];
             out.write(e.word.data(), e.word.size() * sizeof(char));
             out.put(0);
             out.write((char*) &(e.count), sizeof(uint32_t));
-            out.write((char*) &(e.prod_id), sizeof(int64_t));
         }
-        for (uint64_t i = 0; i < prod_size_; i++) {
+        for (int64_t i = 0; i < prod_size_; i++) {
             entry_prod e = idx2prod_[i];
             out.write(e.prod.data(), e.prod.size() * sizeof(char));
             out.put(0);
             out.write((char*) &(e.count), sizeof(uint32_t));
             out.write((char*) &(e.word_count), sizeof(uint32_t));
-
-            for (uint32_t j = 0; j < e.word_count; j++) {
-                out.write(e.idx2words_[j].data(), e.idx2words_[j].size() * sizeof(char));
-                out.put(0);
-            }
+        }
+        for (int64_t i = 0; i < tag_size_; ++i) {
+            entry_tag e = idx2tag_[i];
+            out.write(e.tag.data(), e.tag.size() * sizeof(char));
+            out.put(0);
+            out.write((char*) &(e.count), sizeof(uint32_t));
+            out.write((char*) &(e.word_count), sizeof(uint32_t));
+        }
+        for (int64_t i = 0; i < idx2cor_word_prod_.size(); ++i) {
+            std::string key = idx2cor_word_prod_[i];
+            out.write(key.data(), key.size() * sizeof(char));
+            out.put(0);
+        }
+        for (int64_t i = 0; i < idx2cor_word_tag_.size(); ++i) {
+            std::string key = idx2cor_word_tag_[i];
+            out.write(key.data(), key.size() * sizeof(char));
+            out.put(0);
+        }
+        for (int64_t i = 0; i < idx2cor_tag_prod_.size(); ++i) {
+            std::string key = idx2cor_tag_prod_[i];
+            out.write(key.data(), key.size() * sizeof(char));
+            out.put(0);
         }
     }
 
     void data::load(std::istream &in) {
+        word_size_ = 0;
+        prod_size_ = 0;
+        tag_size_ = 0;
         idx2words_.clear();
         idx2prod_.clear();
+        idx2tag_.clear();
+        idx2cor_word_prod_.clear();
+        idx2cor_word_tag_.clear();
+        idx2cor_tag_prod_.clear();
+
         word2idx_.resize(VOCAB_HASH_SIZE);
         for (int64_t i = 0; i < VOCAB_HASH_SIZE; i++) {
             word2idx_[i] = -1;
         }
         prod2idx_.reserve(PROD_HASH_SIZE);
-        prod2idx_.reserve(PROD_HASH_SIZE);
         for (int64_t i = 0; i < PROD_HASH_SIZE; i++) {
             prod2idx_[i] = -1;
         }
+        tag2idx_.reserve(TAG_HASH_SIZE);
+        for (int64_t i = 0; i < TAG_HASH_SIZE; i++) {
+            tag2idx_[i] = -1;
+        }
+
+        cor_word_prod2idx_.reserve(WORD_PROD_HASH_SIZE);
+        for (int64_t i = 0; i < WORD_PROD_HASH_SIZE; i++) {
+            cor_word_prod2idx_[i] = -1;
+        }
+        cor_word_tag2idx_.reserve(WORD_TAG_HASH_SIZE);
+        for (int64_t i = 0; i < WORD_TAG_HASH_SIZE; i++) {
+            cor_word_tag2idx_[i] = -1;
+        }
+        cor_tag_prod2idx_.reserve(TAG_PROD_HASH_SIZE);
+        for (int64_t i = 0; i < TAG_PROD_HASH_SIZE; i++) {
+            cor_tag_prod2idx_[i] = -1;
+        }
+
+
         in.read((char*) &word_size_, sizeof(uint64_t));
         in.read((char*) &prod_size_, sizeof(uint64_t));
+        in.read((char*) &tag_size_, sizeof(uint64_t));
 
-        for (uint32_t i = 0; i < word_size_; i++) {
-            char c;
+        char c;
+        for (int64_t i = 0; i < word_size_; i++) {
+
             entry_word e;
             while ((c = in.get()) != 0) {
                 e.word.push_back(c);
             }
             in.read((char*) &e.count, sizeof(uint32_t));
-            in.read((char*) &e.prod_id, sizeof(int64_t));
             idx2words_.push_back(e);
             word2idx_[getWordHash(e.word)] = i;
         }
 
-        for (uint32_t i = 0; i < prod_size_; i++) {
-            char c;
+        for (int64_t i = 0; i < prod_size_; i++) {
             entry_prod e;
             while ((c = in.get()) != 0) {
                 e.prod.push_back(c);
@@ -305,26 +445,50 @@ namespace entity2vec {
             in.read((char*) &e.count, sizeof(uint32_t));
             in.read((char*) &e.word_count, sizeof(uint32_t));
 
-            e.word2idx_.resize(SUB_VOCAB_HASH_SIZE);
-            for (int64_t k = 0; k < SUB_VOCAB_HASH_SIZE; k++) {
-                e.word2idx_[k] = -1;
-            }
-
             idx2prod_.push_back(e);
             prod2idx_[getProdHash(e.prod)] = i;
+        }
 
-            for (uint32_t j = 0; j < e.word_count; j++) {
-
-                std::string word;
-                while ((c = in.get()) != 0) {
-                    word.push_back(c);
-                }
-
-                idx2prod_[i].idx2words_.push_back(word);
-                idx2prod_[i].word2idx_[getWordHashRegardingProd(word, e.prod)] = j;
+        for (int64_t i = 0; i < tag_size_; i++) {
+            entry_tag e;
+            while ((c = in.get()) != 0) {
+                e.tag.push_back(c);
             }
 
+            in.read((char*) &e.count, sizeof(uint32_t));
+            in.read((char*) &e.word_count, sizeof(uint32_t));
 
+            idx2tag_.push_back(e);
+            tag2idx_[getTagHash(e.tag)] = i;
+        }
+
+
+        for (int64_t i = 0; i < idx2cor_word_prod_.size(); i++) {
+            std::string pair;
+            while ((c = in.get()) != 0) {
+                pair.push_back(c);
+            }
+
+            idx2cor_word_prod_.push_back(pair);
+            cor_word_prod2idx_[getHashCorPair(pair, 1)] = i;
+        }
+        for (int64_t i = 0; i < idx2cor_word_tag_.size(); i++) {
+            std::string pair;
+            while ((c = in.get()) != 0) {
+                pair.push_back(c);
+            }
+
+            idx2cor_word_tag_.push_back(pair);
+            cor_word_tag2idx_[getHashCorPair(pair, 2)] = i;
+        }
+        for (int64_t i = 0; i < idx2cor_tag_prod_.size(); i++) {
+            std::string pair;
+            while ((c = in.get()) != 0) {
+                pair.push_back(c);
+            }
+
+            idx2cor_tag_prod_.push_back(pair);
+            cor_tag_prod2idx_[getHashCorPair(pair, 3)] = i;
         }
 
     }

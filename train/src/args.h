@@ -13,6 +13,7 @@ namespace entity2vec {
         std::string input_data;
         std::string input_data_pattern;
         std::string input_pretrain;
+        std::string input_tag;
         std::string test;
         std::string output;
         double lr;
@@ -38,6 +39,8 @@ namespace entity2vec {
         uint8_t pretraining_flag;
         uint8_t load_model_flag;
         std::string load_model;
+
+        uint8_t tag_flag;
 
         args();
 

@@ -63,9 +63,10 @@ namespace entity2vec {
             do {
                 negative = word_negatives[negpos];
                 negpos = (negpos + 1) % word_negatives.size();
-                if(!data_->checkWordInProd(negative, target-data_->nwords())){
-                    break;
-                }
+                //todo negative sampleing
+//                if(!data_->checkCorWordProd(negative, target - data_->nwords())){
+//                    break;
+//                }
             } while (1);
         }
 

@@ -48,14 +48,19 @@ namespace entity2vec{
                 output_->zero();
             }
 
+            if(args_->tag_flag){
+                std::ifstream ifs_tag(args_->input_tag);
+                if (!ifs_tag.is_open()) {
+                    std::cerr << "Input file cannot be opened!" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+            }
+
             if(args_->pretraining_flag) {
                 std::cout << "start reading pretraining file" << std::endl;
                 populate_pretraining();
                 std::cout << "finish reading pretraining file" << std::endl;
             }
-
-            model_ = std::make_shared<model>(input_, output_, args_, data_, 0);
-            model_->initWordNegSampling();
         }
 
         start = clock();
@@ -77,32 +82,32 @@ namespace entity2vec{
         std::ifstream ifs(path);
         std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
 
-//        model model(input_, output_, args_, data_, threadId);
-//        model.initWordNegSampling();
-        model_->initWordNegSampling();
+        model model(input_, output_, args_, data_, threadId);
+        model.initWordNegSampling();
 
         std::vector<int64_t> line;
-        std::vector<int64_t> labels;
+        std::vector<int64_t> prods;
+        std::vector<int64_t> tags;
         const uint32_t ntokens = data_->nwords();
         uint32_t localTokenCount = 0;
         uint32_t loop = 0;
         while (tokenCount < args_->epoch * ntokens){
             real progress = real(tokenCount) / (args_->epoch * ntokens);
-            real lr = args_->lr /** (1.0 - progress)*/;
-            localTokenCount += data_->getLine(ifs, line, labels, model_->rng);
-            skipgram(lr, line, labels);
+            real lr = (1.0 - progress);
+            localTokenCount += data_->getLine(ifs, line, prods, tags, model.rng);
+            skipgram(model, lr, line, prods, tags);
 
             if (localTokenCount > args_->lrUpdateRate || 1) {
                 tokenCount += localTokenCount;
                 localTokenCount = 0;
                 if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
-                    printInfo(progress, model_->getLoss());
+                    printInfo(progress, model.getLoss());
                     saveModel("newb" + std::to_string(loop));
                 }
             }
         }
         if (threadId == 0 && args_->verbose > 0) {
-            printInfo(1.0, model_->getLoss());
+            printInfo(1.0, model.getLoss());
             std::cout << std::endl;
         }
         ifs.close();
@@ -181,30 +186,34 @@ namespace entity2vec{
         std::cout << std::flush;
     }
 
-    void controller::skipgram(real lr, const std::vector<int64_t> &line, const std::vector<int64_t> &label) {
+    void controller::skipgram(model& model, real lr, const std::vector<int64_t> &line, const std::vector<int64_t> &prods, const std::vector<int64_t> &tags) {
         std::uniform_int_distribution<> uniform(1, args_->ws);
         for (uint32_t w = 0; w < line.size(); w++) {
             if(line[w] < 0){
                 continue;
             }
             //word embedding
-            int32_t boundary = uniform(model_->rng);
+            int32_t boundary = uniform(model.rng);
             for (int32_t c = -boundary; c <= boundary; c++) {
                 if (c != 0 && w + c >= 0 && w + c < line.size()) {
                     if(line[w + c] < 0){
                         continue;
                     }
-                    model_->update(line[w], line[w + c], lr);
+                    model.update(line[w], line[w + c], lr);
                 }
             }
             //entity embedding
             if(args_->prod_flag) {
-                for (uint32_t l = 0; l < label.size(); l++) {
-                    if(label[l]  < 0){
+                for (uint32_t l = 0; l < prods.size(); l++) {
+                    if(prods[l]  < 0){
                         continue;
                     }
-                    model_->update(label[l] + data_->nwords(), line[w], lr);
+                    model.update(prods[l] + data_->nwords(), line[w], lr);
                 }
+            }
+
+            if(args_->tag_flag){
+
             }
         }
     }
@@ -221,7 +230,7 @@ namespace entity2vec{
         data_->save(ofs);
         input_->save(ofs);
         output_->save(ofs);
-        model_->save(ofs);
+        //model_->save(ofs);
         ofs.close();
     }
 
@@ -234,8 +243,8 @@ namespace entity2vec{
         input_->load(in);
         output_->load(in);
         model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
-        model_->initWordNegSampling();
-        model_->load(in);
+//        model_->initWordNegSampling();
+//        model_->load(in);
     }
 
     void controller::loadModel(const std::string &name) {
