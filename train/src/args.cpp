@@ -35,7 +35,7 @@ namespace entity2vec {
         prod_flag = 0;
         pretraining_flag = 0;
 
-        load_model_flag = 1;
+        load_model_flag = 0;
         load_model = "newb1";
     }
 

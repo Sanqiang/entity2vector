@@ -209,7 +209,7 @@ namespace entity2vec {
 
     int64_t data::getTagId(const std::string &tag) const {
         int64_t h = getTagHash(tag);
-        return prod2idx_[h];
+        return tag2idx_[h];
     }
 
     std::string data::getWord(uint32_t i) const {
@@ -279,12 +279,12 @@ namespace entity2vec {
                         int64_t pid = getProdId(word);
                         prods.push_back(pid);
                     }else if(cur_mode == 1){
+                        int64_t tid = getTagId(word);
+                        tags.push_back(tid);
+                    }else if(cur_mode == 2){
                         int64_t wid = getWordId(word);
                         words.push_back(wid);
                         ntokens++;
-                    }else if(cur_mode == 2){
-                        int64_t tid = getTagId(word);
-                        tags.push_back(tid);
                     }
                 }
 
