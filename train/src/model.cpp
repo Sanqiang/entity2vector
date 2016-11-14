@@ -25,9 +25,10 @@ namespace entity2vec {
         data_ = data;
         n_words_ = data_->word_size_;
         n_prods_ = data_->prod_size_;
+        n_tags_ = data_->tag_size_;
     }
 
-    real model::binaryLogistic(uint32_t target, bool label, real lr) {
+    real model::binaryLogistic(int64_t target, bool label, real lr) {
         real score = util::sigmoid(wo_->dotRow(hidden_, target));
         real alpha = lr * (real(label) - score);
         grad_.addRow(*wo_, target, alpha);
@@ -39,46 +40,86 @@ namespace entity2vec {
         }
     }
 
-    real model::negativeSampling(uint32_t target, real lr) {
+    real model::negativeSampling(int64_t input, int64_t target, real lr) {
         real loss = 0.0;
         grad_.zero();
         for (uint32_t n = 0; n <= args_->neg; n++) {
             if (n == 0) {
                 loss += binaryLogistic(target, true, lr);
             } else {
-                loss += binaryLogistic(getNegative(target), false, lr);
+                loss += binaryLogistic(getNegative(input, target), false, lr);
             }
         }
         return loss;
     }
 
-    uint32_t model::getNegative(uint32_t target) {
-        uint32_t negative;
-        if(target < n_words_){ //target is word
+    uint32_t model::getNegative(int64_t input, int64_t target) {
+        int64_t negative;
+        if(checkIndexType(input) == 0 && checkIndexType(target) == 0){ //word-word is word
             do {
-                negative = word_negatives[negpos];
+                negative = word_negatives[negpos % word_negatives.size()];
                 negpos = (negpos + 1) % word_negatives.size();
             } while (target == negative);
-        }else{ //target is entity
+        }else if(checkIndexType(input) == 0 && checkIndexType(target) == 1){ //
             do {
-                negative = word_negatives[negpos];
+                negative = prod_negatives[negpos % prod_negatives.size()];
+                negpos = (negpos + 1) % prod_negatives.size();
+                if(!data_->checkCorPair(input, negative, 1)){
+                    break;
+                }
+            } while (1);
+        }else if(checkIndexType(input) == 1 && checkIndexType(target) == 0){
+            do {
+                negative = word_negatives[negpos % word_negatives.size()];
                 negpos = (negpos + 1) % word_negatives.size();
-                //todo negative sampleing
-//                if(!data_->checkCorWordProd(negative, target - data_->nwords())){
-//                    break;
-//                }
+                if(!data_->checkCorPair(negative, input, 1)){
+                    break;
+                }
+            } while (1);
+        }else if(checkIndexType(input) == 0 && checkIndexType(target) == 3){
+            do {
+                negative = tag_negatives[negpos % tag_negatives.size()];
+                negpos = (negpos + 1) % tag_negatives.size();
+                if(!data_->checkCorPair(input, negative, 2)){
+                    break;
+                }
+            } while (1);
+        }else if(checkIndexType(input) == 3 && checkIndexType(target) == 0){
+            do {
+                negative = word_negatives[negpos % word_negatives.size()];
+                negpos = (negpos + 1) % word_negatives.size();
+                if(!data_->checkCorPair(negative, input, 2)){
+                    break;
+                }
+            } while (1);
+        }else if(checkIndexType(input) == 2 && checkIndexType(target) == 3){
+            do {
+                negative = prod_negatives[negpos % prod_negatives.size()];
+                negpos = (negpos + 1) % prod_negatives.size();
+                if(!data_->checkCorPair(negative, input, 3)){
+                    break;
+                }
+            } while (1);
+        }else if(checkIndexType(input) == 3 && checkIndexType(target) == 2){
+            do {
+                negative = prod_negatives[negpos % prod_negatives.size()];
+                negpos = (negpos + 1) % prod_negatives.size();
+                if(!data_->checkCorPair(input, negative, 3)){
+                    break;
+                }
             } while (1);
         }
 
         return negative;
     }
 
-    void model::computeHidden(uint32_t input, vector &hidden) {
+    void model::computeHidden(int64_t input, vector &hidden) {
         hidden.zero();
         hidden.addRow(*wi_, input);
     }
 
-    void model::initTableWordNegatives(const std::vector<uint32_t> &counts) {
+    void model::initTableNegatives() {
+        const std::vector<uint32_t> counts = data_->getWordCounts();
         real z = 0.0;
         for (size_t i = 0; i < counts.size(); i++) {
             z += pow(counts[i], 0.5);
@@ -91,15 +132,42 @@ namespace entity2vec {
         }
         std::shuffle(word_negatives.begin(), word_negatives.end(), rng);
 
+        if(args_->prod_flag){
+            const std::vector<uint32_t> counts_prod = data_->getProdCounts();
+            real z_prod = 0.0;
+            for (size_t i = 0; i < counts_prod.size(); i++) {
+                z_prod += pow(counts_prod[i], 0.5);
+            }
+            for (size_t i = 0; i < counts_prod.size(); i++) {
+                real c = pow(counts_prod[i], 0.5);
+                for (size_t j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
+                    prod_negatives.push_back(i);
+                }
+            }
+            std::shuffle(prod_negatives.begin(), prod_negatives.end(), rng);
+
+            const std::vector<uint32_t> counts_tag = data_->getTagCounts();
+            real z_tag = 0.0;
+            for (size_t i = 0; i < counts_tag.size(); i++) {
+                z_tag += pow(counts_tag[i], 0.5);
+            }
+            for (size_t i = 0; i < counts_tag.size(); i++) {
+                real c = pow(counts_tag[i], 0.5);
+                for (size_t j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
+                    tag_negatives.push_back(i);
+                }
+            }
+            std::shuffle(tag_negatives.begin(), tag_negatives.end(), rng);
+        }
     }
 
     void model::initWordNegSampling() {
-        initTableWordNegatives(data_->getWordCounts());
+        initTableNegatives();
     }
 
-    void model::update(uint32_t input, uint32_t target, real lr) {
+    void model::update(int64_t input, int64_t target, real lr) {
         computeHidden(input, hidden_);
-        loss_ += negativeSampling(target, lr);
+        loss_ += negativeSampling(input, target, lr);
         nexamples_ += 1;
         wi_->addRow(grad_, input, 1.0);
     }
@@ -119,6 +187,16 @@ namespace entity2vec {
     void model::save(std::ostream &out) {
         for (int32_t i = 0; i < NEGATIVE_TABLE_SIZE; ++i) {
             out.write((char*) &(word_negatives[i]), sizeof(int32_t));
+        }
+    }
+
+    uint8_t model::checkIndexType(int64_t index) {
+        if (index < n_words_){
+            return 0;
+        }else if(index < n_words_+n_prods_){
+            return 1;
+        }else if(index < n_words_+n_prods_+n_tags_){
+            return 2;
         }
     }
 }

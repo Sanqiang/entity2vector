@@ -35,10 +35,10 @@ namespace entity2vec{
             std::cout<<"finish reading file"<<std::endl;
 
             if(args_->prod_flag){
-                input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
+                input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods() + data_->ntags(), args_->dim);
                 input_->uniform(1.0 / args_->dim);
 
-                output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
+                output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods() + data_->ntags(), args_->dim);
                 output_->zero();
             }else{
                 input_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
@@ -183,7 +183,7 @@ namespace entity2vec{
 
     void controller::skipgram(model& model, real lr, const std::vector<int64_t> &line, const std::vector<int64_t> &prods, const std::vector<int64_t> &tags) {
         std::uniform_int_distribution<> uniform(1, args_->ws);
-        for (uint32_t w = 0; w < line.size(); w++) {
+        for (int64_t w = 0; w < line.size(); w++) {
             if(line[w] < 0){
                 continue;
             }
@@ -199,16 +199,34 @@ namespace entity2vec{
             }
             //entity embedding
             if(args_->prod_flag) {
-                for (uint32_t l = 0; l < prods.size(); l++) {
+                //word - prod
+                for (int64_t l = 0; l < prods.size(); l++) {
                     if(prods[l]  < 0){
                         continue;
                     }
                     model.update(prods[l] + data_->nwords(), line[w], lr);
+                    model.update(line[w],prods[l] + data_->nwords(), lr);
+                }
+
+                //word - tag
+                for (int64_t l = 0; l < tags.size(); l++) {
+                    if(tags[l]  < 0){
+                        continue;
+                    }
+                    model.update(line[w], tags[l] + data_->nwords() + data_->nprods(), lr);
+                    model.update(tags[l] + data_->nwords() + data_->nprods(), line[w], lr);
                 }
             }
-
-            if(args_->tag_flag){
-
+        }
+        if(args_->prod_flag) {
+            //tag - prod
+            for (int64_t k = 0; k < prods.size(); k++) {
+                if(prods[k] < 0){ continue;}
+                for (int64_t l = 0; l < tags.size(); l++) {
+                    if(tags[l] < 0){ continue;}
+                    model.update(tags[l] + data_->nwords() + data_->nprods(), prods[k] + data_->nwords() , lr);
+                    model.update(prods[k] + data_->nwords() ,tags[l] + data_->nwords() + data_->nprods(), lr);
+                }
             }
         }
     }

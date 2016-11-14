@@ -175,6 +175,21 @@ namespace entity2vec {
         return h != -1;
     }
 
+    bool data::checkCorPair(const int64_t pair1_idx, const int64_t pair2_idx, uint8_t mode) const {
+        std::string key1 = "", key2 = "";
+        if(mode == 1){
+            key1 = getWord(pair1_idx);
+            key2 = getProd(pair2_idx);
+        }else if(mode == 2){
+            key1 = getWord(pair1_idx);
+            key2 = getTag(pair2_idx);
+        }else if(mode ==3){
+            key1 = getTag(pair1_idx);
+            key2 = getProd(pair2_idx);
+        }
+        return checkCorPair(key1, key2, mode);
+    }
+
     void data::addCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) {
         int h = getHashCorPair(pair1, pair2, mode);
         std::string key = pair1 + "_" + pair2;
@@ -212,8 +227,16 @@ namespace entity2vec {
         return tag2idx_[h];
     }
 
-    std::string data::getWord(uint32_t i) const {
+    std::string data::getWord(int64_t i) const {
         return idx2words_[i].word;
+    }
+
+    std::string data::getProd(int64_t i) const {
+        return idx2prod_[i].prod;
+    }
+
+    std::string data::getTag(int64_t i) const {
+        return idx2tag_[i].tag;
     }
 
     void data::readFromFile(std::istream &in) {
@@ -308,17 +331,37 @@ namespace entity2vec {
         return ntokens;
     }
 
-    uint32_t data::nwords() {
+    uint64_t data::nwords() {
         return word_size_;
     }
 
-    uint32_t data::nprods() {
+    uint64_t data::nprods() {
         return prod_size_;
+    }
+
+    uint64_t data::ntags() {
+        return tag_size_;
     }
 
     std::vector<uint32_t> data::getWordCounts() {
         std::vector<uint32_t> counts;
         for (auto& w : idx2words_) {
+            counts.push_back(w.count);
+        }
+        return counts;
+    }
+
+    std::vector<uint32_t> data::getProdCounts() {
+        std::vector<uint32_t> counts;
+        for (auto& w : idx2prod_) {
+            counts.push_back(w.count);
+        }
+        return counts;
+    }
+
+    std::vector<uint32_t> data::getTagCounts() {
+        std::vector<uint32_t> counts;
+        for (auto& w : idx2tag_) {
             counts.push_back(w.count);
         }
         return counts;

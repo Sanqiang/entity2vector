@@ -29,11 +29,16 @@ namespace entity2vec {
         uint32_t osz_;
         uint32_t n_words_;
         uint32_t n_prods_;
+        uint32_t n_tags_;
         real loss_;
         uint32_t nexamples_;
 
         std::vector<uint32_t> word_negatives;
+        std::vector<uint32_t> prod_negatives;
+        std::vector<uint32_t> tag_negatives;
         size_t negpos;
+
+        uint8_t checkIndexType(int64_t index); //0:word 1:prod 2:tag
 
     public:
         static const int32_t NEGATIVE_TABLE_SIZE = 10000000;
@@ -43,14 +48,14 @@ namespace entity2vec {
         void save(std::ostream& out);
         void load(std::istream& in);
 
-        real binaryLogistic(uint32_t target, bool label, real lr);
-        real negativeSampling(uint32_t target, real lr);
+        real binaryLogistic(int64_t target, bool label, real lr);
+        real negativeSampling(int64_t input, int64_t target, real lr);
         real getLoss() const;
-        uint32_t getNegative(uint32_t target);
+        uint32_t getNegative(int64_t input, int64_t target);
 
-        void computeHidden(uint32_t input, vector& hidden);
-        void update(uint32_t input, uint32_t target, real lr);
-        void initTableWordNegatives(const std::vector<uint32_t> &counts);
+        void computeHidden(int64_t input, vector& hidden);
+        void update(int64_t input, int64_t target, real lr);
+        void initTableNegatives();
         void initWordNegSampling();
 
         std::minstd_rand rng;
