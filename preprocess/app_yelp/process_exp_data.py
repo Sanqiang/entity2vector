@@ -85,7 +85,7 @@ for user_id in user_loc_cnt.keys():
 path_stat = "".join((home, "/data/yelp/stat/user_loc_stat.txt"))
 f_stat = open(path_stat, "w")
 for user_id in user_loc_cnt.keys():
-    if user_cnt_max[user_id] >= 5 and user_prob_max[user_id] > 0.5:
+    if user_cnt_max[user_id] >= 5 and user_prob_max[user_id] > 0.5 and len(user_loc_cnt[user_id]) > 1:
         f_stat.write(user_id)
         f_stat.write("\t")
         locs = user_loc_cnt[user_id]
