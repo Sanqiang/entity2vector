@@ -40,13 +40,13 @@ namespace entity2vec {
 
         std::shared_ptr<args> args_;
     public:
-        static const int64_t VOCAB_HASH_SIZE = 100000000;
-        static const int64_t TAG_HASH_SIZE = 10000;
-        static const int64_t PROD_HASH_SIZE = 10000;
+        static const int64_t VOCAB_HASH_SIZE = 1000000;
+        static const int64_t PROD_HASH_SIZE = 100000;
+        static const int64_t TAG_HASH_SIZE = 1000;
 
-        static const int64_t WORD_PROD_HASH_SIZE = 100000000;
-        static const int64_t WORD_TAG_HASH_SIZE = 100000000;
-        static const int64_t TAG_PROD_HASH_SIZE = 100000000;
+        static const int64_t WORD_PROD_HASH_SIZE = 50000000;
+        static const int64_t WORD_TAG_HASH_SIZE = 50000000;
+        static const int64_t TAG_PROD_HASH_SIZE = 50000000;
 
 
         //static const int32_t MAX_LINE_SIZE = 1024;

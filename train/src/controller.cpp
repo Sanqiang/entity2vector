@@ -67,9 +67,9 @@ namespace entity2vec{
     }
 
     void controller::trainThread(uint32_t threadId) {
-        //std::string path = args_->input_data_pattern;
-        //path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
-        std::string path = args_->input_data;
+        std::string path = args_->input_data_pattern;
+        path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
+        //std::string path = args_->input_data;
 
         std::ifstream ifs(path);
         std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
@@ -94,8 +94,7 @@ namespace entity2vec{
                 localTokenCount = 0;
                 if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
-                    saveModel("newb" + std::to_string(loop));
-                    break;
+                    saveModel("test" + std::to_string(loop));
                 }
             }
         }

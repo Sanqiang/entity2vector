@@ -30,7 +30,7 @@ class TextProcess:
         text_processed = ""
         for sent in sent_tokenize(text):
             for token in TextProcess.tknzr.tokenize(sent):
-                text_processed = " ".join((text_processed, TextProcess.process_word(token, stem_flag=False, validate_flag=False)))
+                text_processed = " ".join((text_processed, TextProcess.process_word(token, stem_flag=True, validate_flag=True)))
             text_processed = "".join((text_processed,"\v"))
         return text_processed
 

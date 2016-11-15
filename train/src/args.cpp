@@ -26,9 +26,9 @@ namespace entity2vec {
         pretrainedVectors = "";
         std::string base =  getenv("HOME");
         //input_data = base + "/data/aan/paper_processed_nostem_3.txt";
-        input_data = base + "/data/yelp/review_processed_sample.txt";
+        input_data = base + "/data/yelp/review_processed_rest.txt";
         //input_data = base + "/data/yelp/review_processed_nostem_7.txt";
-        input_data_pattern = base + "/data/yelp/review_processed_{i}.txt";
+        input_data_pattern = base + "/data/yelp/review_processed1_rest_{i}.txt";
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
         output = base + "/data/model/";
 
@@ -36,7 +36,7 @@ namespace entity2vec {
         pretraining_flag = 0;
 
         load_model_flag = 0;
-        load_model = "newb1";
+        load_model = "test";
     }
 
     void args::save(std::ostream &out) {

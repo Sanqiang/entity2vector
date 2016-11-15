@@ -114,7 +114,7 @@ namespace entity2vec {
     }
 
     int64_t data::getProdHash(const std::string &prod) const {
-        int64_t h = hash(prod) % PROD_HASH_SIZE;
+        uint64_t h = hash(prod) % PROD_HASH_SIZE;
         while (prod2idx_[h] != -1 && idx2prod_[prod2idx_[h]].prod != prod) {
             h = (h + 1) % PROD_HASH_SIZE;
         }
@@ -122,7 +122,7 @@ namespace entity2vec {
     }
 
     int64_t data::getWordHash(const std::string &word) const {
-        int64_t h = hash(word) % VOCAB_HASH_SIZE;
+        uint64_t h = hash(word) % VOCAB_HASH_SIZE;
         while (word2idx_[h] != -1 && idx2words_[word2idx_[h]].word != word) {
             h = (h + 1) % VOCAB_HASH_SIZE;
         }
@@ -130,7 +130,7 @@ namespace entity2vec {
     }
 
     int64_t data::getTagHash(const std::string &tag) const {
-        int64_t h = hash(tag) % TAG_HASH_SIZE;
+        uint64_t h = hash(tag) % TAG_HASH_SIZE;
         while (word2idx_[h] != -1 && idx2tag_[tag2idx_[h]].tag != tag) {
             h = (h + 1) % TAG_HASH_SIZE;
         }
@@ -143,7 +143,7 @@ namespace entity2vec {
     }
 
     int64_t data::getHashCorPair(const std::string &key, uint8_t mode) const {
-        int64_t h = hash(key);
+        uint64_t h = hash(key);
         if(mode == 1){
             h = h % WORD_PROD_HASH_SIZE;
             while (cor_word_prod2idx_[h] != -1 && idx2cor_word_prod_[cor_word_prod2idx_[h]] != key) {
@@ -270,17 +270,20 @@ namespace entity2vec {
             }else{
                 word.push_back(c);
             }
+
+            if (args_->verbose > 0) {
+                std::cout <<  std::endl;
+                std::cout << "Number of words:  " << word_size_ << std::endl;
+                std::cout << "Number of prods:  " << prod_size_ << std::endl;
+                std::cout << "Number of tags:  " << tag_size_ << std::endl;
+                std::cout << "Number of word-prod:  " << word_prod_size_ << std::endl;
+                std::cout << "Number of word-tag:  " << word_tag_size_ << std::endl;
+                std::cout << "Number of tag-prod:  " << tag_prod_size_ << std::endl;
+            }
         }
         addWord(word); //for last word
         threshold(args_->minCount);
-        if (args_->verbose > 0) {
-            std::cout << "Number of words:  " << word_size_ << std::endl;
-            std::cout << "Number of prods:  " << prod_size_ << std::endl;
-            std::cout << "Number of tags:  " << tag_size_ << std::endl;
-            std::cout << "Number of word-prod:  " << word_prod_size_ << std::endl;
-            std::cout << "Number of word-tag:  " << word_tag_size_ << std::endl;
-            std::cout << "Number of tag-prod:  " << tag_prod_size_ << std::endl;
-        }
+
     }
 
     uint32_t data::getLine(std::istream &in, std::vector<int64_t> &words, std::vector<int64_t> &prods, std::vector<int64_t> &tags,
