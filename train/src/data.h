@@ -44,9 +44,9 @@ namespace entity2vec {
         static const int64_t PROD_HASH_SIZE = 100000;
         static const int64_t TAG_HASH_SIZE = 1000;
 
-        static const int64_t WORD_PROD_HASH_SIZE = 50000000;
-        static const int64_t WORD_TAG_HASH_SIZE = 50000000;
-        static const int64_t TAG_PROD_HASH_SIZE = 50000000;
+        static const int64_t WORD_PROD_HASH_SIZE = 1000000000;
+        static const int64_t WORD_TAG_HASH_SIZE = 10000000;
+        static const int64_t TAG_PROD_HASH_SIZE = 1000000;
 
 
         //static const int32_t MAX_LINE_SIZE = 1024;
