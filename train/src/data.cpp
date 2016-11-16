@@ -64,6 +64,9 @@ namespace entity2vec {
     }
 
     void data::addWord(const std::string &word) {
+        if(word == UNK){
+            return;
+        }
         int64_t h = getWordHash(word);
 
         if (word2idx_[h] == -1) {
