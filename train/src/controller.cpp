@@ -85,7 +85,7 @@ namespace entity2vec{
         uint32_t loop = 0;
         while (tokenCount < args_->epoch * ntokens){
             real progress = real(tokenCount) / (args_->epoch * ntokens);
-            real lr = (1.0 - progress);
+            real lr = args_->lr * (1.0 - progress);
             localTokenCount += data_->getLine(ifs, line, prods, tags, model.rng);
             skipgram(model, lr, line, prods, tags);
 
