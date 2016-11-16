@@ -36,7 +36,7 @@ namespace entity2vec {
         std::vector<uint32_t> word_negatives;
         std::vector<uint32_t> prod_negatives;
         std::vector<uint32_t> tag_negatives;
-        size_t negpos;
+        size_t negpos_word, negpos_prod, negpos_tag;
 
         uint8_t checkIndexType(int64_t index); //0:word 1:prod 2:tag
 

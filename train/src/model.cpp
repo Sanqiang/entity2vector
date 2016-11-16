@@ -19,7 +19,9 @@ namespace entity2vec {
         isz_ = wi->m_;
         osz_ = wo->m_;
         hsz_ = args->dim;
-        negpos = 0;
+        negpos_word = 0;
+        negpos_prod = 0;
+        negpos_tag = 0;
         loss_ = 0.0;
         nexamples_ = 1;
         data_ = data;
@@ -29,7 +31,8 @@ namespace entity2vec {
     }
 
     real model::binaryLogistic(int64_t target, bool label, real lr) {
-        real score = util::sigmoid(wo_->dotRow(hidden_, target));
+        real a = wo_->dotRow(hidden_, target);
+        real score = util::sigmoid(a);
         real alpha = lr * (real(label) - score);
         grad_.addRow(*wo_, target, alpha);
         wo_->addRow(hidden_, target, alpha);
@@ -47,63 +50,64 @@ namespace entity2vec {
             if (n == 0) {
                 loss += binaryLogistic(target, true, lr);
             } else {
-                loss += binaryLogistic(getNegative(input, target), false, lr);
+                int64_t neg_target = getNegative(input, target);
+                loss += binaryLogistic(neg_target, false, lr);
             }
         }
         return loss;
     }
 
     uint32_t model::getNegative(int64_t input, int64_t target) {
-        int64_t negative;
+        int64_t negative = -1;
         if(checkIndexType(input) == 0 && checkIndexType(target) == 0){ //word-word is word
             do {
-                negative = word_negatives[negpos % word_negatives.size()];
-                negpos = (negpos + 1) % word_negatives.size();
+                negative = word_negatives[negpos_word % word_negatives.size()];
+                negpos_word = (negpos_word + 1) % word_negatives.size();
             } while (target == negative);
         }else if(checkIndexType(input) == 0 && checkIndexType(target) == 1){ //
             do {
-                negative = prod_negatives[negpos % prod_negatives.size()];
-                negpos = (negpos + 1) % prod_negatives.size();
+                negative = prod_negatives[negpos_prod % prod_negatives.size()];
+                negpos_prod = (negpos_prod + 1) % prod_negatives.size();
                 if(!data_->checkCorPair(input, negative, 1)){
                     break;
                 }
             } while (1);
         }else if(checkIndexType(input) == 1 && checkIndexType(target) == 0){
             do {
-                negative = word_negatives[negpos % word_negatives.size()];
-                negpos = (negpos + 1) % word_negatives.size();
+                negative = word_negatives[negpos_word % word_negatives.size()];
+                negpos_word = (negpos_word + 1) % word_negatives.size();
                 if(!data_->checkCorPair(negative, input, 1)){
                     break;
                 }
             } while (1);
-        }else if(checkIndexType(input) == 0 && checkIndexType(target) == 3){
+        }else if(checkIndexType(input) == 0 && checkIndexType(target) == 2){
             do {
-                negative = tag_negatives[negpos % tag_negatives.size()];
-                negpos = (negpos + 1) % tag_negatives.size();
+                negative = tag_negatives[negpos_tag % tag_negatives.size()];
+                negpos_tag = (negpos_tag + 1) % tag_negatives.size();
                 if(!data_->checkCorPair(input, negative, 2)){
                     break;
                 }
             } while (1);
-        }else if(checkIndexType(input) == 3 && checkIndexType(target) == 0){
+        }else if(checkIndexType(input) == 2 && checkIndexType(target) == 0){
             do {
-                negative = word_negatives[negpos % word_negatives.size()];
-                negpos = (negpos + 1) % word_negatives.size();
+                negative = word_negatives[negpos_word % word_negatives.size()];
+                negpos_word = (negpos_word + 1) % word_negatives.size();
                 if(!data_->checkCorPair(negative, input, 2)){
                     break;
                 }
             } while (1);
-        }else if(checkIndexType(input) == 2 && checkIndexType(target) == 3){
+        }else if(checkIndexType(input) == 1 && checkIndexType(target) == 2){
             do {
-                negative = prod_negatives[negpos % prod_negatives.size()];
-                negpos = (negpos + 1) % prod_negatives.size();
+                negative = tag_negatives[negpos_tag % tag_negatives.size()];
+                negpos_tag = (negpos_tag + 1) % tag_negatives.size();
                 if(!data_->checkCorPair(negative, input, 3)){
                     break;
                 }
             } while (1);
-        }else if(checkIndexType(input) == 3 && checkIndexType(target) == 2){
+        }else if(checkIndexType(input) == 2 && checkIndexType(target) == 1){
             do {
-                negative = prod_negatives[negpos % prod_negatives.size()];
-                negpos = (negpos + 1) % prod_negatives.size();
+                negative = prod_negatives[negpos_prod % prod_negatives.size()];
+                negpos_prod = (negpos_prod + 1) % prod_negatives.size();
                 if(!data_->checkCorPair(input, negative, 3)){
                     break;
                 }

@@ -22,13 +22,13 @@ namespace entity2vec {
         lrUpdateRate = 0;
         t = 1e-4;
         label = "__label__";
-        verbose = 2;
+        verbose = 3;
         pretrainedVectors = "";
         std::string base =  getenv("HOME");
         //input_data = base + "/data/aan/paper_processed_nostem_3.txt";
-        input_data = base + "/data/yelp/review_processed_rest.txt";
+        input_data = base + "/data/yelp/review_processed_rest_0.txt";
         //input_data = base + "/data/yelp/review_processed_nostem_7.txt";
-        input_data_pattern = base + "/data/yelp/review_processed1_rest_{i}.txt";
+        input_data_pattern = base + "/data/yelp/review_processed_rest_{i}.txt";
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
         output = base + "/data/model/";
 

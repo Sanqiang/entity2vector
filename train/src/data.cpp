@@ -381,6 +381,9 @@ namespace entity2vec {
             word2idx_[i] = -1;
         }
         for (auto it = idx2words_.begin(); it != idx2words_.end(); ++it) {
+            if(it->word == UNK){
+                continue;
+            }
             uint32_t h = getWordHash(it->word);
             word2idx_[h] = word_size_++;
         }
