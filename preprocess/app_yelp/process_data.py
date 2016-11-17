@@ -22,7 +22,8 @@ if filter_rest:
             if not business_id in prod_tag:
                 prod_tag[business_id] = set()
             for category in categories:
-                prod_tag[business_id].add(category.replace(" ",""))
+                if "Restaurants" != category:
+                    prod_tag[business_id].add(category.replace(" ",""))
 
 
 
