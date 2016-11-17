@@ -41,7 +41,7 @@ namespace entity2vec {
         uint8_t checkIndexType(int64_t index); //0:word 1:prod 2:tag
 
     public:
-        static const int32_t NEGATIVE_TABLE_SIZE = 10000000;
+        static const int64_t NEGATIVE_TABLE_SIZE = 10000000;
 
         model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, std::shared_ptr<data> data, uint32_t seed);
 
@@ -51,7 +51,7 @@ namespace entity2vec {
         real binaryLogistic(int64_t target, bool label, real lr);
         real negativeSampling(int64_t input, int64_t target, real lr);
         real getLoss() const;
-        uint32_t getNegative(int64_t input, int64_t target);
+        int64_t getNegative(int64_t input, int64_t target);
 
         void computeHidden(int64_t input, vector& hidden);
         void update(int64_t input, int64_t target, real lr);

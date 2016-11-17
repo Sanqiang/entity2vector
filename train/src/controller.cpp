@@ -88,7 +88,6 @@ namespace entity2vec{
             real lr = args_->lr * (1.0 - progress);
             localTokenCount += data_->getLine(ifs, line, prods, tags, model.rng);
             skipgram(model, lr, line, prods, tags);
-
             if (localTokenCount > args_->lrUpdateRate || 1) {
                 tokenCount += localTokenCount;
                 localTokenCount = 0;

@@ -18,7 +18,8 @@ namespace entity2vec {
         wordNgrams = 1;
         minn = 0;
         maxn = 6;
-        thread = 1;
+        thread = 8;
+        neg_trial = 100;
         lrUpdateRate = 0;
         t = 1e-4;
         label = "__label__";

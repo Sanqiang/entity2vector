@@ -32,10 +32,6 @@ namespace entity2vec {
 
     real model::binaryLogistic(int64_t target, bool label, real lr) {
         real a = wo_->dotRow(hidden_, target);
-        if(isnan(a)){
-            printf("%d:%f \n", target, a);
-            a = 1000;
-        }
         real score = util::sigmoid(a);
         real alpha = lr * (real(label) - score);
         grad_.addRow(*wo_, target, alpha);
@@ -55,24 +51,32 @@ namespace entity2vec {
                 loss += binaryLogistic(target, true, lr);
             } else {
                 int64_t neg_target = getNegative(input, target);
+                if(neg_target == -1)
+                    return -1;
                 loss += binaryLogistic(neg_target, false, lr);
             }
         }
         return loss;
     }
 
-    uint32_t model::getNegative(int64_t input, int64_t target) {
+    int64_t model::getNegative(int64_t input, int64_t target) {
         int64_t negative = -1;
+        int64_t cnt = 0;
         if(checkIndexType(input) == 0 && checkIndexType(target) == 0){ //word-word is word
             do {
                 negative = word_negatives[negpos_word % word_negatives.size()];
                 negpos_word = (negpos_word + 1) % word_negatives.size();
+                ++cnt;
+                if(cnt > args_->neg_trial) return -1;
             } while (target == negative);
-        }else if(checkIndexType(input) == 0 && checkIndexType(target) == 1){ //
+        }else if(checkIndexType(input) == 0 && checkIndexType(target) == 1){
+
             do {
                 negative = prod_negatives[negpos_prod % prod_negatives.size()];
                 negpos_prod = (negpos_prod + 1) % prod_negatives.size();
-                if(!data_->checkCorPair(input, negative - data_->word_size_, 1)){
+                ++cnt;
+                if(cnt > args_->neg_trial) return -1;
+                if(!data_->checkCorPair(input, negative, 1)){
                     break;
                 }
             } while (1);
@@ -80,6 +84,8 @@ namespace entity2vec {
             do {
                 negative = word_negatives[negpos_word % word_negatives.size()];
                 negpos_word = (negpos_word + 1) % word_negatives.size();
+                ++cnt;
+                if(cnt > args_->neg_trial) return -1;
                 if(!data_->checkCorPair(negative, input - data_->word_size_, 1)){
                     break;
                 }
@@ -88,7 +94,9 @@ namespace entity2vec {
             do {
                 negative = tag_negatives[negpos_tag % tag_negatives.size()];
                 negpos_tag = (negpos_tag + 1) % tag_negatives.size();
-                if(!data_->checkCorPair(input, negative - data_->word_size_ - data_->prod_size_, 2)){
+                ++cnt;
+                if(cnt > args_->neg_trial) return -1;
+                if(!data_->checkCorPair(input, negative, 2)){
                     break;
                 }
             } while (1);
@@ -96,6 +104,8 @@ namespace entity2vec {
             do {
                 negative = word_negatives[negpos_word % word_negatives.size()];
                 negpos_word = (negpos_word + 1) % word_negatives.size();
+                ++cnt;
+                if(cnt > args_->neg_trial) return -1;
                 if(!data_->checkCorPair(negative, input - data_->word_size_ - data_->prod_size_, 2)){
                     break;
                 }
@@ -104,7 +114,9 @@ namespace entity2vec {
             do {
                 negative = tag_negatives[negpos_tag % tag_negatives.size()];
                 negpos_tag = (negpos_tag + 1) % tag_negatives.size();
-                if(!data_->checkCorPair(negative  - data_->word_size_ - data_->prod_size_, input- data_->word_size_, 3)){
+                ++cnt;
+                if(cnt > args_->neg_trial) return -1;
+                if(!data_->checkCorPair(negative, input- data_->word_size_, 3)){
                     break;
                 }
             } while (1);
@@ -112,12 +124,13 @@ namespace entity2vec {
             do {
                 negative = prod_negatives[negpos_prod % prod_negatives.size()];
                 negpos_prod = (negpos_prod + 1) % prod_negatives.size();
-                if(!data_->checkCorPair(input  - data_->word_size_ - data_->prod_size_, negative- data_->word_size_, 3)){
+                ++cnt;
+                if(cnt > args_->neg_trial) return -1;
+                if(!data_->checkCorPair(input  - data_->word_size_ - data_->prod_size_, negative, 3)){
                     break;
                 }
             } while (1);
         }
-
         return negative;
     }
 
@@ -176,8 +189,10 @@ namespace entity2vec {
     void model::update(int64_t input, int64_t target, real lr) {
         computeHidden(input, hidden_);
         loss_ += negativeSampling(input, target, lr);
-        nexamples_ += 1;
-        wi_->addRow(grad_, input, 1.0);
+        if(loss_ > 0) {
+            nexamples_ += 1;
+            wi_->addRow(grad_, input, 1.0);
+        }
     }
 
     real model::getLoss() const {

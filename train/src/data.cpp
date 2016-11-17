@@ -169,13 +169,13 @@ namespace entity2vec {
     bool data::checkCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) const {
         int64_t h = getHashCorPair(pair1, pair2, mode);
         if(mode == 1){
-            h = h % WORD_PROD_HASH_SIZE;
+            return cor_word_prod2idx_[h] != -1;
         }else if(mode == 2){
-            h = h % WORD_TAG_HASH_SIZE;
+            return cor_word_tag2idx_[h] != -1;
         }else if(mode == 3){
-            h = h % TAG_PROD_HASH_SIZE;
+            return cor_tag_prod2idx_[h] != -1;
         }
-        return h != -1;
+        return -1;
     }
 
     bool data::checkCorPair(const int64_t pair1_idx, const int64_t pair2_idx, uint8_t mode) const {
