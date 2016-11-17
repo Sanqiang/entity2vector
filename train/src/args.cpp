@@ -34,7 +34,7 @@ namespace entity2vec {
         output = base + "/data/model/";
 
         prod_flag = 1;
-        pretraining_flag = 0;
+        pretraining_flag = 1;
 
         load_model_flag = 0;
         load_model = "test";

@@ -93,7 +93,7 @@ namespace entity2vec{
                 localTokenCount = 0;
                 if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
                     printInfo(progress, model.getLoss());
-                    saveModel("test" + std::to_string(loop));
+                    saveModel("test_addpre" + std::to_string(loop));
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace entity2vec{
             exit(EXIT_FAILURE);
         }
         uint8_t cur_mode = 0; // 0 for words, 1 for vector
-        uint32_t cur_vector_idx = 0, cur_word_idx;
+        int64_t cur_vector_idx = 0, cur_word_idx;
         std::string word;
         char c;
         std::streambuf& sb = *ifs.rdbuf();
