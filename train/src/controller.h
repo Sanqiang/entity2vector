@@ -40,6 +40,8 @@ namespace entity2vec {
         void loadModel(std::istream& in);
         void loadModel(const std::string& filename);
 
+        void saveVectors(const std::string &name);
+
         void populate_pretraining();
 
     };
