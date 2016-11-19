@@ -25,8 +25,8 @@ void generate_vectors(){
 }
 
 int main(int argc, char** argv) {
-    //train();
-    generate_vectors();
+    train();
+    //generate_vectors();
 
     exit(0);
 

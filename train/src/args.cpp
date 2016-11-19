@@ -12,7 +12,7 @@ namespace entity2vec {
         lr = 0.05;
         dim = 300;
         ws = 5;
-        epoch = 100000;
+        epoch = 1000;
         minCount = 0;
         neg = 5;
         wordNgrams = 1;
@@ -27,7 +27,7 @@ namespace entity2vec {
         pretrainedVectors = "";
         std::string base =  getenv("HOME");
         //input_data = base + "/data/aan/paper_processed_nostem_3.txt";
-        input_data = base + "/data/yelp/review_processed_rest_0.txt";
+        input_data = base + "/data/yelp/review_processed_rest.txt";
         //input_data = base + "/data/yelp/review_processed_nostem_7.txt";
         input_data_pattern = base + "/data/yelp/review_processed_rest_{i}.txt";
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";

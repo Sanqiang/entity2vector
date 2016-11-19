@@ -95,14 +95,15 @@ namespace entity2vec{
             real lr = args_->lr * (1.0 - progress);
             localTokenCount += data_->getLine(ifs, line, prods, tags, model.rng);
             skipgram(model, lr, line, prods, tags);
-            if (localTokenCount > args_->lrUpdateRate || 1) {
-                tokenCount += localTokenCount;
-                localTokenCount = 0;
-                if (loop++ % 30000 == 0 && threadId == 0 && args_->verbose > 1) {
-                    printInfo(progress, model.getLoss());
-                    saveModel("test_addpre" + std::to_string(loop));
-                }
+
+            tokenCount += localTokenCount;
+            localTokenCount = 0;
+            loop = floor(tokenCount / args_->epoch * ntokens);
+            if (loop % 50 == 0 && threadId == 0 && args_->verbose > 1) {
+                printInfo(progress, model.getLoss());
+                saveModel("prod_sg" + std::to_string(loop));
             }
+
         }
         if (threadId == 0 && args_->verbose > 0) {
             printInfo(1.0, model.getLoss());
