@@ -36,6 +36,8 @@ namespace entity2vec {
         std::string pretrainedVectors;
 
         uint8_t prod_flag;
+        uint8_t tag_flag;
+        uint8_t mode_flag; //0 means word2vec; 1 means prod2vec; 2 means proc&tag/vec
         uint8_t pretraining_flag;
         uint8_t load_model_flag;
         std::string load_model;

@@ -33,11 +33,21 @@ namespace entity2vec {
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
         output = base + "/data/model/";
 
-        prod_flag = 1;
+        if(mode_flag == 0){
+            prod_flag = 0;
+            tag_flag = 0;
+        }else if(mode_flag == 1){
+            prod_flag = 1;
+            tag_flag = 0;
+        }else if(mode_flag == 2){
+            prod_flag = 1;
+            tag_flag = 1;
+        }
+
         pretraining_flag = 1;
 
         load_model_flag = 0;
-        load_model = "test";
+        load_model = "prod";
     }
 
     void args::save(std::ostream &out) {

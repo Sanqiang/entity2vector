@@ -34,13 +34,20 @@ namespace entity2vec{
             ifs.close();
             std::cout<<"finish reading file"<<std::endl;
 
-            if(args_->prod_flag){
+            if(args_->prod_flag && args_->tag_flag){
                 input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods() + data_->ntags(), args_->dim);
                 input_->uniform(1.0 / args_->dim);
 
                 output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods() + data_->ntags(), args_->dim);
                 output_->zero();
-            }else{
+            }else if(args_->prod_flag){
+                input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
+                input_->uniform(1.0 / args_->dim);
+
+                output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods() + data_->ntags(), args_->dim);
+                output_->zero();
+            }
+            else{
                 input_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
                 input_->uniform(1.0 / args_->dim);
 
@@ -205,7 +212,9 @@ namespace entity2vec{
                     model.update(prods[l] + data_->nwords(), line[w], lr);
                     model.update(line[w],prods[l] + data_->nwords(), lr);
                 }
+            }
 
+            if(args_->tag_flag){
                 //word - tag
                 for (int64_t l = 0; l < tags.size(); l++) {
                     if(tags[l]  < 0){
@@ -216,7 +225,7 @@ namespace entity2vec{
                 }
             }
         }
-        if(args_->prod_flag) {
+        if(args_->tag_flag) {
             //tag - prod
             for (int64_t k = 0; k < prods.size(); k++) {
                 if(prods[k] < 0){ continue;}
