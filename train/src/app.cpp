@@ -20,13 +20,13 @@ void generate_vectors(){
 
     controller con;
     con.args_ = a;
-    con.loadModel("test1");
-    con.saveVectors("test1");
+    con.loadModel("test_addpre2880001");
+    con.saveVectors("test0");
 }
 
 int main(int argc, char** argv) {
-    train();
-    //generate_vectors();
+    //train();
+    generate_vectors();
 
     exit(0);
 

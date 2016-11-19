@@ -33,6 +33,7 @@ namespace entity2vec {
         input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
         output = base + "/data/model/";
 
+        mode_flag = 2;
         if(mode_flag == 0){
             prod_flag = 0;
             tag_flag = 0;
