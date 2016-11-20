@@ -80,6 +80,7 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
+            negative += data_->word_size_;
         }else if(checkIndexType(input) == 1 && checkIndexType(target) == 0){
             do {
                 negative = word_negatives[negpos_word % word_negatives.size()];
@@ -100,6 +101,7 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
+            negative += data_->word_size_ + data_->prod_size_;
         }else if(checkIndexType(input) == 2 && checkIndexType(target) == 0){
             do {
                 negative = word_negatives[negpos_word % word_negatives.size()];
@@ -110,6 +112,7 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
+            negative += data_->word_size_ + data_->prod_size_;
         }else if(checkIndexType(input) == 1 && checkIndexType(target) == 2){
             do {
                 negative = tag_negatives[negpos_tag % tag_negatives.size()];
@@ -120,6 +123,7 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
+            negative += data_->word_size_ + data_->prod_size_;
         }else if(checkIndexType(input) == 2 && checkIndexType(target) == 1){
             do {
                 negative = prod_negatives[negpos_prod % prod_negatives.size()];
@@ -130,6 +134,7 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
+            negative += data_->word_size_;
         }
         return negative;
     }
