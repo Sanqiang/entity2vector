@@ -296,7 +296,7 @@ namespace entity2vec{
             std::cout << "Error opening file for saving vectors." << std::endl;
            exit(EXIT_FAILURE);
         }
-        saveModel(ofs_word, ofs_word, ofs_word);
+        saveModel(ofs_word, ofs_prod, ofs_tag);
         ofs_word.close();
         ofs_prod.close();
         ofs_tag.close();
