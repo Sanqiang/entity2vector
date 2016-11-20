@@ -98,10 +98,10 @@ namespace entity2vec{
 
             tokenCount += localTokenCount;
             localTokenCount = 0;
-            if (loop++ % 1000 == 0 && threadId == 0 && args_->verbose > 1) {
+            if (loop++ % 10000 == 0 && threadId == 0 && args_->verbose > 1) {
                 printInfo(progress, model.getLoss());
-                saveModel("prod_sg_" + std::to_string(progress*args_->epoch));
-                saveVectors("prod_sg_" + std::to_string(progress*args_->epoch));
+                saveModel(args_->load_model + std::to_string(floor(progress*args_->epoch)));
+                saveVectors(args_->load_model + std::to_string(floor(progress*args_->epoch)));
             }
 
         }

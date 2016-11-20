@@ -47,7 +47,7 @@ namespace entity2vec {
         pretraining_flag = 1;
 
         load_model_flag = 0;
-        load_model = "prod";
+        load_model = "mode_flag_2_";
     }
 
     void args::save(std::ostream &out) {
