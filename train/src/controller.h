@@ -37,6 +37,7 @@ namespace entity2vec {
         void printWords(std::string word, uint32_t k);
 
         void saveModel(std::string name);
+        void saveModel(std::ostream &ofs_word, std::ostream &ofs_prod, std::ostream &ofs_tag);
         void loadModel(std::istream& in);
         void loadModel(const std::string& filename);
 

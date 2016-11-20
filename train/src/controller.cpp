@@ -98,10 +98,10 @@ namespace entity2vec{
 
             tokenCount += localTokenCount;
             localTokenCount = 0;
-            loop = floor(tokenCount / (args_->epoch * ntokens));
-            if (loop % 50 == 0 && threadId == 0 && args_->verbose > 1) {
+            if (loop++ % 1000 == 0 && threadId == 0 && args_->verbose > 1) {
                 printInfo(progress, model.getLoss());
-                saveModel("prod_sg_" + std::to_string(loop));
+                saveModel("prod_sg_" + std::to_string(progress*args_->epoch));
+                saveVectors("prod_sg_" + std::to_string(progress*args_->epoch));
             }
 
         }
@@ -280,70 +280,74 @@ namespace entity2vec{
     }
 
     void controller::saveVectors(const std::string &name) {
-        std::ofstream ofs_word(args_->output + name + ".word.vec");
+        std::string path = args_->output + name + ".word.vec";
+        std::ofstream ofs_word(path, std::ofstream::binary);
         if (!ofs_word.is_open()) {
             std::cout << "Error opening file for saving vectors." << std::endl;
             exit(EXIT_FAILURE);
         }
+        std::ofstream ofs_prod(args_->output + name + ".prod.vec");
+        if (!ofs_prod.is_open()) {
+            std::cout << "Error opening file for saving vectors." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        std::ofstream ofs_tag(args_->output + name + ".tag.vec");
+        if (!ofs_tag.is_open()) {
+            std::cout << "Error opening file for saving vectors." << std::endl;
+           exit(EXIT_FAILURE);
+        }
+        saveModel(ofs_word, ofs_word, ofs_word);
+        ofs_word.close();
+        ofs_prod.close();
+        ofs_tag.close();
+    }
+
+    void controller::saveModel(std::ostream &ofs_word, std::ostream &ofs_prod, std::ostream &ofs_tag) {
         ofs_word << data_->nwords() << " " << args_->dim << std::endl;
         vector vec_word(args_->dim);
         for (uint32_t i = 0; i < data_->nwords(); i++) {
             std::string word = data_->getWord(i);
             for (uint32_t j = 0; j < args_->dim; ++j) {
-                vec_word.setData(input_->data_[i*args_->dim + j],i);
+                vec_word.setData(input_->data_[i*args_->dim + j],j);
             }
-            //vec_word.normalize();
+            vec_word.normalize();
 
-            ofs_word << word << " ";
+            ofs_word << word.data() << " ";
             for (uint32_t j = 0; j < args_->dim; ++j) {
                 ofs_word << vec_word.data_[j];
                 if(j == args_->dim - 1){
-                    ofs_word << std::endl;
+                    ofs_word << "\n";
                 }else{
                     ofs_word << " ";
                 }
             }
         }
 
-        ofs_word.close();
-
-        /*
-        std::ofstream ofs_prod(args_->output + name + ".prod.vec");
-        if (!ofs_prod.is_open()) {
-            std::cout << "Error opening file for saving vectors." << std::endl;
-            exit(EXIT_FAILURE);
-        }
         ofs_prod << data_->nprods() << " " << args_->dim << std::endl;
         vector vec_prod(args_->dim);
         for (int32_t i = 0; i < data_->nprods(); i++) {
             std::string prod = data_->getProd(i);
             for (uint32_t j = 0; j < args_->dim; ++j) {
-                vec_prod.setData(input_->data_[i*args_->dim + j],i);
+                vec_prod.setData(input_->data_[i*args_->dim + j],j);
             }
             vec_prod.normalize();
-
             ofs_prod << prod << " ";
             for (uint32_t j = 0; j < args_->dim; ++j) {
                 ofs_prod << vec_prod.data_[j];
                 if(j == args_->dim - 1){
-                    ofs_prod << std::endl;
+                    ofs_prod << "\n";
                 }else{
                     ofs_prod << " ";
                 }
             }
         }
 
-        std::ofstream ofs_tag(args_->output + name + ".tag.vec");
-        if (!ofs_tag.is_open()) {
-            std::cout << "Error opening file for saving vectors." << std::endl;
-            exit(EXIT_FAILURE);
-        }
         ofs_tag << data_->ntags() << " " << args_->dim << std::endl;
         vector vec_tag(args_->dim);
         for (int32_t i = 0; i < data_->ntags(); i++) {
             std::string tag = data_->getTag(i);
             for (uint32_t j = 0; j < args_->dim; ++j) {
-                vec_tag.setData(input_->data_[i*args_->dim + j],i);
+                vec_tag.setData(input_->data_[i*args_->dim + j],j);
             }
             vec_tag.normalize();
 
@@ -351,15 +355,13 @@ namespace entity2vec{
             for (uint32_t j = 0; j < args_->dim; ++j) {
                 ofs_tag << vec_tag.data_[j];
                 if(j == args_->dim - 1){
-                    ofs_tag << std::endl;
+                    ofs_tag << "\n";
                 }else{
                     ofs_tag << " ";
                 }
             }
         }
-         */
-
-//        ofs_prod.close();
-//        ofs_tag.close();
     }
+
+
 }

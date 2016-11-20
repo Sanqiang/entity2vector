@@ -15,7 +15,6 @@ namespace entity2vec {
         epoch = 1000;
         minCount = 0;
         neg = 5;
-        wordNgrams = 1;
         minn = 0;
         maxn = 6;
         thread = 8;
