@@ -50,6 +50,9 @@ namespace entity2vec {
             if (n == 0) {
                 loss += binaryLogistic(target, true, lr);
             } else {
+                if (input == 94313){
+                    int x= 1;
+                }
                 int64_t neg_target = getNegative(input, target);
                 if(neg_target == -1)
                     return -1;
@@ -112,7 +115,6 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
-            negative += data_->word_size_ + data_->prod_size_;
         }else if(checkIndexType(input) == 1 && checkIndexType(target) == 2){
             do {
                 negative = tag_negatives[negpos_tag % tag_negatives.size()];

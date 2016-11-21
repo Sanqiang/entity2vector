@@ -239,7 +239,7 @@ namespace entity2vec{
             for (int64_t k = 0; k < prods.size(); k++) {
                 if(prods[k] < 0){ continue;}
                 for (int64_t l = 0; l < tags.size(); l++) {
-                    if(tags[l] < 0){ continue;}
+                    if(tags[l] < 0 || prods[k] < 0){ continue;}
                     model.update(tags[l] + data_->nwords() + data_->nprods(), prods[k] + data_->nwords() , lr);
                     model.update(prods[k] + data_->nwords() ,tags[l] + data_->nwords() + data_->nprods(), lr);
                 }
