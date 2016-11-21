@@ -15,7 +15,7 @@ namespace entity2vec{
         data_ = nullptr;
     }
 
-    matrix::matrix(uint32_t m, uint32_t n) {
+    matrix::matrix(uint64_t m, uint64_t n) {
         m_ = m;
         n_ = n;
         data_ = new real[m * n];
@@ -24,13 +24,13 @@ namespace entity2vec{
     void matrix::uniform(real a) {
         std::minstd_rand rng(1);
         std::uniform_real_distribution<> uniform(-a, a);
-        for (uint32_t i = 0; i < (m_ * n_); i++) {
+        for (uint64_t i = 0; i < (m_ * n_); i++) {
             data_[i] = uniform(rng);
         }
     }
 
     void matrix::zero() {
-        for (uint32_t i = 0; i < (m_ * n_); i++) {
+        for (uint64_t i = 0; i < (m_ * n_); i++) {
             data_[i] = 0.0;
         }
     }
@@ -67,7 +67,7 @@ namespace entity2vec{
         data_[m*n_ + n] = val;
     }
 
-    std::vector<std::pair<real, int>> matrix::findSimilarRow(uint32_t i, uint32_t k, uint32_t range_start, uint32_t range_end) {
+    std::vector<std::pair<real, int>> matrix::findSimilarRow(int64_t i, uint32_t k, uint32_t range_start, uint32_t range_end) {
         std::priority_queue<std::pair<real, int>> q;
 
         real *target_arr, *temp_arr;

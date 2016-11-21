@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <fstream>
 #include "data.h"
+#include <unordered_set>
 
 namespace entity2vec {
 
@@ -46,17 +47,61 @@ namespace entity2vec {
     real model::negativeSampling(int64_t input, int64_t target, real lr) {
         real loss = 0.0;
         grad_.zero();
-        for (uint32_t n = 0; n <= args_->neg; n++) {
-            if (n == 0) {
-                loss += binaryLogistic(target, true, lr);
-            } else {
-                if (input == 94313){
-                    int x= 1;
+        if(args_->neg_flag == 0 || (checkIndexType(input) == 0 && checkIndexType(target) == 0)) {
+            for (uint32_t n = 0; n <= args_->neg; n++) {
+                if (n == 0) {
+                    loss += binaryLogistic(target, true, lr);
+                } else {
+                    int64_t neg_target = getNegative(input, target);
+                    if (neg_target == -1)
+                        return -1;
+                    loss += binaryLogistic(neg_target, false, lr);
                 }
-                int64_t neg_target = getNegative(input, target);
-                if(neg_target == -1)
-                    return -1;
-                loss += binaryLogistic(neg_target, false, lr);
+            }
+        }else if(args_->neg_flag == 1){
+            loss += binaryLogistic(target, true, lr);
+            if(checkIndexType(target) == 0){
+                if(checkIndexType(input) == 1){
+                    for (int64_t i = 0; i < data_->word_size_; i++) {
+                        if(!data_->word_prod_tab[i*data_->prod_size_ + input]){
+                            loss += binaryLogistic(transform_dic2matrix(i,0), false, lr);
+                        }
+                    }
+                }else if(checkIndexType(input) == 2){
+                    for (int64_t i = 0; i < data_->word_size_; i++) {
+                        if(!data_->word_tag_tab[i*data_->tag_size_ + input]){
+                            loss += binaryLogistic(transform_dic2matrix(i,0), false, lr);
+                        }
+                    }
+                }
+            }else if(checkIndexType(target) == 1){
+                if(checkIndexType(input) == 0){
+                    for (int64_t i = 0; i < data_->prod_size_; i++) {
+                        if(!data_->word_prod_tab[input*data_->prod_size_ + i]){
+                            loss += binaryLogistic(transform_dic2matrix(i,1), false, lr);
+                        }
+                    }
+                }else if(checkIndexType(input) == 2){
+                    for (int64_t i = 0; i < data_->prod_size_; i++) {
+                        if(!data_->tag_prod_tab[input*data_->prod_size_ + i]){
+                            loss += binaryLogistic(transform_dic2matrix(i,1), false, lr);
+                        }
+                    }
+                }
+            }else if(checkIndexType(target) == 2){
+                if(checkIndexType(input) == 0){
+                    for (int64_t i = 0; i < data_->tag_size_; i++) {
+                        if(!data_->word_tag_tab[input*data_->tag_size_ + i]){
+                            loss += binaryLogistic(transform_dic2matrix(i,2), false, lr);
+                        }
+                    }
+                }else if(checkIndexType(input) == 1){
+                    for (int64_t i = 0; i < data_->tag_size_; i++) {
+                        if(!data_->tag_prod_tab[i*data_->prod_size_ + input]){
+                            loss += binaryLogistic(transform_dic2matrix(i,2), false, lr);
+                        }
+                    }
+                }
             }
         }
         return loss;
@@ -83,7 +128,8 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
-            negative += data_->word_size_;
+            //negative += data_->word_size_;
+            negative = transform_dic2matrix(negative, 1);
         }else if(checkIndexType(input) == 1 && checkIndexType(target) == 0){
             do {
                 negative = word_negatives[negpos_word % word_negatives.size()];
@@ -104,7 +150,8 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
-            negative += data_->word_size_ + data_->prod_size_;
+            //negative += data_->word_size_ + data_->prod_size_;
+            negative = transform_dic2matrix(negative, 2);
         }else if(checkIndexType(input) == 2 && checkIndexType(target) == 0){
             do {
                 negative = word_negatives[negpos_word % word_negatives.size()];
@@ -125,7 +172,8 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
-            negative += data_->word_size_ + data_->prod_size_;
+            //negative += data_->word_size_ + data_->prod_size_;
+            negative = transform_dic2matrix(negative, 2);
         }else if(checkIndexType(input) == 2 && checkIndexType(target) == 1){
             do {
                 negative = prod_negatives[negpos_prod % prod_negatives.size()];
@@ -136,7 +184,8 @@ namespace entity2vec {
                     break;
                 }
             } while (1);
-            negative += data_->word_size_;
+            //negative += data_->word_size_;
+            negative = transform_dic2matrix(negative, 1);
         }
         return negative;
     }
@@ -150,24 +199,24 @@ namespace entity2vec {
         const std::vector<uint32_t> counts = data_->getWordCounts();
         real z = 0.0;
         for (size_t i = 0; i < counts.size(); i++) {
-            z += pow(counts[i], 0.5);
+            z += pow(counts[i], 0.75);
         }
         for (size_t i = 0; i < counts.size(); i++) {
-            real c = pow(counts[i], 0.5);
+            real c = pow(counts[i], 0.75);
             for (size_t j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
                 word_negatives.push_back(i);
             }
         }
         std::shuffle(word_negatives.begin(), word_negatives.end(), rng);
 
-        if(args_->prod_flag){
+        if(args_->prod_flag && args_->neg_flag == 0){
             const std::vector<uint32_t> counts_prod = data_->getProdCounts();
             real z_prod = 0.0;
             for (size_t i = 0; i < counts_prod.size(); i++) {
-                z_prod += pow(counts_prod[i], 0.5);
+                z_prod += pow(counts_prod[i], 0.75);
             }
             for (size_t i = 0; i < counts_prod.size(); i++) {
-                real c = pow(counts_prod[i], 0.5);
+                real c = pow(counts_prod[i], 0.75);
                 for (size_t j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
                     prod_negatives.push_back(i);
                 }
@@ -177,10 +226,10 @@ namespace entity2vec {
             const std::vector<uint32_t> counts_tag = data_->getTagCounts();
             real z_tag = 0.0;
             for (size_t i = 0; i < counts_tag.size(); i++) {
-                z_tag += pow(counts_tag[i], 0.5);
+                z_tag += pow(counts_tag[i], 0.75);
             }
             for (size_t i = 0; i < counts_tag.size(); i++) {
-                real c = pow(counts_tag[i], 0.5);
+                real c = pow(counts_tag[i], 0.75);
                 for (size_t j = 0; j < c * NEGATIVE_TABLE_SIZE / z; j++) {
                     tag_negatives.push_back(i);
                 }
@@ -229,4 +278,25 @@ namespace entity2vec {
             return 2;
         }
     }
+
+    int64_t model::transform_matrix2dic(int64_t index) {
+        if(checkIndexType(index) == 0){
+            return index;
+        }else if(checkIndexType(index) == 1){
+            return index - n_words_;
+        }else if(checkIndexType(index) == 2){
+            return index - n_words_ - n_prods_;
+        }
+    }
+
+    int64_t model::transform_dic2matrix(int64_t index, uint8_t mode) {
+        if(mode == 0){
+            return index;
+        }else if(mode == 1){
+            return index + n_words_;
+        }else if(mode == 2){
+            return index + n_words_ + n_prods_;
+        }
+    }
+
 }

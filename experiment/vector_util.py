@@ -88,7 +88,7 @@ if __name__ == '__main__':
         vec = Vector()
         vec.most_similar_ori()
     if True:
-        name = "prod_sg_16.972754"
+        name = "mode_flag_2_2012.000000"
         path_prod_vector = "".join((home, "/data/model/", name, ".prod.vec"))
         path_tag_vector = "".join((home, "/data/model/", name, ".tag.vec"))
         path_word_vector = "".join((home, "/data/model/", name, ".word.vec"))
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         while True:
             word = input()
             if check_rest:
-                pairs = vec.most_similar(vec.word2idx[word], restrict_inds=range(vec.vocab_sizes[0], vec.vocab_sizes[0]+vec.vocab_sizes[1]))
+                pairs = vec.most_similar(vec.word2idx[word], restrict_inds=range(0, vec.vocab_sizes[0] + vec.vocab_sizes[1] + vec.vocab_sizes[2]))
             else:
                 pairs = vec.most_similar(vec.word2idx[word])
             for prod_id, dist in pairs:

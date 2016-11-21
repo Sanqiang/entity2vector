@@ -13,6 +13,7 @@
 #include <vector>
 #include <memory>
 #include "data.h"
+#include <unordered_set>
 
 namespace entity2vec {
     class model {
@@ -37,6 +38,7 @@ namespace entity2vec {
         std::vector<uint32_t> prod_negatives;
         std::vector<uint32_t> tag_negatives;
         size_t negpos_word, negpos_prod, negpos_tag;
+        std::unordered_set<int64_t> duplicate_set;
     public:
         static const int64_t NEGATIVE_TABLE_SIZE = 10000000;
 
@@ -56,6 +58,8 @@ namespace entity2vec {
         void initWordNegSampling();
 
         uint8_t checkIndexType(int64_t index); //0:word 1:prod 2:tag
+        int64_t transform_dic2matrix(int64_t index, uint8_t mode); //0:word 1:prod 2:tag
+        int64_t transform_matrix2dic(int64_t index);
 
         std::minstd_rand rng;
     };

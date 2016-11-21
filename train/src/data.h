@@ -6,6 +6,7 @@
 #define TRAIN_DATA_H
 
 #include "args.h"
+#include "matrix.h"
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -71,6 +72,10 @@ namespace entity2vec {
         std::vector<int64_t> cor_word_prod2idx_;
         std::vector<int64_t> cor_word_tag2idx_;
         std::vector<int64_t> cor_tag_prod2idx_;
+
+        bool* word_prod_tab;
+        bool* word_tag_tab;
+        bool* tag_prod_tab;
 
         explicit data(std::shared_ptr<args> args);
 

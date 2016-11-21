@@ -12,6 +12,7 @@
 #include "util.h"
 #include "args.h"
 #include <regex>
+#include <unordered_set>
 
 namespace entity2vec{
 
@@ -98,7 +99,7 @@ namespace entity2vec{
 
             tokenCount += localTokenCount;
             localTokenCount = 0;
-            if (loop++ % 10000 == 0 && threadId == 0 && args_->verbose > 1) {
+            if (loop++ % 100 == 0 && threadId == 0 && args_->verbose > 1) {
                 printInfo(progress, model.getLoss());
                 saveModel(args_->load_model + std::to_string(floor(progress*args_->epoch)));
                 saveVectors(args_->load_model + std::to_string(floor(progress*args_->epoch)));
@@ -218,8 +219,8 @@ namespace entity2vec{
                     if(prods[l]  < 0){
                         continue;
                     }
-                    model.update(prods[l] + data_->nwords(), line[w], lr);
-                    model.update(line[w],prods[l] + data_->nwords(), lr);
+                    model.update(model_->transform_dic2matrix(prods[l], 1), line[w], lr);
+                    //model.update(line[w],model_->transform_dic2matrix(prods[l], 1), lr);
                 }
             }
 
@@ -229,8 +230,8 @@ namespace entity2vec{
                     if(tags[l]  < 0){
                         continue;
                     }
-                    model.update(line[w], tags[l] + data_->nwords() + data_->nprods(), lr);
-                    model.update(tags[l] + data_->nwords() + data_->nprods(), line[w], lr);
+                    //model.update(line[w], model_->transform_dic2matrix(tags[l], 2), lr);
+                    model.update(model_->transform_dic2matrix(tags[l], 2), line[w], lr);
                 }
             }
         }
@@ -240,8 +241,8 @@ namespace entity2vec{
                 if(prods[k] < 0){ continue;}
                 for (int64_t l = 0; l < tags.size(); l++) {
                     if(tags[l] < 0 || prods[k] < 0){ continue;}
-                    model.update(tags[l] + data_->nwords() + data_->nprods(), prods[k] + data_->nwords() , lr);
-                    model.update(prods[k] + data_->nwords() ,tags[l] + data_->nwords() + data_->nprods(), lr);
+                    //model.update(model_->transform_dic2matrix(tags[l], 2), model_->transform_dic2matrix(prods[k], 1) , lr);
+                    //model.update(model_->transform_dic2matrix(prods[k], 1) ,model_->transform_dic2matrix(tags[l], 2), lr);
                 }
             }
         }
