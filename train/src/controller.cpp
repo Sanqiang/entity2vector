@@ -54,7 +54,7 @@ namespace entity2vec{
                 output_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
                 output_->zero();
             }
-
+            model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
             if(args_->pretraining_flag) {
                 std::cout << "start reading pretraining file" << std::endl;
                 populate_pretraining();
@@ -151,11 +151,19 @@ namespace entity2vec{
 
     void controller::printWords(std::string word, uint32_t k) {
         uint32_t i = data_->getWordId(word);
-        std::vector<std::pair<real, int>> pairs = input_->findSimilarRow(i, k, 0, data_->nwords()-1);
+        std::vector<std::pair<real, int>> pairs = input_->findSimilarRow(i, k, 0, data_->nwords()+data_->nprods()+data_->ntags()-1);
 
         std::cout << "" <<word<< " : ";
         for (auto it = pairs.begin(); it != pairs.end(); ++it){
-            std::cout << data_->getWord(it->second) << "\t";
+            int64_t id = it->second;
+            if(0 == model_->checkIndexType(id)){
+                std::cout << data_->getWord(id) << "\t";
+            }else if(1 == model_->checkIndexType(id)){
+                std::cout << data_->getProd(id - data_->nwords()) << "\t";
+            }else if(2 == model_->checkIndexType(id)){
+                std::cout << data_->getTag(id - data_->nwords() - data_->nprods()) << "\t";
+            }
+
         }
         std::cout << std::endl;
     }
@@ -177,9 +185,9 @@ namespace entity2vec{
         if(args_->verbose > 2) {
             printWords("steak", 10);
             printWords("seafood", 10);
-            printWords("delici", 10);
-            printWords("yummi", 10);
-            printWords("good", 10);
+            printWords("grill", 10);
+            printWords("chines", 10);
+            printWords("bbq", 10);
         }
         std::cout << std::endl;
         std::cout << std::endl;

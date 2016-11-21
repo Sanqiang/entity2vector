@@ -12,9 +12,9 @@ namespace entity2vec {
         lr = 0.05;
         dim = 300;
         ws = 5;
-        epoch = 1000;
+        epoch = 10000;
         minCount = 0;
-        neg = 5;
+        neg = 15;
         minn = 0;
         maxn = 6;
         thread = 8;

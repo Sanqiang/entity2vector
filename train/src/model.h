@@ -37,9 +37,6 @@ namespace entity2vec {
         std::vector<uint32_t> prod_negatives;
         std::vector<uint32_t> tag_negatives;
         size_t negpos_word, negpos_prod, negpos_tag;
-
-        uint8_t checkIndexType(int64_t index); //0:word 1:prod 2:tag
-
     public:
         static const int64_t NEGATIVE_TABLE_SIZE = 10000000;
 
@@ -57,6 +54,8 @@ namespace entity2vec {
         void update(int64_t input, int64_t target, real lr);
         void initTableNegatives();
         void initWordNegSampling();
+
+        uint8_t checkIndexType(int64_t index); //0:word 1:prod 2:tag
 
         std::minstd_rand rng;
     };

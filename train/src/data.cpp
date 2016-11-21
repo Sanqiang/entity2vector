@@ -274,7 +274,6 @@ namespace entity2vec {
                 word.push_back(c);
             }
         }
-        addWord(word); //for last word
         threshold(args_->minCount);
         if (args_->verbose > 0) {
             std::cout <<  std::endl;
