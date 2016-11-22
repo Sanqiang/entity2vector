@@ -5,7 +5,7 @@ from util.text_process import TextProcess
 
 home = os.environ["HOME"]
 path = "".join((home, "/data/yelp/review.json"))
-path_processed = "".join((home, "/data/yelp/review_processed_rest.txt"))
+path_processed = "".join((home, "/data/yelp/review_processed_rest_v2.txt"))
 
 filter_rest = True
 prods = set()
