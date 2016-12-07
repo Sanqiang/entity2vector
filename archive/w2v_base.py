@@ -47,7 +47,7 @@ class W2V_base:
         # train based
         self.batch_size = 300
         self.embedding_size = 128  # Dimension of the embedding vector.
-        self.raw_sample_probs =  [0.4, 0.3, 0.15, 0.1, 0.05, 0.4, 0.3, 0.15, 0.1, 0.05]  # context word sample prob
+        self.raw_sample_probs =  [0.4, 0.3, 0.15, 0.1, 0.05]  # context word sample prob
         self.skip_window = len(self.raw_sample_probs)  # How many words to consider left and right.
         self.sample_probs = []
         sum = 0
@@ -63,7 +63,7 @@ class W2V_base:
         self.data_type = "yelp"
         self.file_encoding = "utf-8"
         # extension
-        self.pos_mode = True
+        self.pos_mode = False
 
         if self.pos_mode:
             self.interest_words = {}
@@ -107,6 +107,7 @@ class W2V_base:
 
         # out of loop word based
         self.word_count += Counter(reduce(lambda x, y: x + y, self.parse(batch_text_data)))  # not forget last batch
+        print("finish populate count")
 
         # self.word_count = self.word_count.most_common(self.vocab_size)
         self.temp_word_count = Counter()
@@ -117,6 +118,7 @@ class W2V_base:
         self.word_count = self.temp_word_count
         del self.word_count["<UNK>"]
         self.vocab_size = len(self.word_count)
+        print("finish count")
 
         #sort word
         self.word_count = self.word_count.most_common(self.vocab_size)
@@ -137,6 +139,7 @@ class W2V_base:
                     self.prod2idx[prod] = prod_idx
                     self.idx2prod[prod_idx] = prod
 
+        print("finish idx2word")
         # populate data
         with open(self.path, "r", encoding=self.file_encoding) as ins:
             for line in ins:
@@ -153,6 +156,7 @@ class W2V_base:
                     self.user2idx[user] = user_idx
                     self.idx2user[user_idx] = user
 
+        print("finish data populate")
         # calculate the sample
         # threshold_count = self.sample * self.total_count
         # for word in self.word_count:
@@ -164,7 +168,7 @@ class W2V_base:
                        "idx2user": self.idx2user, "user2idx": self.user2idx, "prod2idx": self.prod2idx,
                        "idx2prod": self.idx2prod}
         pickle.dump(pickle_data, f)
-
+        print("finish pickle")
     # def get_stat_pos(self):
     #     filename = "/".join((self.folder, "stat_pos"))
     #     if os.path.exists(filename):
