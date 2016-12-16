@@ -14,6 +14,8 @@ from scipy.sparse import dok_matrix
 from gensim.models import Word2Vec
 import numpy as np
 import math
+import os
+home = os.environ["HOME"]
 
 class W2V_cpp2(W2V_base):
     def __init__(self, path, folder, prod_sign=False, usr_sign=False, pos_sign=False):
@@ -348,7 +350,7 @@ class W2V_cpp2(W2V_base):
 
 def main():
     #w2v_cpp2 = W2V_cpp2("/home/sanqiang/data/yelp/review_rest.json", "yelp_rest_allalphaword_yelp_mincnt10_win10", prod_sign=True, pos_sign=True)
-    w2v_cpp2 = W2V_cpp2("/Users/zhaosanqiang916/data/yelp/review_rest.json", "yelp_rest_prod",
+    w2v_cpp2 = W2V_cpp2("".join([home, "/data/yelp/review_rest.json"]), "yelp_rest_prod",
                         pos_sign=True, usr_sign=False, prod_sign=True)
     print("init")
 

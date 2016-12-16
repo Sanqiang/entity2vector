@@ -1,9 +1,11 @@
 #prepare the data set
 
 import json
+import os
+home = os.environ["HOME"]
 
 if False: #check category list
-    f = open("/home/sanqiang/data/yelp/business.json","r")
+    f = open("".join([home, "/data/yelp/business.json"]),"r")
     categories_set = set()
     for line in f:
         obj = json.loads(line)
@@ -16,7 +18,7 @@ if False: #check category list
         print(category)
 
 if True: #only generate Restaurants
-    f = open("/home/sanqiang/data/yelp/business.json","r")
+    f = open("".join([home, "/data/yelp/business.json"]),"r")
     interested_business_id = set()
 
     for line in f:
@@ -26,8 +28,8 @@ if True: #only generate Restaurants
         if "Restaurants" in categories:
             interested_business_id.add(business_id)
 
-    f = open("/home/sanqiang/data/yelp/review.json","r")
-    fu = open("/home/sanqiang/data/yelp/review_rest.json","w")
+    f = open("".join([home, "/data/yelp/review.json"]),"r")
+    fu = open("".join([home, "/data/yelp/review_rest.json"]),"w")
     nline = ""
     ncount = 0
     for line in f:
