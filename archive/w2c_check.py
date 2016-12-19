@@ -1,6 +1,8 @@
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
 from gensim.models.word2vec import Word2Vec
+import os
+home = os.environ["HOME"]
 
 if False:
     #path = "/home/sanqiang/git/entity2vector/yelp_nv/result/multi_thread_446"
@@ -36,7 +38,8 @@ if False:
             print(nword)
         print("=======")
 if True:
-    model = Word2Vec.load_word2vec_format("/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/result/multi_thread_hs_d2014")
+    path = "".join([home, "/git/entity2vector/archive/yelp_rest_prod/output/model_89"])
+    model = Word2Vec.load_word2vec_format(path)
     print("finished init")
     while True:
         word = input()

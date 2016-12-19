@@ -354,7 +354,7 @@ def main():
                         pos_sign=True, usr_sign=False, prod_sign=True)
     print("init")
 
-    if False:
+    if True:
         print("vector")
         idx2interested_words, interested_words2idx = w2v_cpp2.process_vector()
         w2v_cpp2.generate_word(interested_words2idx)
@@ -362,7 +362,7 @@ def main():
         print("process")
         w2v_cpp2.process(interested_words2idx)
 
-    if True:
+    if False:
         #w2v_cpp2.split()
 
         #w2v_cpp2.populate_entity("/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/output/model_75", "/Users/zhaosanqiang916/git/entity2vector/yelp_rest_prod/prod.txt", prod_model=True)

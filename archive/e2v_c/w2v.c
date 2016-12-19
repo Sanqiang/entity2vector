@@ -6,7 +6,6 @@
 #include <string.h>
 #include <math.h>
 #include <pthread.h>
-#include <jmorecfg.h>
 #include <sys/mman.h>
 #include "model.c"
 
@@ -404,17 +403,19 @@ void train(){
 
 int main(int argc, char **argv) {
     alpha = 0.025;
-    vocab_size = 86632;//86632 for rest 123587 for all
+    vocab_size = 63258;//86632 for rest 123587 for all
     layer1_size = 200;
-    n_dataset =  717660641;//717660641 for rest 1203551737 for all
+    n_dataset =  69242128;//717660641 for rest 1203551737 for all
     n_threads = 5;
     n_negative = 10;
-    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pair.txt");
-    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pairword.txt");
-    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/result/d200_neg10_");
-    strcpy(model_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/model/");
-    //strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
-    //strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
+//    strcpy(train_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pair.txt");
+//    strcpy(word_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/pairword.txt");
+//    strcpy(output_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/result/d200_neg10_");
+//    strcpy(model_file, "/home/sanqiang/git/entity2vector/yelp_rest_allalphaword_yelp_mincnt10_win10/model/");
+    strcpy(train_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pair.txt");
+    strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
+    strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
+    strcpy(word_file, "/Users/zhaosanqiang916/git/entity2vector/amz_video/pairword.txt");
     init();
     printf("finished init for %s.", train_file);
     train();

@@ -12,9 +12,12 @@ from stemmer import PorterStemmer
 from functools import reduce
 import re
 from nltk.corpus import stopwords
+import sys
 
 #only work for w2v_cpp,w2v_cpp2
 class W2V_base:
+    max_bytes = 2 ** 31 - 1
+
     def default_idx(self):
         return -1
 
@@ -63,7 +66,7 @@ class W2V_base:
         self.data_type = "yelp"
         self.file_encoding = "utf-8"
         # extension
-        self.pos_mode = False
+        self.pos_mode = True
 
         if self.pos_mode:
             self.interest_words = {}
@@ -77,8 +80,12 @@ class W2V_base:
     def get_stat(self):
         filename = "/".join((self.folder, "stat"))
         if os.path.exists(filename):
-            f = open(filename, 'rb')
-            obj = pickle.load(f)
+            bytes_in = bytearray(0)
+            input_size = os.path.getsize(filename)
+            with open(filename, 'rb') as f_in:
+                for _ in range(0,input_size , self.max_bytes):
+                    bytes_in += f_in.read(self.max_bytes)
+            obj = pickle.loads(bytes_in)
             self.word2idx = obj["word2idx"]
             self.idx2word = obj["idx2word"]
             self.word_count = obj["word_count"]
@@ -167,8 +174,13 @@ class W2V_base:
                        "word_sample": self.word_sample, "total_count": self.total_count, "data": self.data,
                        "idx2user": self.idx2user, "user2idx": self.user2idx, "prod2idx": self.prod2idx,
                        "idx2prod": self.idx2prod}
-        pickle.dump(pickle_data, f)
+
+        bytes_out = pickle.dumps(pickle_data)
+        with open(filename, 'wb') as f_out:
+            for idx in range(0, sys.getsizeof(bytes_out), self.max_bytes):
+                f_out.write(bytes_out[idx:idx + self.max_bytes])
         print("finish pickle")
+
     # def get_stat_pos(self):
     #     filename = "/".join((self.folder, "stat_pos"))
     #     if os.path.exists(filename):
