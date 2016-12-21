@@ -24,6 +24,11 @@ class Vector:
                 self.word2idx[word] = self.cnt_word
                 self.idx2word.append(word)
                 #process syn0
+                denom = 0
+                for idx in range(self.vector_size):
+                    denom += weights[idx]**2
+                for idx in range(self.vector_size):
+                    weights[idx] /= denom
                 self.syn0[self.cnt_word] = weights
                 #process cnt_word / idx
                 self.cnt_word += 1
@@ -52,6 +57,11 @@ class Vector:
                 self.word2idx[word] = self.cnt_word
                 self.idx2word.append(word)
                 #process syn0
+                denom = 0
+                for idx in range(self.vector_size):
+                    denom += weights[idx] ** 2
+                for idx in range(self.vector_size):
+                    weights[idx] /= denom
                 self.syn0[self.cnt_word] = weights
                 #process cnt_word / idx
                 self.cnt_word += 1

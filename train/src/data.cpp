@@ -250,14 +250,14 @@ namespace entity2vec {
             if (mode == 1) {
                 int64_t word_id = getWordId(pair1);
                 int64_t prod_id = getProdId(pair2);
-                if(!word_prod_tab[word_id * prod_size_ + prod_id]){
+                if(word_id >= 0 && !word_prod_tab[word_id * prod_size_ + prod_id]){
                     word_prod_tab[word_id * prod_size_ + prod_id] = true;
                     word_prod_size_++;
                 }
             } else if (mode == 2) {
                 int64_t word_id = getWordId(pair1);
                 int64_t tag_id = getTagId(pair2);
-                if(!word_tag_tab[word_id * tag_size_ + tag_id]) {
+                if(word_id >= 0 && !word_tag_tab[word_id * tag_size_ + tag_id]) {
                     word_tag_tab[word_id * tag_size_ + tag_id] = true;
                     word_tag_size_++;
                 }

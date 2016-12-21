@@ -38,7 +38,7 @@ if False:
             print(nword)
         print("=======")
 if True:
-    path = "".join([home, "/git/entity2vector/archive/yelp_rest_prod/output/model_89"])
+    path = "".join([home, "/git/entity2vector/archive/yelp_rest_prod/output/model_66"])
     model = Word2Vec.load_word2vec_format(path)
     print("finished init")
     while True:
