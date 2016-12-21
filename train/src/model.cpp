@@ -32,8 +32,7 @@ namespace entity2vec {
     }
 
     real model::binaryLogistic(int64_t target, bool label, real lr) {
-        real a = wo_->dotRow(hidden_, target);
-        real score = util::sigmoid(a);
+        real score = util::sigmoid(wo_->dotRow(hidden_, target));
         real alpha = lr * (real(label) - score);
         grad_.addRow(*wo_, target, alpha);
         wo_->addRow(hidden_, target, alpha);

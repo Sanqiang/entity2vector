@@ -99,7 +99,7 @@ namespace entity2vec{
 
             tokenCount += localTokenCount;
             localTokenCount = 0;
-            if (loop++ % 100 == 0 && threadId == 0 && args_->verbose > 1) {
+            if (loop++ % 1000 == 0 && threadId == 0 && args_->verbose > 1) {
                 printInfo(progress, model.getLoss());
                 saveModel(args_->load_model + std::to_string(floor(progress*args_->epoch)));
                 saveVectors(args_->load_model + std::to_string(floor(progress*args_->epoch)));
@@ -135,6 +135,7 @@ namespace entity2vec{
                         cur_vector_idx = 0;
                     }else if(cur_mode == 1){
                         input_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
+                        output_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
                     }
                 }
 
@@ -209,7 +210,7 @@ namespace entity2vec{
                     if(line[w + c] < 0){
                         continue;
                     }
-                    model.update(line[w], line[w + c], lr);
+                    //model.update(line[w], line[w + c], lr);
                 }
             }
             //entity embedding
@@ -220,7 +221,7 @@ namespace entity2vec{
                         continue;
                     }
                     model.update(model_->transform_dic2matrix(prods[l], 1), line[w], lr);
-                    //model.update(line[w],model_->transform_dic2matrix(prods[l], 1), lr);
+//                    model.update(line[w],model_->transform_dic2matrix(prods[l], 1), lr);
                 }
             }
 
@@ -230,8 +231,8 @@ namespace entity2vec{
                     if(tags[l]  < 0){
                         continue;
                     }
-                    //model.update(line[w], model_->transform_dic2matrix(tags[l], 2), lr);
-                    model.update(model_->transform_dic2matrix(tags[l], 2), line[w], lr);
+//                    model.update(line[w], model_->transform_dic2matrix(tags[l], 2), lr);
+//                    model.update(model_->transform_dic2matrix(tags[l], 2), line[w], lr);
                 }
             }
         }
@@ -241,8 +242,8 @@ namespace entity2vec{
                 if(prods[k] < 0){ continue;}
                 for (int64_t l = 0; l < tags.size(); l++) {
                     if(tags[l] < 0 || prods[k] < 0){ continue;}
-                    //model.update(model_->transform_dic2matrix(tags[l], 2), model_->transform_dic2matrix(prods[k], 1) , lr);
-                    //model.update(model_->transform_dic2matrix(prods[k], 1) ,model_->transform_dic2matrix(tags[l], 2), lr);
+//                    model.update(model_->transform_dic2matrix(tags[l], 2), model_->transform_dic2matrix(prods[k], 1) , lr);
+//                    model.update(model_->transform_dic2matrix(prods[k], 1) ,model_->transform_dic2matrix(tags[l], 2), lr);
                 }
             }
         }

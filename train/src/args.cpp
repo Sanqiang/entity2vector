@@ -14,10 +14,10 @@ namespace entity2vec {
         ws = 5;
         epoch = 10000;
         minCount = 0;
-        neg = 50;
+        neg = 10;
         minn = 0;
         maxn = 6;
-        thread = 1;
+        thread = 8;
         neg_trial = 100;
         lrUpdateRate = 0;
         t = 1e-4;
@@ -26,10 +26,10 @@ namespace entity2vec {
         pretrainedVectors = "";
         std::string base =  getenv("HOME");
         //input_data = base + "/data/aan/paper_processed_nostem_3.txt";
-        input_data = base + "/data/yelp/review_processed_rest_0.txt";
+        input_data = base + "/data/yelp/review_processed_rest.txt";
         //input_data = base + "/data/yelp/review_processed_nostem_7.txt";
         input_data_pattern = base + "/data/yelp/review_processed_rest_{i}.txt";
-        input_pretrain =  base + "/data/glove/glove.processed.840B.300d.txt";
+        input_pretrain =  base + "/data/glove/glove.processed.twitter.27B.200d.txt";
         output = base + "/data/model/";
 
         neg_flag = 0;
@@ -49,7 +49,7 @@ namespace entity2vec {
         pretraining_flag = 0;
 
         load_model_flag = 0;
-        load_model = "xxxx_test";
+        load_model = "no_word_sequence_";
     }
 
     void args::save(std::ostream &out) {
