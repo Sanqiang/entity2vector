@@ -43,6 +43,7 @@ namespace entity2vec {
 
         void populate_pretraining();
 
+
     };
 }
 

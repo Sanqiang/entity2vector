@@ -58,61 +58,14 @@ namespace entity2vec {
 
     real model::negativeSampling(int64_t input, int64_t target, real lr) {
         real loss = 0.0;
-        if(args_->neg_flag == 0 || (checkIndexType(input) == 0 && checkIndexType(target) == 0)) {
-            for (uint32_t n = 0; n <= args_->neg; n++) {
-                if (n == 0) {
-                    loss += binaryLogistic(input, target, true, lr);
-                } else {
-                    int64_t neg_target = getNegative(input, target);
-                    if (neg_target == -1)
-                        return 0;
-                    loss += binaryLogistic(input, neg_target, false, lr);
-                }
-            }
-        }else if(args_->neg_flag == 1){
-            loss += binaryLogistic(input, target, true, lr);
-            if(checkIndexType(target) == 0){
-                if(checkIndexType(input) == 1){
-                    for (int64_t i = 0; i < data_->word_size_; i++) {
-                        if(!data_->word_prod_tab[i*data_->prod_size_ + input]){
-                            loss += binaryLogistic(input, transform_dic2matrix(i,0), false, lr);
-                        }
-                    }
-                }else if(checkIndexType(input) == 2){
-                    for (int64_t i = 0; i < data_->word_size_; i++) {
-                        if(!data_->word_tag_tab[i*data_->tag_size_ + input]){
-                            loss += binaryLogistic(input, transform_dic2matrix(i,0), false, lr);
-                        }
-                    }
-                }
-            }else if(checkIndexType(target) == 1){
-                if(checkIndexType(input) == 0){
-                    for (int64_t i = 0; i < data_->prod_size_; i++) {
-                        if(!data_->word_prod_tab[input*data_->prod_size_ + i]){
-                            loss += binaryLogistic(input, transform_dic2matrix(i,1), false, lr);
-                        }
-                    }
-                }else if(checkIndexType(input) == 2){
-                    for (int64_t i = 0; i < data_->prod_size_; i++) {
-                        if(!data_->tag_prod_tab[input*data_->prod_size_ + i]){
-                            loss += binaryLogistic(input, transform_dic2matrix(i,1), false, lr);
-                        }
-                    }
-                }
-            }else if(checkIndexType(target) == 2){
-                if(checkIndexType(input) == 0){
-                    for (int64_t i = 0; i < data_->tag_size_; i++) {
-                        if(!data_->word_tag_tab[input*data_->tag_size_ + i]){
-                            loss += binaryLogistic(input, transform_dic2matrix(i,2), false, lr);
-                        }
-                    }
-                }else if(checkIndexType(input) == 1){
-                    for (int64_t i = 0; i < data_->tag_size_; i++) {
-                        if(!data_->tag_prod_tab[i*data_->prod_size_ + input]){
-                            loss += binaryLogistic(input, transform_dic2matrix(i,2), false, lr);
-                        }
-                    }
-                }
+        for (uint32_t n = 0; n <= args_->neg; n++) {
+            if (n == 0) {
+                loss += binaryLogistic(input, target, true, lr);
+            } else {
+                int64_t neg_target = getNegative(input, target);
+                if (neg_target == -1)
+                    return 0;
+                loss += binaryLogistic(input, neg_target, false, lr);
             }
         }
         return loss;

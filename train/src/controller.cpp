@@ -76,7 +76,6 @@ namespace entity2vec{
                     if (it->joinable()) {
                         it->join();
                     }
-
                 }
                 if (loop % 10 == 0) {
                     saveVectors(args_->load_model + std::to_string(loop));
@@ -105,24 +104,32 @@ namespace entity2vec{
         uint32_t localTokenCount = 0;
         uint32_t loop = 0;
         while (1){
+            real progress = real(loop) * real(args_->thread) / real(data_->data_size);
             real lr = args_->lr /** (1.0 - progress)*/;
-            int32_t tempTokenCount = data_->getLine(ifs, line, prods, tags, model.rng);
+            int32_t tempTokenCount = data_->getLine(ifs, line, prods, tags, model.rng, threadId);
             skipgram(model, lr, line, prods, tags);
-            if(tempTokenCount == -1 && args_->thread > 1){
-                break;
-            }else if(tempTokenCount == -1 && args_->thread == 1 && loop % 10 == 0){
-                saveVectors(args_->load_model + std::to_string(loop++));
+            if(tempTokenCount == -1 && args_->thread > 1 && threadId == 0){
+                std::cout << "Current Loop: " << loop << std::endl;
+                if(loop % 5 == 0) {
+                    saveVectors(args_->load_model + std::to_string(loop));
+//                saveModel(args_->load_model + std::to_string(loop));
+                }
+                ++loop;
+            }else if(tempTokenCount == -1 && args_->thread == 1){
+                printf("Finish Current LOOP %d", loop);
+                if(loop++ % 5 == 0) {
+                    saveVectors(args_->load_model + std::to_string(loop));
+                    //                saveModel(args_->load_model + std::to_string(loop));
+                }
             }
-//            if (loop++ % 1000000 == 0 && threadId == 0 && args_->verbose > 1) {
+//            if (progress == 0 && threadId == 0 && args_->verbose > 1) {
 //                printInfo(progress, model.getLoss());
-////                saveModel(args_->load_model + std::to_string(loop));
-////                saveVectors(args_->load_model + std::to_string(loop));
 //            }
         }
-//        if (threadId == 0 && args_->verbose > 0) {
-//            printInfo(1.0, model.getLoss());
-//            std::cout << std::endl;
-//        }
+        if (threadId == 0 && args_->verbose > 0) {
+            printInfo(1.0, model.getLoss());
+            std::cout << std::endl;
+        }
         ifs.close();
         pthread_exit(NULL);
     }

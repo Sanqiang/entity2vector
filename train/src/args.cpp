@@ -14,10 +14,10 @@ namespace entity2vec {
         ws = 5;
         epoch = 100000000000;
         minCount = 5;
-        neg = 0;
+        neg = 10;
         minn = 0;
         maxn = 6;
-        thread = 1;
+        thread = 5;
         neg_trial = 100;
         lrUpdateRate = 0;
         t = 1e-4;
@@ -32,7 +32,7 @@ namespace entity2vec {
         input_pretrain =  base + "/data/glove/glove.processed.twitter.27B.200d.txt";
         output = base + "/data/model/";
 
-        neg_flag = 0;
+        neg_flag = 1;
 
         mode_flag = 2;
         if(mode_flag == 0){
@@ -49,7 +49,9 @@ namespace entity2vec {
         pretraining_flag = 1;
 
         load_model_flag = 0;
-        load_model = "no_word_sequence_";
+        load_model = "p_w";
+
+        memory_mode = 1;
     }
 
     void args::save(std::ostream &out) {
