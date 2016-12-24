@@ -8,21 +8,24 @@
 #define SIGMOID_TABLE_SIZE 5120
 #define MAX_SIGMOID 8
 #define LOG_TABLE_SIZE 5120
-#define EXP_TABLE_SIZE 5120
 
 #include "real.h"
 #include <iostream>
 
 namespace entity2vec {
     namespace util {
+
         real log(real x);
+
         real sigmoid(real x);
-        real exp(real x);
 
         void initTables();
+
         void initSigmoid();
+
         void initLog();
-        void initExp();
+
+        void seek(std::ifstream &ifs, uint32_t pos);
     }
 }
 

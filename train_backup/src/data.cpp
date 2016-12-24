@@ -403,7 +403,7 @@ namespace entity2vec {
         }
     }
 
-    int32_t data::getLine(std::istream &in, std::vector<int64_t> &words, std::vector<int64_t> &prods, std::vector<int64_t> &tags,
+    uint32_t data::getLine(std::istream &in, std::vector<int64_t> &words, std::vector<int64_t> &prods, std::vector<int64_t> &tags,
                            std::minstd_rand &rng) const {
         std::uniform_real_distribution<> uniform(0, 1);
         std::string token;
@@ -447,9 +447,6 @@ namespace entity2vec {
         if((c = sb.sbumpc()) == EOF){
             in.clear();
             in.seekg(std::streampos(0));
-            return -1;
-        }else{
-            sb.sputbackc(c);
         }
         return ntokens;
     }

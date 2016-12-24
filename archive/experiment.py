@@ -29,7 +29,7 @@ class Exp(W2V_base):
         import json
         import heapq
         h = []
-        with open(self.path, "r") as ins:
+        with open(self.path_review, "r") as ins:
             for line in ins:
                 obj = json.loads(line)
                 #reviewText = obj["reviewText"]
@@ -43,7 +43,7 @@ class Exp(W2V_base):
 
         f_train = open(self.train_path)
         f_test = open(self.test_path)
-        with open(self.path, "r") as ins:
+        with open(self.path_review, "r") as ins:
             for line in ins:
                 obj = json.loads(line)
                 unixReviewTime = int(obj["unixReviewTime"])

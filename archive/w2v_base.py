@@ -21,13 +21,14 @@ class W2V_base:
     def default_idx(self):
         return -1
 
-    def __init__(self, path, folder):
+    def __init__(self, path_review, path_business, folder):
         self.tknzr = TweetTokenizer()
         # self.stknzr = sent_tokenize()
         self.stemmer = PorterStemmer()
         self.stops = set(stopwords.words("english"))
 
-        self.path = path
+        self.path_review = path_review
+        self.path_business = path_business
         self.folder = folder
 
         # word based
@@ -46,6 +47,10 @@ class W2V_base:
         self.idx2prod = {}
         self.user2idx = {}
         self.idx2user = {}
+
+        self.cate2idx = {}
+        self.idx2cate = {}
+        self.prod2cate = {}
 
         # train based
         self.batch_size = 300
@@ -96,13 +101,16 @@ class W2V_base:
             self.prod2idx = obj["prod2idx"]
             self.idx2user = obj["idx2user"]
             self.user2idx = obj["user2idx"]
+            self.cate2idx = obj["cate2idx"]
+            self.idx2cate = obj["idx2cate"]
+            self.prod2cate = obj["prod2cate"]
             return
 
         line_idx = 0
         batch_text_data = ""
 
         # populate the count
-        with open(self.path, "r", encoding=self.file_encoding) as ins:
+        with open(self.path_review, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
                 # word based
@@ -137,7 +145,7 @@ class W2V_base:
         # populate idx2word
         self.idx2word = dict(zip(self.word2idx.values(), self.word2idx.keys()))
 
-        with open(self.path, "r", encoding=self.file_encoding) as ins:
+        with open(self.path_review, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
                 # entity based note since we know the vocab size we can append entity embedding after that (first loop over data)
@@ -147,8 +155,24 @@ class W2V_base:
                     self.idx2prod[prod_idx] = prod
 
         print("finish idx2word")
+
+        with open(self.path_business, "r", encoding=self.file_encoding) as ins:
+            for line in ins:
+                obj = json.loads(line)
+                prod = str(obj["business_id"])
+                categories = obj["categories"]
+                for category in categories:
+                    if category not in self.cate2idx:
+                        cate_idx = self.vocab_size + len(self.prod2idx) + len(self.cate2idx)
+                        self.cate2idx[category] = cate_idx
+                        self.idx2cate[cate_idx] = category
+
+                    if prod not in self.prod2cate:
+                        self.prod2cate[prod] = set()
+                    self.prod2cate[prod].add(category)
+
         # populate data
-        with open(self.path, "r", encoding=self.file_encoding) as ins:
+        with open(self.path_review, "r", encoding=self.file_encoding) as ins:
             for line in ins:
                 title, text, user, prod, rating = self.line_parser(line)
 
@@ -157,13 +181,16 @@ class W2V_base:
 
                 self.data.append(obj)
 
-                # note that we know both vocab size and entity size, we can append user embedding after that (second loop over data)
-                if user not in self.user2idx:
-                    user_idx = 1 + len(self.user2idx) + len(self.prod2idx) + self.vocab_size
-                    self.user2idx[user] = user_idx
-                    self.idx2user[user_idx] = user
+                # # note that we know both vocab size and entity size, we can append user embedding after that (second loop over data)
+                # if user not in self.user2idx:
+                #     user_idx = 1 + len(self.user2idx) + len(self.prod2idx) + self.vocab_size
+                #     self.user2idx[user] = user_idx
+                #     self.idx2user[user_idx] = user
 
         print("finish data populate")
+
+
+
         # calculate the sample
         # threshold_count = self.sample * self.total_count
         # for word in self.word_count:
@@ -173,7 +200,8 @@ class W2V_base:
         pickle_data = {"word2idx": self.word2idx, "idx2word": self.idx2word, "word_count": self.word_count,
                        "word_sample": self.word_sample, "total_count": self.total_count, "data": self.data,
                        "idx2user": self.idx2user, "user2idx": self.user2idx, "prod2idx": self.prod2idx,
-                       "idx2prod": self.idx2prod}
+                       "idx2prod": self.idx2prod, "prod2cate":self.prod2cate,
+                       "cate2idx":self.cate2idx, "idx2cate":self.idx2cate}
 
         bytes_out = pickle.dumps(pickle_data)
         with open(filename, 'wb') as f_out:

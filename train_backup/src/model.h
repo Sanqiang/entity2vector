@@ -22,7 +22,9 @@ namespace entity2vec {
         std::shared_ptr<args> args_;
         std::shared_ptr<data> data_;
 
-        vector neu1e;
+        vector hidden_;
+        vector output_;
+        vector grad_;
         uint32_t hsz_;
         uint32_t isz_;
         uint32_t osz_;
@@ -45,11 +47,12 @@ namespace entity2vec {
         void save(std::ostream& out);
         void load(std::istream& in);
 
-        real binaryLogistic(int64_t input, int64_t target, bool label, real lr);
+        real binaryLogistic(int64_t target, bool label, real lr);
         real negativeSampling(int64_t input, int64_t target, real lr);
         real getLoss() const;
         int64_t getNegative(int64_t input, int64_t target);
 
+        void computeHidden(int64_t input, vector& hidden);
         void update(int64_t input, int64_t target, real lr);
         void initTableNegatives();
         void initWordNegSampling();

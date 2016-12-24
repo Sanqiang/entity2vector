@@ -3,10 +3,10 @@ import os
 
 from util.text_process import TextProcess
 
-k = 7
+k = 1
 
 home = os.environ["HOME"]
-path_processed = "".join((home, "/data/yelp/review_processed_rest_v2"))
+path_processed = "".join((home, "/data/yelp/review_processed_rest_interestword_DEC22"))
 path_processed_origin = "".join((path_processed, ".txt"))
 fs = []
 

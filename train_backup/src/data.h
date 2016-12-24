@@ -102,7 +102,7 @@ namespace entity2vec {
         std::vector<uint32_t> getTagCounts();
 
         void readFromFile(std::istream &in);
-        int32_t getLine(std::istream& in, std::vector<int64_t>& words, std::vector<int64_t>& prods, std::vector<int64_t>& tags, std::minstd_rand& rng) const;
+        uint32_t getLine(std::istream& in, std::vector<int64_t>& words, std::vector<int64_t>& prods, std::vector<int64_t>& tags, std::minstd_rand& rng) const;
 
         std::string getWord(int64_t i) const;
         std::string getProd(int64_t i) const;

@@ -5,7 +5,8 @@ from util.text_process import TextProcess
 
 home = os.environ["HOME"]
 path = "".join((home, "/data/yelp/review.json"))
-path_processed = "".join((home, "/data/yelp/review_processed_rest_v1.txt"))
+path_processed = "".join((home, "/data/yelp/review_processed_rest_interestword_DEC22.txt"))
+path_pretraining = "".join((home, "/data/glove/glove.processed.twitter.27B.200d.txt"))
 
 filter_rest = True
 prods = set()
@@ -27,6 +28,7 @@ if filter_rest:
 
 
 
+TextProcess.initiliaze(path_pretraining)
 f = open(path, "r")
 f_processed = open(path_processed, "w")
 batch = ""

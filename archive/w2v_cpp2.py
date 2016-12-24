@@ -18,12 +18,12 @@ import os
 home = os.environ["HOME"]
 
 class W2V_cpp2(W2V_base):
-    def __init__(self, path, folder, prod_sign=False, usr_sign=False, pos_sign=False):
-        self.method = "LDA"
+    def __init__(self, path_review, path_business, folder, prod_sign=False, usr_sign=False, pos_sign=False):
+        self.method = "word2vec"
         self.prod_sign = prod_sign
         self.usr_sign = usr_sign
         self.pos_sign = pos_sign
-        W2V_base.__init__(self, path, folder)
+        W2V_base.__init__(self, path_review, path_business, folder)
         self.k = 5
         self.train_path = "/".join((self.folder, "train.json"))
         self.test_path = "/".join((self.folder, "test.json"))
@@ -43,8 +43,6 @@ class W2V_cpp2(W2V_base):
             self.idx2user[n_user_id] = user
             self.user2idx[user] = n_user_id
 
-
-
     def process_vector(self):
         #path_origin = "/home/sanqiang/data/glove/glove.twitter.27B.200d.txt"
         idx2interested_words = {} #idx follow the word vector pretraining file
@@ -55,17 +53,17 @@ class W2V_cpp2(W2V_base):
         f_update = open(path_update, "w")
         f_origin = open(path_origin, "r")
         str_update = ""
-        words = [ala[0] for ala in self.word_count]
         for line in f_origin:
             items = line.split(" ")
             word = items[0]
-            if word not in words: #only consider the word occur in the word vector and our data set
+            if word not in self.word2idx: #only consider the word occur in the word vector and our data set
                 continue
+            word_idx = self.word2idx[word]
             nline = " ".join(items)
             str_update = "".join((str_update, nline))
 
-            idx2interested_words[len(idx2interested_words)] = word
-            interested_words2idx[word] = len(interested_words2idx)
+            idx2interested_words[word_idx] = word
+            interested_words2idx[word] = word_idx
 
             if len(str_update) > 10000:
                 f_update.write(str_update)
@@ -88,6 +86,8 @@ class W2V_cpp2(W2V_base):
             f.write("\n")
 
     def process(self, interested_words2idx):
+        self.add_category = True
+
         path_pair = "/".join((self.folder, "pairentity.txt"))
         path_pair_concrete = "/".join((self.folder, "pairentity_concrete.txt"))
         f_pair = open(path_pair, "w")
@@ -95,34 +95,38 @@ class W2V_cpp2(W2V_base):
         results = []
         results_concrete = []
         n_pair = 0
-        prod2idx = OrderedDict() #only for current dataset not self ones
-        user2idx = OrderedDict()
+        # prod2idx = OrderedDict() #only for current dataset not self ones
+        # user2idx = OrderedDict()
+        # cate2idx = OrderedDict()
 
-        #populate prod2idx and user2idx
+        # #populate prod2idx and user2idx
+        # for obj in self.data:
+        #     prod = obj["prod"]
+        #     user = obj["user"]
+        #     text_data = obj["text_data"]
+
+            # for sent in text_data:
+            #     for word, tag in sent:
+            #         if word == -1 or self.idx2word[word] not in interested_words2idx:
+            #             continue
+            #         if self.pos_sign and tag not in self.interest_tag:
+            #             continue
+            #         if self.prod_sign:
+            #             if prod not in prod2idx:
+            #                 prod2idx[prod] = len(prod2idx)
+            #         if self.usr_sign:
+            #             if user not in user2idx:
+            #                 user2idx[user] = len(user2idx)
+
         for obj in self.data:
             prod = obj["prod"]
             user = obj["user"]
             text_data = obj["text_data"]
 
             for sent in text_data:
-                for word, tag in sent:
-                    if word == -1 or self.idx2word[word] not in interested_words2idx:
-                        continue
-                    if self.pos_sign and tag not in self.interest_tag:
-                        continue
-                    if self.prod_sign:
-                        if prod not in prod2idx:
-                            prod2idx[prod] = len(prod2idx)
-                    if self.usr_sign:
-                        if user not in user2idx:
-                            user2idx[user] = len(user2idx)
-
-        for obj in self.data:
-            prod = obj["prod"]
-            user = obj["user"]
-            text_data = obj["text_data"]
-
-            for sent in text_data:
+                # for idx in range(sent):
+                #     word = sent[idx][0]
+                #     tag = sent[idx][1]
                 for word, tag in sent:
                     if word == -1 or self.idx2word[word] not in interested_words2idx:
                         continue
@@ -130,12 +134,18 @@ class W2V_cpp2(W2V_base):
                     word_concrete = self.idx2word[word]
                     if self.pos_sign and tag not in self.interest_tag:
                         continue
+
                     if self.prod_sign:
-                        results.append([prod2idx[prod], word])
-                        results_concrete.append([prod2idx[prod], word_concrete])
-                    if self.usr_sign:
-                        results.append([user2idx[user], word])
-                        results_concrete.append([user2idx[user], word_concrete])
+                        results.append([self.prod2idx[prod], word])
+                        results_concrete.append([self.prod2idx[prod], word_concrete])
+                        if self.add_category:
+                            categories = self.prod2cate[prod]
+                            for category in categories:
+                                results.append([self.cate2idx[category], word])
+                                results_concrete.append([self.cate2idx[category], word_concrete])
+                    # if self.usr_sign:
+                    #     results.append([user2idx[user], word])
+                    #     results_concrete.append([user2idx[user], word_concrete])
             if len(results) >= 10000:
                 n_pair += len(results)
                 print(len(results))
@@ -168,25 +178,33 @@ class W2V_cpp2(W2V_base):
         #process prod
         path_prod = "/".join((self.folder, "prod.txt"))
         f_prod = open(path_prod, "w")
-        for prod in prod2idx:
+        for prod in self.prod2idx:
             f_prod.write(prod)
             f_prod.write("_")
-            f_prod.write(str(prod2idx[prod]))
+            f_prod.write(str(self.prod2idx[prod]))
             f_prod.write("\n")
 
-        #process user
-        #process prod
-        path_user = "/".join((self.folder, "user.txt"))
-        f_user = open(path_user, "w")
-        for user in user2idx:
-            f_user.write(user)
-            f_user.write("_")
-            f_user.write(str(user2idx[user]))
-            f_user.write("\n")
+        # #process user
+        # path_user = "/".join((self.folder, "user.txt"))
+        # f_user = open(path_user, "w")
+        # for user in user2idx:
+        #     f_user.write(user)
+        #     f_user.write("_")
+        #     f_user.write(str(user2idx[user]))
+        #     f_user.write("\n")
 
+        # process cate
+        path_cate = "/".join((self.folder, "category.txt"))
+        f_cate = open(path_cate, "w")
+        for cate in self.cate2idx:
+            f_cate.write(cate)
+            f_cate.write("_")
+            f_cate.write(str(self.cate2idx[cate]))
+            f_cate.write("\n")
 
-        print("#prod", len(prod2idx))
-        print("#user", len(user2idx))
+        print("#prod", len(self.prod2idx))
+        # print("#user", len(user2idx))
+        print("#cate", len(self.cate2idx))
         print("#pair", n_pair)
 
     #exp
@@ -194,7 +212,7 @@ class W2V_cpp2(W2V_base):
         import json
         import heapq
         h = []
-        with open(self.path, "r") as ins:
+        with open(self.path_review, "r") as ins:
             for line in ins:
                 obj = json.loads(line)
                 #reviewText = obj["reviewText"]
@@ -210,7 +228,7 @@ class W2V_cpp2(W2V_base):
 
         f_train = open(self.train_path, "w")
         f_test = open(self.test_path, "w")
-        with open(self.path, "r") as ins:
+        with open(self.path_review, "r") as ins:
             for line in ins:
                 obj = json.loads(line)
                 date_str = obj["date"]
@@ -260,8 +278,6 @@ class W2V_cpp2(W2V_base):
 
                 self.entity2idx[entity] = idx
                 self.idx2entity[idx] = entity
-
-
 
     def predict(self, product_idx, user_idx):
         if self.prod_model:
@@ -334,7 +350,6 @@ class W2V_cpp2(W2V_base):
             preidct_score /= denom
             return preidct_score
 
-
     def test(self):
         rmse = []
         self.matrix = self.populate_score(self.train_path)
@@ -350,7 +365,7 @@ class W2V_cpp2(W2V_base):
 
 def main():
     #w2v_cpp2 = W2V_cpp2("/home/sanqiang/data/yelp/review_rest.json", "yelp_rest_allalphaword_yelp_mincnt10_win10", prod_sign=True, pos_sign=True)
-    w2v_cpp2 = W2V_cpp2("".join([home, "/data/yelp/review_rest.json"]), "yelp_rest_prod",
+    w2v_cpp2 = W2V_cpp2("".join([home, "/data/yelp/review_rest.json"]), "".join([home, "/data/yelp/business.json"]), "yelp_rest_prod_cate",
                         pos_sign=True, usr_sign=False, prod_sign=True)
     print("init")
 
