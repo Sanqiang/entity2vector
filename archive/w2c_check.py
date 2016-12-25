@@ -39,7 +39,7 @@ if False:
         print("=======")
 if True:
     #path = "".join([home, "/git/entity2vector/archive/yelp_rest_prod/output_noneg/model_22"])
-    path = "".join([home, "/data/model/no_word_sequence_0.prod.vec"])
+    path = "".join([home, "/data/model/p_w_nomemory5.prod.vec"])
     model = Word2Vec.load_word2vec_format(path)
     print("finished init")
     while True:

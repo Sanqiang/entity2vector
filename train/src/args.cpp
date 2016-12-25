@@ -17,12 +17,12 @@ namespace entity2vec {
         neg = 10;
         minn = 0;
         maxn = 6;
-        thread = 5;
+        thread = 1;
         neg_trial = 100;
         lrUpdateRate = 0;
         t = 1e-4;
         label = "__label__";
-        verbose = 3;
+        verbose = 4;
         pretrainedVectors = "";
         std::string base =  getenv("HOME");
         //input_data = base + "/data/aan/paper_processed_nostem_3.txt";
@@ -49,9 +49,9 @@ namespace entity2vec {
         pretraining_flag = 1;
 
         load_model_flag = 0;
-        load_model = "p_w";
+        load_model = "p_w_nonmemory";
 
-        memory_mode = 1;
+        memory_mode = 0;
     }
 
     void args::save(std::ostream &out) {

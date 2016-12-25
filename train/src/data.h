@@ -119,6 +119,7 @@ namespace entity2vec {
         void save(std::ostream& out) const;
         void load(std::istream& in);
 
+        uint64_t position_ = 0, processed_data = 0;
         //for memory preload useful when memory_mode == 1
         std::vector<std::vector<int64_t>> data_memory_words, data_memory_prods, data_memory_tags;
         std::vector<int64_t> cur_memory_words, cur_memory_prods, cur_memory_tags;

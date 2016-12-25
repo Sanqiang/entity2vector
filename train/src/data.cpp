@@ -344,10 +344,9 @@ namespace entity2vec {
             cur_memory_prods.clear();
             cur_memory_tags.clear();
 
-            in.clear();
-            in.seekg(std::streampos(0));
-
+            in.seekg(0, std::ios::beg);
             std::streambuf& sb = *in.rdbuf();
+
             while ((c = sb.sbumpc()) != EOF) {
                 if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
                     if(!word.empty()){
@@ -373,6 +372,7 @@ namespace entity2vec {
                         cur_memory_words.clear();
                         cur_memory_prods.clear();
                         cur_memory_tags.clear();
+                        cur_mode = 0;
                     }
                     word.clear();
                 }else{
@@ -459,22 +459,28 @@ namespace entity2vec {
 
     int32_t data::getLine(std::istream &in, std::vector<int64_t> &words, std::vector<int64_t> &prods, std::vector<int64_t> &tags,
                            std::minstd_rand &rng, uint32_t threadId) {
-        if(args_->memory_mode == 1){
-            uint64_t position = pointers[threadId];
-            words = data_memory_words[position];
-            prods = data_memory_prods[position];
-            tags = data_memory_tags[position];
+        ++processed_data;
+        if(args_->memory_mode == 1) {
+            position_ = pointers[threadId];
+
+            if (args_->verbose >= 4 && threadId == 0) {
+                printf("%d \n", processed_data);
+            }
+            words = data_memory_words[position_];
+            prods = data_memory_prods[position_];
+            tags = data_memory_tags[position_];
             pointers[threadId]++;
-            if (position >= data_size){
+            if (position_ >= data_size){
                 pointers[threadId] = 0;
                 return -1;
             }else{
                 return 1;
             }
-
-
         }else if(args_->memory_mode == 0) {
-
+            ++position_;
+            if (args_->verbose >= 4 && threadId == 0) {
+                printf("%d \n", processed_data);
+            }
             std::uniform_real_distribution<> uniform(0, 1);
             std::string token;
             uint32_t ntokens = 0;
