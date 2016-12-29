@@ -17,7 +17,7 @@ namespace entity2vec {
         std::string output;
         double lr;
         uint32_t lrUpdateRate;
-        uint32_t dim;
+        uint32_t dim_w, dim_p, dim_t;
         uint32_t ws;
         uint32_t epoch;
         uint32_t minCount;

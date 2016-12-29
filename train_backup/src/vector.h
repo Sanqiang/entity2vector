@@ -19,6 +19,7 @@ namespace entity2vec {
         explicit vector(uint32_t m, real *arr);
         void setData(real *arr);
         void setData(real val, int64_t i);
+        void incrementData(real val, int64_t i);
         uint32_t size();
         void zero();
         void addRow(const matrix& A, int64_t i);

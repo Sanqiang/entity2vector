@@ -23,19 +23,20 @@ namespace entity2vec {
     public:
         std::shared_ptr<args> args_;
         std::shared_ptr<data> data_;
-        std::shared_ptr<matrix> input_;
-        std::shared_ptr<matrix> output_;
+        std::shared_ptr<matrix> wi_, pi_, ti_, w2p_, w2t_;
         std::shared_ptr<model> model_;
 
         void trainThread(uint32_t threadId);
 
         void train(std::shared_ptr<args> args);
-        void skipgram(model& model, real lr, const std::vector<int64_t>& line, const std::vector<int64_t>& labels, const std::vector<int64_t>& tags);
+        void skipgram(model& model, real lr,
+                      const std::vector<int64_t>& line, const std::vector<int64_t>& labels, const std::vector<int64_t>& tags);
         void printInfo(real progress, real loss);
         void printWords(std::string word, uint32_t k, uint32_t type);//for type 0:word 1:prod 2:tag
 
         void saveModel(std::string name);
-        void saveModel(std::ostream &ofs_word, std::ostream &ofs_prod, std::ostream &ofs_tag);
+        void saveModel(std::ostream &ofs_word, std::ostream &ofs_prod, std::ostream &ofs_tag,
+                       std::ostream &ofs_word2prod, std::ostream &ofs_word2tag);
         void loadModel(std::istream& in);
         void loadModel(const std::string& filename);
 

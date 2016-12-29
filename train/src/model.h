@@ -16,16 +16,13 @@
 #include <unordered_set>
 
 namespace entity2vec {
+    enum class train_mode : uint8_t {word2word=0, word2prod=1,word2tag=2};
+
     class model {
-        std::shared_ptr<matrix> wi_;
-        std::shared_ptr<matrix> wo_;
+        std::shared_ptr<matrix> wi_, wo_, pi_, po_, ti_, to_, w2p_, w2t_;
         std::shared_ptr<args> args_;
         std::shared_ptr<data> data_;
 
-        vector neu1e;
-        uint32_t hsz_;
-        uint32_t isz_;
-        uint32_t osz_;
         uint32_t n_words_;
         uint32_t n_prods_;
         uint32_t n_tags_;
@@ -36,27 +33,28 @@ namespace entity2vec {
         std::vector<uint32_t> prod_negatives;
         std::vector<uint32_t> tag_negatives;
         size_t negpos_word, negpos_prod, negpos_tag;
-        std::unordered_set<int64_t> duplicate_set;
+
+        vector * neu_vector;
+        matrix * neu_matrix;
     public:
         static const int64_t NEGATIVE_TABLE_SIZE = 10000000;
 
-        model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, std::shared_ptr<data> data, uint32_t seed);
+        model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo,
+              std::shared_ptr<matrix> pi, std::shared_ptr<matrix> po, std::shared_ptr<matrix> w2p,
+              std::shared_ptr<matrix> ti, std::shared_ptr<matrix> to, std::shared_ptr<matrix> w2t,
+              std::shared_ptr<args> args, std::shared_ptr<data> data, uint32_t seed);
 
         void save(std::ostream& out);
         void load(std::istream& in);
 
-        real binaryLogistic(int64_t input, int64_t target, bool label, real lr);
-        real negativeSampling(int64_t input, int64_t target, real lr);
+        real binaryLogistic(int64_t input, int64_t target, bool label, real lr, train_mode mode);
+        real negativeSampling(int64_t input, int64_t target, real lr, train_mode mode);
         real getLoss() const;
-        int64_t getNegative(int64_t input, int64_t target);
+        int64_t getNegative(int64_t input, int64_t target, train_mode mode);
 
-        void update(int64_t input, int64_t target, real lr);
+        void update(int64_t input, int64_t target, real lr, train_mode mode);
         void initTableNegatives();
         void initWordNegSampling();
-
-        uint8_t checkIndexType(int64_t index); //0:word 1:prod 2:tag
-        int64_t transform_dic2matrix(int64_t index, uint8_t mode); //0:word 1:prod 2:tag
-        int64_t transform_matrix2dic(int64_t index);
 
         std::minstd_rand rng;
     };

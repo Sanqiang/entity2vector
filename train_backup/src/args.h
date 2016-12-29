@@ -30,6 +30,7 @@ namespace entity2vec {
         uint32_t minn;
         uint32_t maxn;
         uint32_t thread;
+        uint8_t memory_mode; //0 leave data in disk; 1 leave data in memory
         double t;
         std::string label;
         uint8_t verbose;

@@ -14,6 +14,9 @@
 #include <memory>
 
 namespace entity2vec {
+    enum class entity_type : uint8_t {word=0, prod=1,tag=2};
+    enum class entity_pair_type : uint8_t {word_prod=0, word_tag=1,tag_prod=2};
+
     struct entry_word {
         std::string word;
         uint32_t count;
@@ -89,11 +92,11 @@ namespace entity2vec {
         int64_t getProdId(const std::string& prod) const;
         int64_t getTagId(const std::string& tag) const;
 
-        int64_t getHashCorPair(const std::string &key, uint8_t mode) const; //mode 1: word-prod 2: word-tag 3: tag-prod
-        int64_t getHashCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) const; //mode 1: word-prod 2: word-tag 3: tag-prod
-        bool checkCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) const;
-        bool checkCorPair(const int64_t pair1_idx, const int64_t pair2_idx, uint8_t mode) const;
-        void addCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode);
+        int64_t getHashCorPair(const std::string &key, entity_pair_type type) const;
+        int64_t getHashCorPair(const std::string &pair1, const std::string &pair2, entity_pair_type type) const;
+        bool checkCorPair(const std::string &pair1, const std::string &pair2, entity_pair_type type) const;
+        bool checkCorPair(const int64_t pair1_idx, const int64_t pair2_idx, entity_pair_type type) const;
+        void addCorPair(const std::string &pair1, const std::string &pair2, entity_pair_type type);
 
         int64_t addWord(const std::string& word);
         int64_t addProd(const std::string& prod);

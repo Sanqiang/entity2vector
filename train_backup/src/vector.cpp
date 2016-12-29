@@ -31,6 +31,10 @@ namespace entity2vec {
         data_[i] = val;
     }
 
+    void vector::incrementData(real val, int64_t i) {
+        data_[i] += val;
+    }
+
     uint32_t vector::size() {
         return m_;
     }

@@ -26,12 +26,14 @@ namespace entity2vec {
         void zero();
         real dotRow(const vector& vec, int64_t i);
         void addRow(const vector& vec, int64_t i, real a);
+        void addMatrix(const matrix& mat, real a);
 
         void save(std::ostream& out);
         void load(std::istream& in);
 
         void setValue(int64_t row_idx, int64_t col_idx, real val);
         real getValue(int64_t row_idx, int64_t col_idx);
+        void incrementData(real val, int64_t row_idx, int64_t col_idx);
 
         std::vector<std::pair<real, int>> findSimilarRow(int64_t target, uint32_t k, uint32_t range_start, uint32_t range_end);
     };

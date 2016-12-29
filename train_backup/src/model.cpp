@@ -13,7 +13,7 @@
 namespace entity2vec {
 
     model::model(std::shared_ptr<matrix> wi, std::shared_ptr<matrix> wo, std::shared_ptr<args> args, std::shared_ptr<data> data, uint32_t seed):
-            hidden_(args->dim), output_(wo->m_), grad_(args->dim), rng(seed) {
+            neu1e(args->dim), rng(seed) {
         wi_ = wi;
         wo_ = wo;
         args_ = args;
@@ -31,11 +31,24 @@ namespace entity2vec {
         n_tags_ = data_->tag_size_;
     }
 
-    real model::binaryLogistic(int64_t target, bool label, real lr) {
-        real score = util::sigmoid(wo_->dotRow(hidden_, target));
-        real alpha = lr * (real(label) - score);
-        grad_.addRow(*wo_, target, alpha);
-        wo_->addRow(hidden_, target, alpha);
+    real model::binaryLogistic(int64_t input, int64_t target, bool label, real lr) {
+        real f = 0, g = 0, score = 0;
+        for (int64_t i = 0; i < args_->dim; ++i) {
+            f += wi_->getValue(input, i) * wo_->getValue(target, i);
+        }
+        if(f > MAX_SIGMOID){
+            g = (real(label) - 1) * lr;
+        } else if(f < -MAX_SIGMOID){
+            g = (real(label) - 0) * lr;
+        } else{
+            score =  util::exp(f);
+            g = (real(label) - score) * lr;
+        }
+
+        for (int64_t i = 0; i < args_->dim; ++i) {
+            neu1e.incrementData(g * wo_->getValue(target, i), i);
+        }
+
         if (label) {
             return -util::log(score);
         } else {
@@ -45,62 +58,14 @@ namespace entity2vec {
 
     real model::negativeSampling(int64_t input, int64_t target, real lr) {
         real loss = 0.0;
-        grad_.zero();
-        if(args_->neg_flag == 0 || (checkIndexType(input) == 0 && checkIndexType(target) == 0)) {
-            for (uint32_t n = 0; n <= args_->neg; n++) {
-                if (n == 0) {
-                    loss += binaryLogistic(target, true, lr);
-                } else {
-                    int64_t neg_target = getNegative(input, target);
-                    if (neg_target == -1)
-                        return -1;
-                    loss += binaryLogistic(neg_target, false, lr);
-                }
-            }
-        }else if(args_->neg_flag == 1){
-            loss += binaryLogistic(target, true, lr);
-            if(checkIndexType(target) == 0){
-                if(checkIndexType(input) == 1){
-                    for (int64_t i = 0; i < data_->word_size_; i++) {
-                        if(!data_->word_prod_tab[i*data_->prod_size_ + input]){
-                            loss += binaryLogistic(transform_dic2matrix(i,0), false, lr);
-                        }
-                    }
-                }else if(checkIndexType(input) == 2){
-                    for (int64_t i = 0; i < data_->word_size_; i++) {
-                        if(!data_->word_tag_tab[i*data_->tag_size_ + input]){
-                            loss += binaryLogistic(transform_dic2matrix(i,0), false, lr);
-                        }
-                    }
-                }
-            }else if(checkIndexType(target) == 1){
-                if(checkIndexType(input) == 0){
-                    for (int64_t i = 0; i < data_->prod_size_; i++) {
-                        if(!data_->word_prod_tab[input*data_->prod_size_ + i]){
-                            loss += binaryLogistic(transform_dic2matrix(i,1), false, lr);
-                        }
-                    }
-                }else if(checkIndexType(input) == 2){
-                    for (int64_t i = 0; i < data_->prod_size_; i++) {
-                        if(!data_->tag_prod_tab[input*data_->prod_size_ + i]){
-                            loss += binaryLogistic(transform_dic2matrix(i,1), false, lr);
-                        }
-                    }
-                }
-            }else if(checkIndexType(target) == 2){
-                if(checkIndexType(input) == 0){
-                    for (int64_t i = 0; i < data_->tag_size_; i++) {
-                        if(!data_->word_tag_tab[input*data_->tag_size_ + i]){
-                            loss += binaryLogistic(transform_dic2matrix(i,2), false, lr);
-                        }
-                    }
-                }else if(checkIndexType(input) == 1){
-                    for (int64_t i = 0; i < data_->tag_size_; i++) {
-                        if(!data_->tag_prod_tab[i*data_->prod_size_ + input]){
-                            loss += binaryLogistic(transform_dic2matrix(i,2), false, lr);
-                        }
-                    }
-                }
+        for (uint32_t n = 0; n <= args_->neg; n++) {
+            if (n == 0) {
+                loss += binaryLogistic(input, target, true, lr);
+            } else {
+                int64_t neg_target = getNegative(input, target);
+                if (neg_target == -1)
+                    return 0;
+                loss += binaryLogistic(input, neg_target, false, lr);
             }
         }
         return loss;
@@ -189,11 +154,6 @@ namespace entity2vec {
         return negative;
     }
 
-    void model::computeHidden(int64_t input, vector &hidden) {
-        hidden.zero();
-        hidden.addRow(*wi_, input);
-    }
-
     void model::initTableNegatives() {
         const std::vector<uint32_t> counts = data_->getWordCounts();
         real z = 0.0;
@@ -208,7 +168,7 @@ namespace entity2vec {
         }
         std::shuffle(word_negatives.begin(), word_negatives.end(), rng);
 
-        if(args_->prod_flag && args_->neg_flag == 0){
+        if(args_->prod_flag){
             const std::vector<uint32_t> counts_prod = data_->getProdCounts();
             real z_prod = 0.0;
             for (size_t i = 0; i < counts_prod.size(); i++) {
@@ -242,12 +202,12 @@ namespace entity2vec {
     }
 
     void model::update(int64_t input, int64_t target, real lr) {
-        computeHidden(input, hidden_);
+        neu1e.zero();
         loss_ += negativeSampling(input, target, lr);
-        if(loss_ > 0) {
-            nexamples_ += 1;
-            wi_->addRow(grad_, input, 1.0);
-        }
+
+        nexamples_ += 1;
+        wi_->addRow(neu1e, input, 1.0);
+
     }
 
     real model::getLoss() const {

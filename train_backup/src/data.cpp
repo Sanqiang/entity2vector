@@ -65,9 +65,9 @@ namespace entity2vec {
         return h;
     }
 
-    void data::addWord(const std::string &word) {
+    int64_t data::addWord(const std::string &word) {
         if(word == UNK){
-            return;
+            return -1;
         }
         int64_t h = getWordHash(word);
 
@@ -88,9 +88,10 @@ namespace entity2vec {
                 addCorPair(word, cur_tags[tag_idx], 2);
             }
         }
+        return h;
     }
 
-    void data::addTag(const std::string &tag) {
+    int64_t data::addTag(const std::string &tag) {
         int64_t h = getTagHash(tag);
         if (tag2idx_[h] == -1) {
             entry_tag e;
@@ -106,9 +107,11 @@ namespace entity2vec {
         if(args_->neg_flag == 0) {
             addCorPair(tag, cur_prod,3);
         }
+
+        return h;
     }
 
-    void data::addProd(const std::string &prod) {
+    int64_t data::addProd(const std::string &prod) {
         int64_t h = getProdHash(prod);
         if (prod2idx_[h] == -1) {
             entry_prod e;
@@ -121,6 +124,8 @@ namespace entity2vec {
         }else{
             idx2prod_[prod2idx_[h]].count++;
         }
+
+        return h;
     }
 
     int64_t data::getProdHash(const std::string &prod) const {
@@ -308,13 +313,13 @@ namespace entity2vec {
             if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
                 if(!word.empty()){
                     if(cur_mode == 0){
-                        addProd(word);
+                        int64_t prod_id = addProd(word);
                         cur_prod = word;
                     }else if(cur_mode == 1){
-                        addTag(word);
+                        int64_t tag_id = addTag(word);
                         cur_tags.push_back(word);
                     }else if(cur_mode == 2){
-                        addWord(word);
+                        int64_t word_id = addWord(word);
                     }
                 }
                 if(c == '\t'){
@@ -325,6 +330,7 @@ namespace entity2vec {
                     cur_mode = 0;
                     cur_prod = UNK;
                     cur_tags.clear();
+                    ++data_size;
                 }
                 word.clear();
             }else{
@@ -332,6 +338,54 @@ namespace entity2vec {
             }
         }
         threshold(args_->minCount);
+
+        if(args_->memory_mode == 1){
+            cur_memory_words.clear();
+            cur_memory_prods.clear();
+            cur_memory_tags.clear();
+
+            in.seekg(0, std::ios::beg);
+            std::streambuf& sb = *in.rdbuf();
+
+            while ((c = sb.sbumpc()) != EOF) {
+                if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
+                    if(!word.empty()){
+                        if(cur_mode == 0){
+                            int64_t prod_id = getProdId(word);
+                            cur_memory_prods.push_back(prod_id);
+                        }else if(cur_mode == 1){
+                            int64_t tag_id = getTagId(word);
+                            cur_memory_tags.push_back(tag_id);
+                        }else if(cur_mode == 2){
+                            int64_t word_id = getWordId(word);
+                            cur_memory_words.push_back(word_id);
+                        }
+                    }
+                    if(c == '\t'){
+                        cur_mode++;
+                    }else if(c == '\v'){
+
+                    }else if(c == '\n'){
+                        data_memory_words.push_back(cur_memory_words);
+                        data_memory_prods.push_back(cur_memory_prods);
+                        data_memory_tags.push_back(cur_memory_tags);
+                        cur_memory_words.clear();
+                        cur_memory_prods.clear();
+                        cur_memory_tags.clear();
+                        cur_mode = 0;
+                    }
+                    word.clear();
+                }else{
+                    word.push_back(c);
+                }
+            }
+
+            uint64_t step = floor(data_size / args_->thread);
+            for (int i = 0; i < args_->thread; ++i) {
+                pointers.push_back(i*step);
+            }
+        }
+
 
         if(args_->neg_flag == 1){
             word_prod_tab = new bool[word_size_*prod_size_];
@@ -403,52 +457,78 @@ namespace entity2vec {
         }
     }
 
-    uint32_t data::getLine(std::istream &in, std::vector<int64_t> &words, std::vector<int64_t> &prods, std::vector<int64_t> &tags,
-                           std::minstd_rand &rng) const {
-        std::uniform_real_distribution<> uniform(0, 1);
-        std::string token;
-        uint32_t ntokens = 0;
-        words.clear();
-        prods.clear();
-        tags.clear();
-        uint8_t cur_mode = 0;
-        std::string word;
-        char c;
-        std::streambuf& sb = *in.rdbuf();
-        while ((c = sb.sbumpc()) != EOF) {
-            if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
-                if(!word.empty()){
-                    if(cur_mode == 0){
-                        int64_t pid = getProdId(word);
-                        prods.push_back(pid);
-                    }else if(cur_mode == 1){
-                        int64_t tid = getTagId(word);
-                        tags.push_back(tid);
-                    }else if(cur_mode == 2){
-                        int64_t wid = getWordId(word);
-                        words.push_back(wid);
-                        ntokens++;
-                    }
-                }
+    int32_t data::getLine(std::istream &in, std::vector<int64_t> &words, std::vector<int64_t> &prods, std::vector<int64_t> &tags,
+                           std::minstd_rand &rng, uint32_t threadId) {
+        ++processed_data;
+        if(args_->memory_mode == 1) {
+            position_ = pointers[threadId];
 
-                if(c == '\t'){
-                    cur_mode++;
-                }else if(c == '\v'){
-
-                }else if(c == '\n'){
-                    cur_mode = 0;
-                    break;
-                }
-                word.clear();
-            }else{
-                word.push_back(c);
+            if (args_->verbose >= 4 && threadId == 0) {
+                printf("%d \n", processed_data);
             }
+            words = data_memory_words[position_];
+            prods = data_memory_prods[position_];
+            tags = data_memory_tags[position_];
+            pointers[threadId]++;
+            if (position_ >= data_size){
+                pointers[threadId] = 0;
+                return -1;
+            }else{
+                return 1;
+            }
+        }else if(args_->memory_mode == 0) {
+            ++position_;
+            if (args_->verbose >= 4 && threadId == 0) {
+                printf("%d \n", processed_data);
+            }
+            std::uniform_real_distribution<> uniform(0, 1);
+            std::string token;
+            uint32_t ntokens = 0;
+            words.clear();
+            prods.clear();
+            tags.clear();
+            uint8_t cur_mode = 0;
+            std::string word;
+            char c;
+            std::streambuf &sb = *in.rdbuf();
+            while ((c = sb.sbumpc()) != EOF) {
+                if (c == ' ' || c == '\t' || c == '\v' || c == '\n') {
+                    if (!word.empty()) {
+                        if (cur_mode == 0) {
+                            int64_t pid = getProdId(word);
+                            prods.push_back(pid);
+                        } else if (cur_mode == 1) {
+                            int64_t tid = getTagId(word);
+                            tags.push_back(tid);
+                        } else if (cur_mode == 2) {
+                            int64_t wid = getWordId(word);
+                            words.push_back(wid);
+                            ntokens++;
+                        }
+                    }
+
+                    if (c == '\t') {
+                        cur_mode++;
+                    } else if (c == '\v') {
+
+                    } else if (c == '\n') {
+                        cur_mode = 0;
+                        break;
+                    }
+                    word.clear();
+                } else {
+                    word.push_back(c);
+                }
+            }
+            if ((c = sb.sbumpc()) == EOF) {
+                in.clear();
+                in.seekg(std::streampos(0));
+                return -1;
+            } else {
+                sb.sputbackc(c);
+            }
+            return ntokens;
         }
-        if((c = sb.sbumpc()) == EOF){
-            in.clear();
-            in.seekg(std::streampos(0));
-        }
-        return ntokens;
     }
 
     uint64_t data::nwords() {

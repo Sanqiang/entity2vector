@@ -6,6 +6,7 @@
 using namespace entity2vec;
 
 
+
 void train(){
     util::initTables();
     std::shared_ptr<args> a = std::make_shared<args>();
@@ -26,7 +27,6 @@ void generate_vectors(){
 
 int main(int argc, char** argv) {
     train();
-    //generate_vectors();
 
     exit(0);
 

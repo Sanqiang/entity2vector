@@ -12,7 +12,6 @@
 #include "util.h"
 #include "args.h"
 #include <regex>
-#include <unordered_set>
 
 namespace entity2vec{
 
@@ -29,7 +28,6 @@ namespace entity2vec{
                 std::cerr << "Input file cannot be opened!" << std::endl;
                 exit(EXIT_FAILURE);
             }
-
             std::cout<<"start reading file"<<std::endl;
             data_->readFromFile(ifs);
             ifs.close();
@@ -55,32 +53,47 @@ namespace entity2vec{
                 output_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
                 output_->zero();
             }
-            model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
+
             if(args_->pretraining_flag) {
                 std::cout << "start reading pretraining file" << std::endl;
                 populate_pretraining();
                 std::cout << "finish reading pretraining file" << std::endl;
             }
+
+            model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
+
         }
 
         start = clock();
-        tokenCount = 0;
         std::vector<std::thread> threads;
-        for (uint32_t i = 0; i < args_->thread; i++) {
-            threads.push_back(std::thread([=]() { trainThread(i); }));
+
+        if(args_->thread > 1) {
+            for (int loop = 0; loop < args_->epoch; ++loop) {
+                for (uint32_t i = 0; i < args_->thread; i++) {
+                    threads.push_back(std::thread([=]() { trainThread(i); }));
+                }
+                for (auto it = threads.begin(); it != threads.end(); ++it) {
+                    if (it->joinable()) {
+                        it->join();
+                    }
+                }
+                if (loop % 10 == 0) {
+                    saveVectors(args_->load_model + std::to_string(loop));
+                }
+
+            }
+        }else{
+            trainThread(0);
         }
-        for (auto it = threads.begin(); it != threads.end(); ++it) {
-            it->join();
-        }
+
     }
 
     void controller::trainThread(uint32_t threadId) {
         std::string path = args_->input_data_pattern;
         path.replace(path.find("{i}"), std::string("{i}").size(),std::to_string(threadId));
         //std::string path = args_->input_data;
-
         std::ifstream ifs(path);
-        std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
+//        std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
 
         model model(input_, output_, args_, data_, threadId);
         model.initWordNegSampling();
@@ -88,29 +101,37 @@ namespace entity2vec{
         std::vector<int64_t> line;
         std::vector<int64_t> prods;
         std::vector<int64_t> tags;
-        const uint32_t ntokens = data_->nwords();
         uint32_t localTokenCount = 0;
         uint32_t loop = 0;
-        while (tokenCount < args_->epoch * ntokens){
-            real progress = real(tokenCount) / (args_->epoch * ntokens);
-            real lr = args_->lr * (1.0 - progress);
-            localTokenCount += data_->getLine(ifs, line, prods, tags, model.rng);
+        while (1){
+            real progress = real(loop) * real(args_->thread) / real(data_->data_size);
+            real lr = args_->lr /** (1.0 - progress)*/;
+            int32_t tempTokenCount = data_->getLine(ifs, line, prods, tags, model.rng, threadId);
             skipgram(model, lr, line, prods, tags);
-
-            tokenCount += localTokenCount;
-            localTokenCount = 0;
-            if (loop++ % 1000 == 0 && threadId == 0 && args_->verbose > 1) {
-                printInfo(progress, model.getLoss());
-                saveModel(args_->load_model + std::to_string(loop));
-                saveVectors(args_->load_model + std::to_string(loop));
+            if(tempTokenCount == -1 && args_->thread > 1 && threadId == 0){
+                std::cout << "Current Loop: " << loop << std::endl;
+                if(loop % 5 == 0) {
+                    saveVectors(args_->load_model + std::to_string(loop));
+//                saveModel(args_->load_model + std::to_string(loop));
+                }
+                ++loop;
+            }else if(tempTokenCount == -1 && args_->thread == 1){
+                printf("Finish Current LOOP %d", loop);
+                if(loop++ % 5 == 0) {
+                    saveVectors(args_->load_model + std::to_string(loop));
+                    //                saveModel(args_->load_model + std::to_string(loop));
+                }
             }
-
+//            if (progress == 0 && threadId == 0 && args_->verbose > 1) {
+//                printInfo(progress, model.getLoss());
+//            }
         }
         if (threadId == 0 && args_->verbose > 0) {
             printInfo(1.0, model.getLoss());
             std::cout << std::endl;
         }
         ifs.close();
+        pthread_exit(NULL);
     }
 
     void controller::populate_pretraining() {
@@ -126,15 +147,18 @@ namespace entity2vec{
         std::streambuf& sb = *ifs.rdbuf();
         while ((c = sb.sbumpc()) != EOF) {
             if(c == '\n'){ break;}
-        } //pass the first line
+        } //pass the first line (ignore embedding for <UNK>)
         while ((c = sb.sbumpc()) != EOF) {
             if (c == ' ' || c == '\n') {
                 if(!word.empty()){
                     if(cur_mode == 0){
                         cur_word_idx = data_->getWordId(word);
+                        if(word == "place"){
+                            int x = 1;
+                        }
                         cur_vector_idx = 0;
                     }else if(cur_mode == 1){
-//                        input_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
+                        input_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
                         output_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
                     }
                 }
@@ -151,11 +175,20 @@ namespace entity2vec{
         }
     }
 
-    void controller::printWords(std::string word, uint32_t k) {
-        uint32_t i = data_->getWordId(word);
-        std::vector<std::pair<real, int>> pairs = input_->findSimilarRow(i, k, 0, data_->nwords()+data_->nprods()+data_->ntags()-1);
+    void controller::printWords(std::string word, uint32_t k, uint32_t type) {
+        std::vector<std::pair<real, int>> pairs;
+        if(type == 0){
+            int64_t i = data_->getWordId(word);
+            pairs = input_->findSimilarRow(i, k, 0, data_->nwords()+data_->nprods()+data_->ntags()-1);
 
-        std::cout << "" <<word<< " : ";
+            std::cout << "" <<word<< " : ";
+        } else if(type == 1){
+            int64_t i = data_->getProdId(word);
+            pairs = input_->findSimilarRow(i, k, data_->nwords(), data_->nwords()+data_->nprods()-1);
+
+            std::cout << "" <<word<< " : ";
+        }
+
         for (auto it = pairs.begin(); it != pairs.end(); ++it){
             int64_t id = it->second;
             if(0 == model_->checkIndexType(id)){
@@ -165,31 +198,31 @@ namespace entity2vec{
             }else if(2 == model_->checkIndexType(id)){
                 std::cout << data_->getTag(id - data_->nwords() - data_->nprods()) << "\t";
             }
-
         }
         std::cout << std::endl;
     }
 
     void controller::printInfo(real progress, real loss) {
         real t = real(clock() - start) / CLOCKS_PER_SEC;
-        real wst = real(tokenCount) / t;
         real lr = args_->lr * (1.0 - progress);
         int eta = int(t / progress * (1 - progress) / args_->thread);
         int etah = eta / 3600;
         int etam = (eta - etah * 3600) / 60;
         std::cout << std::fixed;
         std::cout << "Progress: " << std::setprecision(1) << 100 * progress << "%";
-        std::cout << "words/sec/thread: " << std::setprecision(0) << wst;
         std::cout << "lr: " << std::setprecision(6) << lr;
         std::cout << "loss: " << std::setprecision(6) << loss;
         std::cout << "eta: " << etah << "h" << etam << "m ";
         std::cout << std::endl;
         if(args_->verbose > 2) {
-            printWords("steak", 10);
-            printWords("seafood", 10);
-            printWords("grill", 10);
-            printWords("chines", 10);
-            printWords("bbq", 10);
+//            printWords("steak", 10, 0);
+//            printWords("seafood", 10, 0);
+//            printWords("grill", 10, 0);
+//            printWords("chines", 10, 0);
+//            printWords("bbq", 10, 0);
+            printWords("Y2p07YEC8xOsYTHWf0UxiA", 10, 1);
+            printWords("E3RjJH45EX6rHYDs0TYSRA", 10, 1);
+            printWords("5UmKMjUEUNdYWqANhGckJw", 10, 1);
         }
         std::cout << std::endl;
         std::cout << std::endl;
@@ -210,7 +243,7 @@ namespace entity2vec{
                     if(line[w + c] < 0){
                         continue;
                     }
-                    //model.update(line[w], line[w + c], lr);
+                    model.update(line[w], line[w + c], lr);
                 }
             }
             //entity embedding
@@ -218,10 +251,11 @@ namespace entity2vec{
                 //word - prod
                 for (int64_t l = 0; l < prods.size(); l++) {
                     if(prods[l]  < 0){
+                        printf("Problem!!!");
                         continue;
                     }
                     model.update(model_->transform_dic2matrix(prods[l], 1), line[w], lr);
-//                    model.update(line[w],model_->transform_dic2matrix(prods[l], 1), lr);
+                    model.update(line[w],model_->transform_dic2matrix(prods[l], 1), lr);
                 }
             }
 
@@ -231,8 +265,8 @@ namespace entity2vec{
                     if(tags[l]  < 0){
                         continue;
                     }
-//                    model.update(line[w], model_->transform_dic2matrix(tags[l], 2), lr);
-//                    model.update(model_->transform_dic2matrix(tags[l], 2), line[w], lr);
+                    model.update(line[w], model_->transform_dic2matrix(tags[l], 2), lr);
+                    model.update(model_->transform_dic2matrix(tags[l], 2), line[w], lr);
                 }
             }
         }
@@ -242,8 +276,8 @@ namespace entity2vec{
                 if(prods[k] < 0){ continue;}
                 for (int64_t l = 0; l < tags.size(); l++) {
                     if(tags[l] < 0 || prods[k] < 0){ continue;}
-//                    model.update(model_->transform_dic2matrix(tags[l], 2), model_->transform_dic2matrix(prods[k], 1) , lr);
-//                    model.update(model_->transform_dic2matrix(prods[k], 1) ,model_->transform_dic2matrix(tags[l], 2), lr);
+                    model.update(model_->transform_dic2matrix(tags[l], 2), model_->transform_dic2matrix(prods[k], 1) , lr);
+                    model.update(model_->transform_dic2matrix(prods[k], 1) ,model_->transform_dic2matrix(tags[l], 2), lr);
                 }
             }
         }
@@ -320,7 +354,7 @@ namespace entity2vec{
             for (uint32_t j = 0; j < args_->dim; ++j) {
                 vec_word.setData(input_->data_[i*args_->dim + j],j);
             }
-            vec_word.normalize();
+//            vec_word.normalize();
 
             ofs_word << word.data() << " ";
             for (uint32_t j = 0; j < args_->dim; ++j) {
@@ -338,9 +372,9 @@ namespace entity2vec{
         for (int32_t i = 0; i < data_->nprods(); i++) {
             std::string prod = data_->getProd(i);
             for (uint32_t j = 0; j < args_->dim; ++j) {
-                vec_prod.setData(input_->data_[i*args_->dim + j],j);
+                vec_prod.setData(input_->data_[(i + data_->word_size_)*args_->dim + j],j);
             }
-            vec_prod.normalize();
+//            vec_prod.normalize();
             ofs_prod << prod << " ";
             for (uint32_t j = 0; j < args_->dim; ++j) {
                 ofs_prod << vec_prod.data_[j];
@@ -357,9 +391,9 @@ namespace entity2vec{
         for (int32_t i = 0; i < data_->ntags(); i++) {
             std::string tag = data_->getTag(i);
             for (uint32_t j = 0; j < args_->dim; ++j) {
-                vec_tag.setData(input_->data_[i*args_->dim + j],j);
+                vec_tag.setData(input_->data_[(i + data_->word_size_ + data_->tag_size_)*args_->dim + j],j);
             }
-            vec_tag.normalize();
+//            vec_tag.normalize();
 
             ofs_tag << tag << " ";
             for (uint32_t j = 0; j < args_->dim; ++j) {

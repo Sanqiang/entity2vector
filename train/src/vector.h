@@ -17,8 +17,9 @@ namespace entity2vec {
         real* data_;
         explicit vector(uint32_t m);
         explicit vector(uint32_t m, real *arr);
-        void setData(real *arr);
-        void setData(real val, int64_t i);
+        void setValue(real *arr);
+        void setValue(real val, int64_t i);
+        real getValue(int64_t i);
         void incrementData(real val, int64_t i);
         uint32_t size();
         void zero();

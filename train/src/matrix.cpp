@@ -56,6 +56,14 @@ namespace entity2vec{
         }
     }
 
+    void matrix::addMatrix(const matrix &mat, real a) {
+        for (uint64_t i = 0; i < m_; i++) {
+            for (int64_t j = 0; j < n_; j++) {
+                data_[i * n_ + j] += a * mat.data_[i * n_ + j];
+            }
+        }
+    }
+
     void matrix::save(std::ostream &out) {
         out.write((char*) &m_, sizeof(uint32_t));
         out.write((char*) &n_, sizeof(uint32_t));
@@ -78,6 +86,10 @@ namespace entity2vec{
         return data_[row_idx*n_ + col_idx];
     }
 
+    void matrix::incrementData(real val, int64_t row_idx, int64_t col_idx) {
+        data_[row_idx*n_ + col_idx] += val;
+    }
+
     std::vector<std::pair<real, int>> matrix::findSimilarRow(int64_t i, uint32_t k, uint32_t range_start, uint32_t range_end) {
         std::priority_queue<std::pair<real, int>> q;
 
@@ -91,7 +103,7 @@ namespace entity2vec{
 
         for (uint32_t cand = range_start; cand <= range_end; ++cand) {
             for (uint32_t di = 0; di < n_; ++di) {
-                temp.setData(data_[cand*n_ + di],di);
+                temp.setValue(data_[cand * n_ + di], di);
             }
             temp.normalize();
 

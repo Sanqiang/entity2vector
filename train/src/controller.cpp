@@ -33,34 +33,22 @@ namespace entity2vec{
             ifs.close();
             std::cout<<"finish reading file"<<std::endl;
 
-            if(args_->prod_flag && args_->tag_flag){
-                input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods() + data_->ntags(), args_->dim);
-                input_->uniform(1.0 / args_->dim);
+            wi_ = std::make_shared<matrix>(data_->nwords(), args_->dim_w);
+            wi_->uniform(1.0 / args_->dim_w);
 
-                output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods() + data_->ntags(), args_->dim);
-                output_->zero();
-            }else if(args_->prod_flag){
-                input_ = std::make_shared<matrix>(data_->nwords() + data_->nprods(), args_->dim);
-                input_->uniform(1.0 / args_->dim);
+            pi_ = std::make_shared<matrix>(data_->nprods(), args_->dim_p);
+            pi_->uniform(1.0 / args_->dim_p);
 
-                output_ = std::make_shared<matrix>(data_->nwords() + data_->nprods() + data_->ntags(), args_->dim);
-                output_->zero();
-            }
-            else{
-                input_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
-                input_->uniform(1.0 / args_->dim);
+            ti_ = std::make_shared<matrix>(data_->ntags(), args_->dim_t);
+            ti_->uniform(1.0 / args_->dim_t);
 
-                output_ = std::make_shared<matrix>(data_->nwords(), args_->dim);
-                output_->zero();
-            }
+            w2p_ = std::make_shared<matrix>(args_->dim_w, args_->dim_p);
+            w2p_->uniform(1.0 / data_->nwords());
 
-            if(args_->pretraining_flag) {
-                std::cout << "start reading pretraining file" << std::endl;
-                populate_pretraining();
-                std::cout << "finish reading pretraining file" << std::endl;
-            }
+            w2t_ = std::make_shared<matrix>(args_->dim_w, args_->dim_t);
+            w2t_->uniform(1.0 / data_->nwords());
 
-            model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
+            model_ = std::make_shared<model>(wi_, wi_, pi_, pi_,w2p_, ti_, ti_,w2t_, args_,data_, 0);
 
         }
 
@@ -95,7 +83,7 @@ namespace entity2vec{
         std::ifstream ifs(path);
 //        std::cout<<"start trainThread: "<< threadId <<  ":" <<path<<std::endl;
 
-        model model(input_, output_, args_, data_, threadId);
+        model model(wi_, wi_, pi_, pi_ ,w2p_, ti_, ti_,w2t_, args_, data_, threadId);
         model.initWordNegSampling();
 
         std::vector<int64_t> line;
@@ -112,19 +100,16 @@ namespace entity2vec{
                 std::cout << "Current Loop: " << loop << std::endl;
                 if(loop % 5 == 0) {
                     saveVectors(args_->load_model + std::to_string(loop));
-//                saveModel(args_->load_model + std::to_string(loop));
+                    //saveModel(args_->load_model + std::to_string(loop));
                 }
                 ++loop;
             }else if(tempTokenCount == -1 && args_->thread == 1){
                 printf("Finish Current LOOP %d", loop);
                 if(loop++ % 5 == 0) {
                     saveVectors(args_->load_model + std::to_string(loop));
-                    //                saveModel(args_->load_model + std::to_string(loop));
+                    //saveModel(args_->load_model + std::to_string(loop));
                 }
             }
-//            if (progress == 0 && threadId == 0 && args_->verbose > 1) {
-//                printInfo(progress, model.getLoss());
-//            }
         }
         if (threadId == 0 && args_->verbose > 0) {
             printInfo(1.0, model.getLoss());
@@ -158,8 +143,7 @@ namespace entity2vec{
                         }
                         cur_vector_idx = 0;
                     }else if(cur_mode == 1){
-//                        input_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
-                        output_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
+                        wi_->setValue(cur_word_idx, cur_vector_idx++, stod(word));
                     }
                 }
 
@@ -176,30 +160,30 @@ namespace entity2vec{
     }
 
     void controller::printWords(std::string word, uint32_t k, uint32_t type) {
-        std::vector<std::pair<real, int>> pairs;
-        if(type == 0){
-            int64_t i = data_->getWordId(word);
-            pairs = input_->findSimilarRow(i, k, 0, data_->nwords()+data_->nprods()+data_->ntags()-1);
-
-            std::cout << "" <<word<< " : ";
-        } else if(type == 1){
-            int64_t i = data_->getProdId(word);
-            pairs = input_->findSimilarRow(i, k, data_->nwords(), data_->nwords()+data_->nprods()-1);
-
-            std::cout << "" <<word<< " : ";
-        }
-
-        for (auto it = pairs.begin(); it != pairs.end(); ++it){
-            int64_t id = it->second;
-            if(0 == model_->checkIndexType(id)){
-                std::cout << data_->getWord(id) << "\t";
-            }else if(1 == model_->checkIndexType(id)){
-                std::cout << data_->getProd(id - data_->nwords()) << "\t";
-            }else if(2 == model_->checkIndexType(id)){
-                std::cout << data_->getTag(id - data_->nwords() - data_->nprods()) << "\t";
-            }
-        }
-        std::cout << std::endl;
+//        std::vector<std::pair<real, int>> pairs;
+//        if(type == 0){
+//            int64_t i = data_->getWordId(word);
+//            pairs = input_->findSimilarRow(i, k, 0, data_->nwords()+data_->nprods()+data_->ntags()-1);
+//
+//            std::cout << "" <<word<< " : ";
+//        } else if(type == 1){
+//            int64_t i = data_->getProdId(word);
+//            pairs = input_->findSimilarRow(i, k, data_->nwords(), data_->nwords()+data_->nprods()-1);
+//
+//            std::cout << "" <<word<< " : ";
+//        }
+//
+//        for (auto it = pairs.begin(); it != pairs.end(); ++it){
+//            int64_t id = it->second;
+//            if(0 == model_->checkIndexType(id)){
+//                std::cout << data_->getWord(id) << "\t";
+//            }else if(1 == model_->checkIndexType(id)){
+//                std::cout << data_->getProd(id - data_->nwords()) << "\t";
+//            }else if(2 == model_->checkIndexType(id)){
+//                std::cout << data_->getTag(id - data_->nwords() - data_->nprods()) << "\t";
+//            }
+//        }
+//        std::cout << std::endl;
     }
 
     void controller::printInfo(real progress, real loss) {
@@ -237,50 +221,25 @@ namespace entity2vec{
                 continue;
             }
             //word embedding
-//            int32_t boundary = uniform(model.rng);
-//            for (int32_t c = -boundary; c <= boundary; c++) {
-//                if (c != 0 && w + c >= 0 && w + c < line.size()) {
-//                    if(line[w + c] < 0){
-//                        continue;
-//                    }
-//                    model.update(line[w], line[w + c], lr);
-//                }
-//            }
-            //entity embedding
-            if(args_->prod_flag) {
-                //word - prod
-                for (int64_t l = 0; l < prods.size(); l++) {
-                    if(prods[l]  < 0){
-                        printf("Problem!!!");
+            int32_t boundary = uniform(model.rng);
+            for (int32_t c = -boundary; c <= boundary; c++) {
+                if (c != 0 && w + c >= 0 && w + c < line.size()) {
+                    if(line[w + c] < 0){
                         continue;
                     }
-                    model.update(model_->transform_dic2matrix(prods[l], 1), line[w], lr);
-//                    model.update(line[w],model_->transform_dic2matrix(prods[l], 1), lr);
+                    model.update(line[w], line[w + c], lr, train_mode::word2prod);
                 }
             }
+            //entity embedding
+            for (int64_t l = 0; l < prods.size(); l++) {
+                if(prods[l]  < 0){
+                    printf("Problem!!!");
+                    continue;
+                }
+                model.update(prods[l], line[w], lr, train_mode::word2prod);
+            }
 
-//            if(args_->tag_flag){
-//                //word - tag
-//                for (int64_t l = 0; l < tags.size(); l++) {
-//                    if(tags[l]  < 0){
-//                        continue;
-//                    }
-//                    model.update(line[w], model_->transform_dic2matrix(tags[l], 2), lr);
-//                    model.update(model_->transform_dic2matrix(tags[l], 2), line[w], lr);
-//                }
-//            }
         }
-//        if(args_->tag_flag) {
-//            //tag - prod
-//            for (int64_t k = 0; k < prods.size(); k++) {
-//                if(prods[k] < 0){ continue;}
-//                for (int64_t l = 0; l < tags.size(); l++) {
-//                    if(tags[l] < 0 || prods[k] < 0){ continue;}
-//                    model.update(model_->transform_dic2matrix(tags[l], 2), model_->transform_dic2matrix(prods[k], 1) , lr);
-//                    model.update(model_->transform_dic2matrix(prods[k], 1) ,model_->transform_dic2matrix(tags[l], 2), lr);
-//                }
-//            }
-//        }
     }
 
     void controller::saveModel(std::string name) {
@@ -292,23 +251,23 @@ namespace entity2vec{
         }
         args_->save(ofs);
         data_->save(ofs);
-        input_->save(ofs);
-        output_->save(ofs);
+//        input_->save(ofs);
+//        output_->save(ofs);
         //model_->save(ofs);
         ofs.close();
     }
 
     void controller::loadModel(std::istream &in) {
-        data_ = std::make_shared<data>(args_);
-        input_ = std::make_shared<matrix>();
-        output_ = std::make_shared<matrix>();
-        args_->load(in);
-        data_->load(in);
-        input_->load(in);
-        output_->load(in);
-        model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
-//        model_->initWordNegSampling();
-//        model_->load(in);
+//        data_ = std::make_shared<data>(args_);
+//        input_ = std::make_shared<matrix>();
+//        output_ = std::make_shared<matrix>();
+//        args_->load(in);
+//        data_->load(in);
+//        input_->load(in);
+//        output_->load(in);
+//        model_ = std::make_shared<model>(input_, output_, args_,data_, 0);
+////        model_->initWordNegSampling();
+////        model_->load(in);
     }
 
     void controller::loadModel(const std::string &name) {
@@ -340,26 +299,37 @@ namespace entity2vec{
             std::cout << "Error opening file for saving vectors." << std::endl;
            exit(EXIT_FAILURE);
         }
-        saveModel(ofs_word, ofs_prod, ofs_tag);
+        std::ofstream ofs_word2prod(args_->output + name + ".word2prod.vec");
+        if (!ofs_tag.is_open()) {
+            std::cout << "Error opening file for saving vectors." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        std::ofstream ofs_word2tag(args_->output + name + ".word2tag.vec");
+        if (!ofs_tag.is_open()) {
+            std::cout << "Error opening file for saving vectors." << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        saveModel(ofs_word, ofs_prod, ofs_tag, ofs_word2prod, ofs_word2tag);
         ofs_word.close();
         ofs_prod.close();
         ofs_tag.close();
     }
 
-    void controller::saveModel(std::ostream &ofs_word, std::ostream &ofs_prod, std::ostream &ofs_tag) {
-        ofs_word << data_->nwords() << " " << args_->dim << std::endl;
-        vector vec_word(args_->dim);
+    void controller::saveModel(std::ostream &ofs_word, std::ostream &ofs_prod, std::ostream &ofs_tag,
+                               std::ostream &ofs_word2prod, std::ostream &ofs_word2tag) {
+        ofs_word << data_->nwords() << " " << args_->dim_w << std::endl;
+        vector vec_word(args_->dim_w);
         for (uint32_t i = 0; i < data_->nwords(); i++) {
             std::string word = data_->getWord(i);
-            for (uint32_t j = 0; j < args_->dim; ++j) {
-                vec_word.setData(input_->data_[i*args_->dim + j],j);
+            for (uint32_t j = 0; j < args_->dim_w; ++j) {
+                vec_word.setValue(wi_->data_[i * args_->dim_w + j], j);
             }
 //            vec_word.normalize();
 
             ofs_word << word.data() << " ";
-            for (uint32_t j = 0; j < args_->dim; ++j) {
+            for (uint32_t j = 0; j < args_->dim_w; ++j) {
                 ofs_word << vec_word.data_[j];
-                if(j == args_->dim - 1){
+                if(j == args_->dim_w - 1){
                     ofs_word << "\n";
                 }else{
                     ofs_word << " ";
@@ -367,18 +337,18 @@ namespace entity2vec{
             }
         }
 
-        ofs_prod << data_->nprods() << " " << args_->dim << std::endl;
-        vector vec_prod(args_->dim);
+        ofs_prod << data_->nprods() << " " << args_->dim_p << std::endl;
+        vector vec_prod(args_->dim_p);
         for (int32_t i = 0; i < data_->nprods(); i++) {
             std::string prod = data_->getProd(i);
-            for (uint32_t j = 0; j < args_->dim; ++j) {
-                vec_prod.setData(input_->data_[(i + data_->word_size_)*args_->dim + j],j);
+            for (uint32_t j = 0; j < args_->dim_p; ++j) {
+                vec_prod.setValue(pi_->data_[(i + data_->word_size_) * args_->dim_p + j], j);
             }
 //            vec_prod.normalize();
             ofs_prod << prod << " ";
-            for (uint32_t j = 0; j < args_->dim; ++j) {
+            for (uint32_t j = 0; j < args_->dim_p; ++j) {
                 ofs_prod << vec_prod.data_[j];
-                if(j == args_->dim - 1){
+                if(j == args_->dim_p - 1){
                     ofs_prod << "\n";
                 }else{
                     ofs_prod << " ";
@@ -386,26 +356,48 @@ namespace entity2vec{
             }
         }
 
-        ofs_tag << data_->ntags() << " " << args_->dim << std::endl;
-        vector vec_tag(args_->dim);
+        ofs_tag << data_->ntags() << " " << args_->dim_t << std::endl;
+        vector vec_tag(args_->dim_t);
         for (int32_t i = 0; i < data_->ntags(); i++) {
             std::string tag = data_->getTag(i);
-            for (uint32_t j = 0; j < args_->dim; ++j) {
-                vec_tag.setData(input_->data_[(i + data_->word_size_ + data_->tag_size_)*args_->dim + j],j);
+            for (uint32_t j = 0; j < args_->dim_t; ++j) {
+                vec_tag.setValue(pi_->data_[(i + data_->word_size_ + data_->tag_size_) * args_->dim_t + j], j);
             }
 //            vec_tag.normalize();
 
             ofs_tag << tag << " ";
-            for (uint32_t j = 0; j < args_->dim; ++j) {
+            for (uint32_t j = 0; j < args_->dim_t; ++j) {
                 ofs_tag << vec_tag.data_[j];
-                if(j == args_->dim - 1){
+                if(j == args_->dim_t - 1){
                     ofs_tag << "\n";
                 }else{
                     ofs_tag << " ";
                 }
             }
         }
+
+        ofs_word2prod << data_->nwords() << " " << data_->nprods() << std::endl;
+        for (uint32_t i = 0; i < data_->nwords(); i++) {
+            for (uint32_t j = 0; j < data_->nprods(); j++) {
+                ofs_word2prod << w2p_->getValue(i, j);
+                if(j == data_->nprods() - 1){
+                    ofs_word2prod << "\n";
+                }else{
+                    ofs_word2prod << " ";
+                }
+            }
+        }
+
+        ofs_word2tag << data_->nwords() << " " << data_->ntags() << std::endl;
+        for (uint32_t i = 0; i < data_->nwords(); i++) {
+            for (uint32_t j = 0; j < data_->ntags(); j++) {
+                ofs_word2tag << w2t_->getValue(i, j);
+                if(j == data_->nprods() - 1){
+                    ofs_word2tag << "\n";
+                }else{
+                    ofs_word2tag << " ";
+                }
+            }
+        }
     }
-
-
 }

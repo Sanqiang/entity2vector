@@ -10,19 +10,20 @@
 namespace entity2vec {
     args::args() {
         lr = 0.01;
-        dim = 200;
+        dim_w = 200;
+        dim_p = 150;
         ws = 5;
         epoch = 100000000000;
         minCount = 5;
         neg = 10;
         minn = 0;
         maxn = 6;
-        thread = 1;
+        thread = 5;
         neg_trial = 100;
         lrUpdateRate = 0;
         t = 1e-4;
         label = "__label__";
-        verbose = 4;
+        verbose = 3;
         pretrainedVectors = "";
         std::string base =  getenv("HOME");
         //input_data = base + "/data/aan/paper_processed_nostem_3.txt";
@@ -49,13 +50,13 @@ namespace entity2vec {
         pretraining_flag = 1;
 
         load_model_flag = 0;
-        load_model = "p_w_nonmemory";
+        load_model = "all_on";
 
         memory_mode = 0;
     }
 
     void args::save(std::ostream &out) {
-        out.write((char*) &(dim), sizeof(uint32_t));
+//        out.write((char*) &(dim), sizeof(uint32_t));
         out.write((char*) &(ws), sizeof(uint32_t));
         out.write((char*) &(epoch), sizeof(uint32_t));
         out.write((char*) &(minCount), sizeof(uint32_t));
@@ -72,7 +73,7 @@ namespace entity2vec {
     }
 
     void args::load(std::istream &in) {
-        in.read((char*) &(dim), sizeof(uint32_t));
+//        in.read((char*) &(dim), sizeof(uint32_t));
         in.read((char*) &(ws), sizeof(uint32_t));
         in.read((char*) &(epoch), sizeof(uint32_t));
         in.read((char*) &(minCount), sizeof(uint32_t));

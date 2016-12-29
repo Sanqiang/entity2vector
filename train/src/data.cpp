@@ -83,9 +83,9 @@ namespace entity2vec {
         }
 
         if(args_->neg_flag == 0) {
-            addCorPair(word, cur_prod, 1);
+            addCorPair(word, cur_prod, entity_pair_type::word_prod);
             for (uint32_t tag_idx = 0; tag_idx < cur_tags.size(); ++tag_idx) {
-                addCorPair(word, cur_tags[tag_idx], 2);
+                addCorPair(word, cur_tags[tag_idx], entity_pair_type::word_tag);
             }
         }
         return h;
@@ -105,7 +105,7 @@ namespace entity2vec {
             idx2tag_[tag2idx_[h]].count++;
         }
         if(args_->neg_flag == 0) {
-            addCorPair(tag, cur_prod,3);
+            addCorPair(tag, cur_prod,entity_pair_type::tag_prod);
         }
 
         return h;
@@ -152,24 +152,24 @@ namespace entity2vec {
         return h;
     }
 
-    int64_t data::getHashCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) const {
+    int64_t data::getHashCorPair(const std::string &pair1, const std::string &pair2, entity_pair_type type) const {
         std::string key = pair1 + "_" + pair2;
-        return getHashCorPair(key, mode);
+        return getHashCorPair(key, type);
     }
 
-    int64_t data::getHashCorPair(const std::string &key, uint8_t mode) const {
+    int64_t data::getHashCorPair(const std::string &key, entity_pair_type type) const {
         uint64_t h = hash(key);
-        if(mode == 1){
+        if(type == entity_pair_type::word_prod){
             h = h % WORD_PROD_HASH_SIZE;
             while (cor_word_prod2idx_[h] != -1 && idx2cor_word_prod_[cor_word_prod2idx_[h]] != key) {
                 h = (h + 1) % WORD_PROD_HASH_SIZE;
             }
-        }else if(mode == 2){
+        }else if(type == entity_pair_type::word_tag){
             h = h % WORD_TAG_HASH_SIZE;
             while (cor_word_tag2idx_[h] != -1 && idx2cor_word_tag_[cor_word_tag2idx_[h]] != key) {
                 h = (h + 1) % WORD_TAG_HASH_SIZE;
             }
-        }else if(mode == 3){
+        }else if(type == entity_pair_type::tag_prod){
             h = h % TAG_PROD_HASH_SIZE;
             while (cor_tag_prod2idx_[h] != -1 && idx2cor_tag_prod_[cor_tag_prod2idx_[h]] != key) {
                 h = (h + 1) % TAG_PROD_HASH_SIZE;
@@ -178,95 +178,95 @@ namespace entity2vec {
         return h;
     }
 
-    bool data::checkCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) const {
+    bool data::checkCorPair(const std::string &pair1, const std::string &pair2, entity_pair_type type) const {
         if(args_->neg_flag == 0) {
-            int64_t h = getHashCorPair(pair1, pair2, mode);
-            if (mode == 1) {
+            int64_t h = getHashCorPair(pair1, pair2, type);
+            if (type == entity_pair_type::word_prod) {
                 return cor_word_prod2idx_[h] != -1;
-            } else if (mode == 2) {
+            } else if (type == entity_pair_type::word_tag) {
                 return cor_word_tag2idx_[h] != -1;
-            } else if (mode == 3) {
+            } else if (type == entity_pair_type::tag_prod) {
                 return cor_tag_prod2idx_[h] != -1;
             }
         }else if(args_->neg_flag == 1){
-            if (mode == 1) {
+            if (type == entity_pair_type::word_prod) {
                 int64_t word_id = getWordId(pair1);
                 int64_t prod_id = getProdId(pair2);
-                return checkCorPair(word_id, prod_id, 1);
-            } else if (mode == 2) {
+                return checkCorPair(word_id, prod_id, type);
+            } else if (type == entity_pair_type::word_tag) {
                 int64_t word_id = getWordId(pair1);
                 int64_t tag_id = getTagId(pair2);
-                return checkCorPair(word_id, tag_id, 2);
-            } else if (mode == 3) {
+                return checkCorPair(word_id, tag_id, type);
+            } else if (type == entity_pair_type::tag_prod) {
                 int64_t prod_id = getProdId(pair1);
                 int64_t tag_id = getTagId(pair2);
-                return checkCorPair(prod_id, tag_id, 3);
+                return checkCorPair(prod_id, tag_id, type);
             }
         }
         return 1;
     }
 
-    bool data::checkCorPair(const int64_t pair1_idx, const int64_t pair2_idx, uint8_t mode) const {
+    bool data::checkCorPair(const int64_t pair1_idx, const int64_t pair2_idx, entity_pair_type type) const {
         if(args_->neg_flag == 0) {
             std::string key1 = "", key2 = "";
-            if (mode == 1) {
+            if (type == entity_pair_type::word_prod) {
                 key1 = getWord(pair1_idx);
                 key2 = getProd(pair2_idx);
-            } else if (mode == 2) {
+            } else if (type == entity_pair_type::word_tag) {
                 key1 = getWord(pair1_idx);
                 key2 = getTag(pair2_idx);
-            } else if (mode == 3) {
+            } else if (type == entity_pair_type::tag_prod) {
                 key1 = getTag(pair1_idx);
                 key2 = getProd(pair2_idx);
             }
-            return checkCorPair(key1, key2, mode);
+            return checkCorPair(key1, key2, type);
         }else if(args_->neg_flag == 1){
-            if (mode == 1) {
+            if (type == entity_pair_type::word_prod) {
                 return word_prod_tab[pair1_idx*prod_size_ + pair2_idx];
-            } else if (mode == 2) {
+            } else if (type == entity_pair_type::word_tag) {
                 return word_prod_tab[pair1_idx*tag_size_ + pair2_idx];
-            } else if (mode == 3) {
+            } else if (type == entity_pair_type::tag_prod) {
                 return word_prod_tab[pair1_idx*tag_size_ + pair2_idx];
             }
         }
     }
 
-    void data::addCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode) {
+    void data::addCorPair(const std::string &pair1, const std::string &pair2, entity_pair_type type) {
         if(args_->neg_flag == 0) {
-            int h = getHashCorPair(pair1, pair2, mode);
+            int h = getHashCorPair(pair1, pair2, type);
             std::string key = pair1 + "_" + pair2;
-            if (mode == 1) {
+            if (type == entity_pair_type::word_prod) {
                 if (cor_word_prod2idx_[h] == -1) {
                     cor_word_prod2idx_[h] = word_prod_size_++;
                     idx2cor_word_prod_.push_back(key);
                 }
-            } else if (mode == 2) {
+            } else if (type == entity_pair_type::word_tag) {
                 if (cor_word_tag2idx_[h] == -1) {
                     cor_word_tag2idx_[h] = word_tag_size_++;
                     idx2cor_word_tag_.push_back(key);
                 }
-            } else if (mode == 3) {
+            } else if (type == entity_pair_type::tag_prod) {
                 if (cor_tag_prod2idx_[h] == -1) {
                     cor_tag_prod2idx_[h] = tag_prod_size_++;
                     idx2cor_tag_prod_.push_back(key);
                 }
             }
         }else if(args_->neg_flag == 1){
-            if (mode == 1) {
+            if (type == entity_pair_type::word_prod) {
                 int64_t word_id = getWordId(pair1);
                 int64_t prod_id = getProdId(pair2);
                 if(word_id >= 0 && !word_prod_tab[word_id * prod_size_ + prod_id]){
                     word_prod_tab[word_id * prod_size_ + prod_id] = true;
                     word_prod_size_++;
                 }
-            } else if (mode == 2) {
+            } else if (type == entity_pair_type::word_tag) {
                 int64_t word_id = getWordId(pair1);
                 int64_t tag_id = getTagId(pair2);
                 if(word_id >= 0 && !word_tag_tab[word_id * tag_size_ + tag_id]) {
                     word_tag_tab[word_id * tag_size_ + tag_id] = true;
                     word_tag_size_++;
                 }
-            } else if (mode == 3) {
+            } else if (type == entity_pair_type::tag_prod) {
                 int64_t tag_id = getTagId(pair1);
                 int64_t prod_id = getProdId(pair2);
                 if(!tag_prod_tab[tag_id * prod_size_ + prod_id]){
@@ -422,10 +422,10 @@ namespace entity2vec {
                             cur_tags.push_back(word);
                         }else if(cur_mode == 2){
                             if(word != UNK) {
-                                addCorPair(word, cur_prod, 1);
+                                addCorPair(word, cur_prod, entity_pair_type::word_prod);
                                 for (uint32_t tag_idx = 0; tag_idx < cur_tags.size(); ++tag_idx) {
-                                    addCorPair(word, cur_tags[tag_idx], 2);
-                                    addCorPair(cur_tags[tag_idx], cur_prod, 3);
+                                    addCorPair(word, cur_tags[tag_idx], entity_pair_type::word_tag);
+                                    addCorPair(cur_tags[tag_idx], cur_prod, entity_pair_type::tag_prod);
                                 }
                             }
                         }
@@ -729,7 +729,7 @@ namespace entity2vec {
                 }
 
                 idx2cor_word_prod_.push_back(pair);
-                cor_word_prod2idx_[getHashCorPair(pair, 1)] = i;
+                cor_word_prod2idx_[getHashCorPair(pair, entity_pair_type::word_prod)] = i;
             }
             for (int64_t i = 0; i < word_tag_size_; i++) {
                 std::string pair;
@@ -738,7 +738,7 @@ namespace entity2vec {
                 }
 
                 idx2cor_word_tag_.push_back(pair);
-                cor_word_tag2idx_[getHashCorPair(pair, 2)] = i;
+                cor_word_tag2idx_[getHashCorPair(pair, entity_pair_type::word_tag)] = i;
             }
             for (int64_t i = 0; i < tag_prod_size_; i++) {
                 std::string pair;
@@ -747,7 +747,7 @@ namespace entity2vec {
                 }
 
                 idx2cor_tag_prod_.push_back(pair);
-                cor_tag_prod2idx_[getHashCorPair(pair, 3)] = i;
+                cor_tag_prod2idx_[getHashCorPair(pair, entity_pair_type::tag_prod)] = i;
             }
         }
     }

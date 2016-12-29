@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <random>
+#include <stdlib.h>
 
 namespace entity2vec{
     matrix::matrix() {
@@ -19,6 +20,12 @@ namespace entity2vec{
         m_ = m;
         n_ = n;
         data_ = new real[m * n];
+    }
+
+    void matrix::simple_rand() {
+        for (uint64_t i = 0; i < (m_ * n_); i++) {
+            data_[i] = (rand() % (10+1)) / 10;
+        }
     }
 
     void matrix::uniform(real a) {
@@ -63,8 +70,12 @@ namespace entity2vec{
         in.read((char*) data_, m_ * n_ * sizeof(real));
     }
 
-    void matrix::setValue(int64_t m, int64_t n, real val) {
-        data_[m*n_ + n] = val;
+    void matrix::setValue(int64_t row_idx, int64_t col_idx, real val) {
+        data_[row_idx*n_ + col_idx] = val;
+    }
+
+    real matrix::getValue(int64_t row_idx, int64_t col_idx) {
+        return data_[row_idx*n_ + col_idx];
     }
 
     std::vector<std::pair<real, int>> matrix::findSimilarRow(int64_t i, uint32_t k, uint32_t range_start, uint32_t range_end) {

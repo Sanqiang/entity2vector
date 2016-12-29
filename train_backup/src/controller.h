@@ -19,8 +19,6 @@ namespace entity2vec {
     class controller {
     private:
 
-        std::atomic<uint32_t> tokenCount;
-
         clock_t start;
     public:
         std::shared_ptr<args> args_;
@@ -34,7 +32,7 @@ namespace entity2vec {
         void train(std::shared_ptr<args> args);
         void skipgram(model& model, real lr, const std::vector<int64_t>& line, const std::vector<int64_t>& labels, const std::vector<int64_t>& tags);
         void printInfo(real progress, real loss);
-        void printWords(std::string word, uint32_t k);
+        void printWords(std::string word, uint32_t k, uint32_t type);//for type 0:word 1:prod 2:tag
 
         void saveModel(std::string name);
         void saveModel(std::ostream &ofs_word, std::ostream &ofs_prod, std::ostream &ofs_tag);
@@ -44,6 +42,7 @@ namespace entity2vec {
         void saveVectors(const std::string &name);
 
         void populate_pretraining();
+
 
     };
 }

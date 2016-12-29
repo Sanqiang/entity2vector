@@ -11,6 +11,7 @@ namespace entity2vec {
 namespace util{
     real *t_sigmoid = nullptr;
     real *t_log = nullptr;
+    real *t_exp = nullptr;
 
     real log(real x) {
         if (x > 1.0) {
@@ -21,6 +22,16 @@ namespace util{
     }
 
     real sigmoid(real x) {
+        if (x < -MAX_SIGMOID) {
+            return 0.0;
+        } else if (x > MAX_SIGMOID) {
+            return 1.0;
+        } else {
+            return t_exp[(int)((x + MAX_SIGMOID) * (EXP_TABLE_SIZE / MAX_SIGMOID / 2))];
+        }
+    }
+
+    real exp(real x){
         if (x < -MAX_SIGMOID) {
             return 0.0;
         } else if (x > MAX_SIGMOID) {
@@ -49,14 +60,19 @@ namespace util{
         }
     }
 
+    void initExp() {
+        int i;
+        t_exp = (float *)malloc((EXP_TABLE_SIZE + 1) * sizeof(float));
+        for (i = 0; i < EXP_TABLE_SIZE; i++) {
+            t_exp[i] = exp((i / (float)EXP_TABLE_SIZE * 2 - 1) * MAX_SIGMOID); // Precompute the exp() table
+            t_exp[i] = t_exp[i] / (t_exp[i] + 1);                   // Precompute f(x) = x / (x + 1)
+        }
+    }
+
     void initTables() {
         initLog();
         initSigmoid();
-    }
-
-    void seek(std::ifstream &ifs, uint32_t pos) {
-        ifs.clear();
-        ifs.seekg(std::streampos(pos));
+        initExp();
     }
 }
 }

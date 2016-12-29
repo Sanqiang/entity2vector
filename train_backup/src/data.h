@@ -59,6 +59,8 @@ namespace entity2vec {
         uint64_t word_tag_size_;
         uint64_t tag_prod_size_;
 
+        uint64_t data_size = 0;
+
         std::vector<int64_t> word2idx_;
         std::vector<entry_word> idx2words_;
         std::vector<int64_t> prod2idx_;
@@ -93,16 +95,17 @@ namespace entity2vec {
         bool checkCorPair(const int64_t pair1_idx, const int64_t pair2_idx, uint8_t mode) const;
         void addCorPair(const std::string &pair1, const std::string &pair2, uint8_t mode);
 
-        void addWord(const std::string& word);
-        void addProd(const std::string& prod);
-        void addTag(const std::string& tag);
+        int64_t addWord(const std::string& word);
+        int64_t addProd(const std::string& prod);
+        int64_t addTag(const std::string& tag);
 
         std::vector<uint32_t> getWordCounts();
         std::vector<uint32_t> getProdCounts();
         std::vector<uint32_t> getTagCounts();
 
         void readFromFile(std::istream &in);
-        uint32_t getLine(std::istream& in, std::vector<int64_t>& words, std::vector<int64_t>& prods, std::vector<int64_t>& tags, std::minstd_rand& rng) const;
+        int32_t getLine(std::istream& in, std::vector<int64_t>& words, std::vector<int64_t>& prods,
+                        std::vector<int64_t>& tags, std::minstd_rand& rng,uint32_t threadId);
 
         std::string getWord(int64_t i) const;
         std::string getProd(int64_t i) const;
@@ -115,6 +118,12 @@ namespace entity2vec {
 
         void save(std::ostream& out) const;
         void load(std::istream& in);
+
+        uint64_t position_ = 0, processed_data = 0;
+        //for memory preload useful when memory_mode == 1
+        std::vector<std::vector<int64_t>> data_memory_words, data_memory_prods, data_memory_tags;
+        std::vector<int64_t> cur_memory_words, cur_memory_prods, cur_memory_tags;
+        std::vector<uint64_t> pointers;
     };
 }
 

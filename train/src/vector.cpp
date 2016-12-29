@@ -21,14 +21,18 @@ namespace entity2vec {
         }
     }
 
-    void vector::setData(real *arr) {
+    void vector::setValue(real *arr) {
         for (uint32_t i = 0; i < m_; ++i) {
             data_[i] = arr[i];
         }
     }
 
-    void vector::setData(real val, int64_t i) {
+    void vector::setValue(real val, int64_t i) {
         data_[i] = val;
+    }
+
+    real vector::getValue(int64_t i) {
+        return data_[i];
     }
 
     void vector::incrementData(real val, int64_t i) {
