@@ -7,7 +7,7 @@ home = os.environ["HOME"]
 class DataProvider:
     def __init__(self, conf):
         self.conf = conf
-        npy_checker = "".join([self.conf.path_npy, "word_data"])
+        npy_checker = "".join([self.conf.path_npy, "word_data.npy"])
         if os.path.exists(npy_checker):
             print("find npy file", npy_checker)
             self.load()
