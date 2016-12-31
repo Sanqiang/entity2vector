@@ -96,14 +96,14 @@ void init_negative_sampling_table() {
     long long train_words_pow = 0, a, i;
     float d1, power = 0.75;
     negative_sampling_table = (int *)malloc(table_size * sizeof(int));
-    for (a = 0; a < word_size; a++) train_words_pow += pow(idx2word[a].cnt, power);
+    for (a = 0; a < n_prod; a++) train_words_pow += pow(idx2prod[a].cnt, power);
     i = 0;
-    d1 = pow(idx2word[i].cnt, power) / (float)train_words_pow;
+    d1 = pow(idx2prod[i].cnt, power) / (float)train_words_pow;
     for (a = 0; a < table_size; a++) {
         negative_sampling_table[a] = i;
         if (a / (float)table_size > d1) {
             i++;
-            d1 += pow(idx2word[i].cnt, power) / (float)train_words_pow;
+            d1 += pow(idx2prod[i].cnt, power) / (float)train_words_pow;
         }
         if (i >= n_prod) i = n_prod - 1;
     }

@@ -12,6 +12,12 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CoverageDataManager">
+    <SUITE FILE_PATH="coverage/archive$w2v_cpp2.coverage" NAME="w2v_cpp2 Coverage Results" MODIFIED="1482470334679" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/archive$w2c_check.coverage" NAME="w2c_check Coverage Results" MODIFIED="1482950925554" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/archive$data.coverage" NAME="data Coverage Results" MODIFIED="1481877334254" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/archive$experiment.coverage" NAME="experiment Coverage Results" MODIFIED="1482120467578" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
   </component>
@@ -20,13 +26,86 @@
     <favorites_list name="archive" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test.py">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="w2v_cpp2.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/w2v_cpp2.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1605">
+              <caret line="140" column="30" selection-start-line="142" selection-start-column="44" selection-end-line="142" selection-end-column="54" />
+              <folding>
+                <element signature="e#1024#1239#0" expanded="false" />
+                <element signature="e#1298#1534#0" expanded="false" />
+                <element signature="e#2796#3073#0" expanded="false" />
+                <element signature="e#2905#3073#0" expanded="false" />
+                <element signature="e#5988#6134#0" expanded="false" />
+                <element signature="e#8030#9230#0" expanded="false" />
+                <element signature="e#8139#8634#0" expanded="false" />
+                <element signature="e#8172#8634#0" expanded="false" />
+                <element signature="e#8211#8242#0" expanded="false" />
+                <element signature="e#8822#9209#0" expanded="false" />
+                <element signature="e#8855#9209#0" expanded="false" />
+                <element signature="e#9276#9813#0" expanded="false" />
+                <element signature="e#9432#9791#0" expanded="false" />
+                <element signature="e#9465#9791#0" expanded="false" />
+                <element signature="e#9895#10731#0" expanded="false" />
+                <element signature="e#10205#10731#0" expanded="false" />
+                <element signature="e#10246#10515#0" expanded="false" />
+                <element signature="e#10380#10459#0" expanded="false" />
+                <element signature="e#10550#10731#0" expanded="false" />
+                <element signature="e#10787#13718#0" expanded="false" />
+                <element signature="e#10819#12328#0" expanded="false" />
+                <element signature="e#11205#11338#0" expanded="false" />
+                <element signature="e#11530#11659#0" expanded="false" />
+                <element signature="e#11620#11659#0" expanded="false" />
+                <element signature="e#11760#12260#0" expanded="false" />
+                <element signature="e#12131#12162#0" expanded="false" />
+                <element signature="e#12355#13718#0" expanded="false" />
+                <element signature="e#12690#12751#0" expanded="false" />
+                <element signature="e#13036#13165#0" expanded="false" />
+                <element signature="e#13126#13165#0" expanded="false" />
+                <element signature="e#13265#13650#0" expanded="false" />
+                <element signature="e#13519#13551#0" expanded="false" />
+                <element signature="e#13748#14251#0" expanded="false" />
+                <element signature="e#13943#14222#0" expanded="false" />
+                <element signature="e#14908#15640#0" expanded="false" />
+                <element signature="e#14908#14925#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="w2v_base.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/w2v_base.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="2370">
+              <caret line="171" column="40" selection-start-line="171" selection-start-column="40" selection-end-line="171" selection-end-column="40" />
+              <folding>
+                <element signature="e#21#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="w2c_check.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/w2c_check.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="420">
+              <caret line="32" column="15" selection-start-line="32" selection-start-column="15" selection-end-line="32" selection-end-column="15" />
+              <folding>
+                <element signature="e#0#46#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="lda.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lda.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="e#0#30#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -34,8 +113,8 @@
       <file leaf-file-name="experiment.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/experiment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="84" column="38" selection-start-line="84" selection-start-column="38" selection-end-line="84" selection-end-column="38" />
+            <state relative-caret-position="1350">
+              <caret line="107" column="28" selection-start-line="107" selection-start-column="28" selection-end-line="107" selection-end-column="28" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -43,17 +122,17 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="word2vec.py" pinned="false" current-in-tab="true">
-        <entry file="file://$USER_HOME$/anaconda/envs/dl_py35/lib/python3.5/site-packages/gensim/models/word2vec.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="545">
-              <caret line="1378" column="17" selection-start-line="1378" selection-start-column="17" selection-end-line="1378" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/data.py" />
+        <option value="$PROJECT_DIR$/w2v_cpp2.py" />
+        <option value="$PROJECT_DIR$/w2v_base.py" />
+        <option value="$PROJECT_DIR$/w2c_check.py" />
+      </list>
+    </option>
   </component>
   <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
   <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
@@ -62,9 +141,9 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="47" />
+    <option name="x" value="46" />
     <option name="y" value="23" />
-    <option name="width" value="1393" />
+    <option name="width" value="1394" />
     <option name="height" value="877" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
@@ -101,14 +180,6 @@
               <option name="myItemId" value="archive" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="External Libraries" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ExternalLibrariesNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="&lt; Python 3.5.2 (~/anaconda/envs/dl_py35/bin/python3.5) &gt;" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.NamedLibraryElementNode" />
-            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -120,15 +191,101 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="archive" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="archive" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="yelp_rest_prod_cate" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../GroundHog" />
     <property name="WebServerToolWindowFactoryState" value="false" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.w2c_check">
+    <configuration default="false" name="data" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="archive" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="w2v_cpp2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="archive" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/w2v_cpp2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="experiment" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="archive" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/experiment.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="w2c_check" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="archive" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/w2c_check.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
     <configuration default="true" type="DjangoTestsConfigurationType" factoryName="Django tests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -212,6 +369,12 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-interpreter>project</node-interpreter>
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <arguments />
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
@@ -331,6 +494,20 @@
       <option name="USE_KEYWORD" value="false" />
       <method />
     </configuration>
+    <list size="4">
+      <item index="0" class="java.lang.String" itemvalue="Python.data" />
+      <item index="1" class="java.lang.String" itemvalue="Python.w2v_cpp2" />
+      <item index="2" class="java.lang.String" itemvalue="Python.experiment" />
+      <item index="3" class="java.lang.String" itemvalue="Python.w2c_check" />
+    </list>
+    <recent_temporary>
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Python.w2c_check" />
+        <item index="1" class="java.lang.String" itemvalue="Python.w2v_cpp2" />
+        <item index="2" class="java.lang.String" itemvalue="Python.experiment" />
+        <item index="3" class="java.lang.String" itemvalue="Python.data" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
@@ -346,27 +523,27 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="47" y="23" width="1393" height="877" extended-state="0" />
+    <frame x="46" y="23" width="1394" height="877" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24982053" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24677187" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32920793" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39976552" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -381,21 +558,482 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager />
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/w2v_cpp2.py</url>
+          <line>129</line>
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/w2v_cpp2.py</url>
+          <line>143</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/w2v_cpp2.py</url>
+          <line>141</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="3" />
+    </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/test.py">
+    <entry file="file://$PROJECT_DIR$/w2v_cpp2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#1024#1239#0" expanded="false" />
+            <element signature="e#1298#1534#0" expanded="false" />
+            <element signature="e#2796#3073#0" expanded="false" />
+            <element signature="e#2905#3073#0" expanded="false" />
+            <element signature="e#5988#6134#0" expanded="false" />
+            <element signature="e#8030#9230#0" expanded="false" />
+            <element signature="e#8139#8634#0" expanded="false" />
+            <element signature="e#8172#8634#0" expanded="false" />
+            <element signature="e#8211#8242#0" expanded="false" />
+            <element signature="e#8822#9209#0" expanded="false" />
+            <element signature="e#8855#9209#0" expanded="false" />
+            <element signature="e#9276#9813#0" expanded="false" />
+            <element signature="e#9432#9791#0" expanded="false" />
+            <element signature="e#9465#9791#0" expanded="false" />
+            <element signature="e#9895#10731#0" expanded="false" />
+            <element signature="e#10205#10731#0" expanded="false" />
+            <element signature="e#10246#10515#0" expanded="false" />
+            <element signature="e#10380#10459#0" expanded="false" />
+            <element signature="e#10550#10731#0" expanded="false" />
+            <element signature="e#10787#13718#0" expanded="false" />
+            <element signature="e#10819#12328#0" expanded="false" />
+            <element signature="e#11205#11338#0" expanded="false" />
+            <element signature="e#11530#11659#0" expanded="false" />
+            <element signature="e#11620#11659#0" expanded="false" />
+            <element signature="e#11760#12260#0" expanded="false" />
+            <element signature="e#12131#12162#0" expanded="false" />
+            <element signature="e#12355#13718#0" expanded="false" />
+            <element signature="e#12690#12751#0" expanded="false" />
+            <element signature="e#13036#13165#0" expanded="false" />
+            <element signature="e#13126#13165#0" expanded="false" />
+            <element signature="e#13265#13650#0" expanded="false" />
+            <element signature="e#13519#13551#0" expanded="false" />
+            <element signature="e#13748#14251#0" expanded="false" />
+            <element signature="e#13943#14222#0" expanded="false" />
+            <element signature="e#14908#15640#0" expanded="false" />
+            <element signature="e#14908#14925#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2370">
+          <caret line="171" column="40" selection-start-line="171" selection-start-column="40" selection-end-line="171" selection-end-column="40" />
+          <folding>
+            <element signature="e#21#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_cpp2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1605">
+          <caret line="140" column="30" selection-start-line="142" selection-start-column="44" selection-end-line="142" selection-end-column="54" />
+          <folding>
+            <element signature="e#1024#1239#0" expanded="false" />
+            <element signature="e#1298#1534#0" expanded="false" />
+            <element signature="e#2796#3073#0" expanded="false" />
+            <element signature="e#2905#3073#0" expanded="false" />
+            <element signature="e#5988#6134#0" expanded="false" />
+            <element signature="e#8030#9230#0" expanded="false" />
+            <element signature="e#8139#8634#0" expanded="false" />
+            <element signature="e#8172#8634#0" expanded="false" />
+            <element signature="e#8211#8242#0" expanded="false" />
+            <element signature="e#8822#9209#0" expanded="false" />
+            <element signature="e#8855#9209#0" expanded="false" />
+            <element signature="e#9276#9813#0" expanded="false" />
+            <element signature="e#9432#9791#0" expanded="false" />
+            <element signature="e#9465#9791#0" expanded="false" />
+            <element signature="e#9895#10731#0" expanded="false" />
+            <element signature="e#10205#10731#0" expanded="false" />
+            <element signature="e#10246#10515#0" expanded="false" />
+            <element signature="e#10380#10459#0" expanded="false" />
+            <element signature="e#10550#10731#0" expanded="false" />
+            <element signature="e#10787#13718#0" expanded="false" />
+            <element signature="e#10819#12328#0" expanded="false" />
+            <element signature="e#11205#11338#0" expanded="false" />
+            <element signature="e#11530#11659#0" expanded="false" />
+            <element signature="e#11620#11659#0" expanded="false" />
+            <element signature="e#11760#12260#0" expanded="false" />
+            <element signature="e#12131#12162#0" expanded="false" />
+            <element signature="e#12355#13718#0" expanded="false" />
+            <element signature="e#12690#12751#0" expanded="false" />
+            <element signature="e#13036#13165#0" expanded="false" />
+            <element signature="e#13126#13165#0" expanded="false" />
+            <element signature="e#13265#13650#0" expanded="false" />
+            <element signature="e#13519#13551#0" expanded="false" />
+            <element signature="e#13748#14251#0" expanded="false" />
+            <element signature="e#13943#14222#0" expanded="false" />
+            <element signature="e#14908#15640#0" expanded="false" />
+            <element signature="e#14908#14925#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2370">
+          <caret line="171" column="40" selection-start-line="171" selection-start-column="40" selection-end-line="171" selection-end-column="40" />
+          <folding>
+            <element signature="e#21#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2c_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lda.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/experiment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
+        <state relative-caret-position="1350">
+          <caret line="107" column="28" selection-start-line="107" selection-start-column="28" selection-end-line="107" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_cpp2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1605">
+          <caret line="140" column="30" selection-start-line="142" selection-start-column="44" selection-end-line="142" selection-end-column="54" />
+          <folding>
+            <element signature="e#1024#1239#0" expanded="false" />
+            <element signature="e#1298#1534#0" expanded="false" />
+            <element signature="e#2796#3073#0" expanded="false" />
+            <element signature="e#2905#3073#0" expanded="false" />
+            <element signature="e#5988#6134#0" expanded="false" />
+            <element signature="e#8030#9230#0" expanded="false" />
+            <element signature="e#8139#8634#0" expanded="false" />
+            <element signature="e#8172#8634#0" expanded="false" />
+            <element signature="e#8211#8242#0" expanded="false" />
+            <element signature="e#8822#9209#0" expanded="false" />
+            <element signature="e#8855#9209#0" expanded="false" />
+            <element signature="e#9276#9813#0" expanded="false" />
+            <element signature="e#9432#9791#0" expanded="false" />
+            <element signature="e#9465#9791#0" expanded="false" />
+            <element signature="e#9895#10731#0" expanded="false" />
+            <element signature="e#10205#10731#0" expanded="false" />
+            <element signature="e#10246#10515#0" expanded="false" />
+            <element signature="e#10380#10459#0" expanded="false" />
+            <element signature="e#10550#10731#0" expanded="false" />
+            <element signature="e#10787#13718#0" expanded="false" />
+            <element signature="e#10819#12328#0" expanded="false" />
+            <element signature="e#11205#11338#0" expanded="false" />
+            <element signature="e#11530#11659#0" expanded="false" />
+            <element signature="e#11620#11659#0" expanded="false" />
+            <element signature="e#11760#12260#0" expanded="false" />
+            <element signature="e#12131#12162#0" expanded="false" />
+            <element signature="e#12355#13718#0" expanded="false" />
+            <element signature="e#12690#12751#0" expanded="false" />
+            <element signature="e#13036#13165#0" expanded="false" />
+            <element signature="e#13126#13165#0" expanded="false" />
+            <element signature="e#13265#13650#0" expanded="false" />
+            <element signature="e#13519#13551#0" expanded="false" />
+            <element signature="e#13748#14251#0" expanded="false" />
+            <element signature="e#13943#14222#0" expanded="false" />
+            <element signature="e#14908#15640#0" expanded="false" />
+            <element signature="e#14908#14925#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2370">
+          <caret line="171" column="40" selection-start-line="171" selection-start-column="40" selection-end-line="171" selection-end-column="40" />
+          <folding>
+            <element signature="e#21#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2c_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lda.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1350">
+          <caret line="107" column="28" selection-start-line="107" selection-start-column="28" selection-end-line="107" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_cpp2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1605">
+          <caret line="140" column="30" selection-start-line="142" selection-start-column="44" selection-end-line="142" selection-end-column="54" />
+          <folding>
+            <element signature="e#1024#1239#0" expanded="false" />
+            <element signature="e#1298#1534#0" expanded="false" />
+            <element signature="e#2796#3073#0" expanded="false" />
+            <element signature="e#2905#3073#0" expanded="false" />
+            <element signature="e#5988#6134#0" expanded="false" />
+            <element signature="e#8030#9230#0" expanded="false" />
+            <element signature="e#8139#8634#0" expanded="false" />
+            <element signature="e#8172#8634#0" expanded="false" />
+            <element signature="e#8211#8242#0" expanded="false" />
+            <element signature="e#8822#9209#0" expanded="false" />
+            <element signature="e#8855#9209#0" expanded="false" />
+            <element signature="e#9276#9813#0" expanded="false" />
+            <element signature="e#9432#9791#0" expanded="false" />
+            <element signature="e#9465#9791#0" expanded="false" />
+            <element signature="e#9895#10731#0" expanded="false" />
+            <element signature="e#10205#10731#0" expanded="false" />
+            <element signature="e#10246#10515#0" expanded="false" />
+            <element signature="e#10380#10459#0" expanded="false" />
+            <element signature="e#10550#10731#0" expanded="false" />
+            <element signature="e#10787#13718#0" expanded="false" />
+            <element signature="e#10819#12328#0" expanded="false" />
+            <element signature="e#11205#11338#0" expanded="false" />
+            <element signature="e#11530#11659#0" expanded="false" />
+            <element signature="e#11620#11659#0" expanded="false" />
+            <element signature="e#11760#12260#0" expanded="false" />
+            <element signature="e#12131#12162#0" expanded="false" />
+            <element signature="e#12355#13718#0" expanded="false" />
+            <element signature="e#12690#12751#0" expanded="false" />
+            <element signature="e#13036#13165#0" expanded="false" />
+            <element signature="e#13126#13165#0" expanded="false" />
+            <element signature="e#13265#13650#0" expanded="false" />
+            <element signature="e#13519#13551#0" expanded="false" />
+            <element signature="e#13748#14251#0" expanded="false" />
+            <element signature="e#13943#14222#0" expanded="false" />
+            <element signature="e#14908#15640#0" expanded="false" />
+            <element signature="e#14908#14925#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2370">
+          <caret line="171" column="40" selection-start-line="171" selection-start-column="40" selection-end-line="171" selection-end-column="40" />
+          <folding>
+            <element signature="e#21#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2c_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="38" column="24" selection-start-line="38" selection-start-column="24" selection-end-line="38" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lda.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1350">
+          <caret line="107" column="28" selection-start-line="107" selection-start-column="28" selection-end-line="107" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_cpp2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="19" column="18" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
+          <folding>
+            <element signature="e#1024#1239#0" expanded="false" />
+            <element signature="e#1298#1534#0" expanded="false" />
+            <element signature="e#2796#3073#0" expanded="false" />
+            <element signature="e#2905#3073#0" expanded="false" />
+            <element signature="e#5988#6134#0" expanded="false" />
+            <element signature="e#8030#9230#0" expanded="false" />
+            <element signature="e#8139#8634#0" expanded="false" />
+            <element signature="e#8172#8634#0" expanded="false" />
+            <element signature="e#8211#8242#0" expanded="false" />
+            <element signature="e#8822#9209#0" expanded="false" />
+            <element signature="e#8855#9209#0" expanded="false" />
+            <element signature="e#9276#9813#0" expanded="false" />
+            <element signature="e#9432#9791#0" expanded="false" />
+            <element signature="e#9465#9791#0" expanded="false" />
+            <element signature="e#9895#10731#0" expanded="false" />
+            <element signature="e#10205#10731#0" expanded="false" />
+            <element signature="e#10246#10515#0" expanded="false" />
+            <element signature="e#10380#10459#0" expanded="false" />
+            <element signature="e#10550#10731#0" expanded="false" />
+            <element signature="e#10787#13718#0" expanded="false" />
+            <element signature="e#10819#12328#0" expanded="false" />
+            <element signature="e#11205#11338#0" expanded="false" />
+            <element signature="e#11530#11659#0" expanded="false" />
+            <element signature="e#11620#11659#0" expanded="false" />
+            <element signature="e#11760#12260#0" expanded="false" />
+            <element signature="e#12131#12162#0" expanded="false" />
+            <element signature="e#12355#13718#0" expanded="false" />
+            <element signature="e#12690#12751#0" expanded="false" />
+            <element signature="e#13036#13165#0" expanded="false" />
+            <element signature="e#13126#13165#0" expanded="false" />
+            <element signature="e#13265#13650#0" expanded="false" />
+            <element signature="e#13519#13551#0" expanded="false" />
+            <element signature="e#13748#14251#0" expanded="false" />
+            <element signature="e#13943#14222#0" expanded="false" />
+            <element signature="e#14908#15640#0" expanded="false" />
+            <element signature="e#14908#14925#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#21#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2c_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="38" column="24" selection-start-line="38" selection-start-column="24" selection-end-line="38" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1350">
+          <caret line="107" column="28" selection-start-line="107" selection-start-column="28" selection-end-line="107" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_cpp2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="5" />
+          <folding>
+            <element signature="e#1024#1239#0" expanded="false" />
+            <element signature="e#1298#1534#0" expanded="false" />
+            <element signature="e#2796#3073#0" expanded="false" />
+            <element signature="e#2905#3073#0" expanded="false" />
+            <element signature="e#5988#6134#0" expanded="false" />
+            <element signature="e#8030#9230#0" expanded="false" />
+            <element signature="e#8139#8634#0" expanded="false" />
+            <element signature="e#8172#8634#0" expanded="false" />
+            <element signature="e#8211#8242#0" expanded="false" />
+            <element signature="e#8822#9209#0" expanded="false" />
+            <element signature="e#8855#9209#0" expanded="false" />
+            <element signature="e#9276#9813#0" expanded="false" />
+            <element signature="e#9432#9791#0" expanded="false" />
+            <element signature="e#9465#9791#0" expanded="false" />
+            <element signature="e#9895#10731#0" expanded="false" />
+            <element signature="e#10205#10731#0" expanded="false" />
+            <element signature="e#10246#10515#0" expanded="false" />
+            <element signature="e#10380#10459#0" expanded="false" />
+            <element signature="e#10550#10731#0" expanded="false" />
+            <element signature="e#10787#13718#0" expanded="false" />
+            <element signature="e#10819#12328#0" expanded="false" />
+            <element signature="e#11205#11338#0" expanded="false" />
+            <element signature="e#11530#11659#0" expanded="false" />
+            <element signature="e#11620#11659#0" expanded="false" />
+            <element signature="e#11760#12260#0" expanded="false" />
+            <element signature="e#12131#12162#0" expanded="false" />
+            <element signature="e#12355#13718#0" expanded="false" />
+            <element signature="e#12690#12751#0" expanded="false" />
+            <element signature="e#13036#13165#0" expanded="false" />
+            <element signature="e#13126#13165#0" expanded="false" />
+            <element signature="e#13265#13650#0" expanded="false" />
+            <element signature="e#13519#13551#0" expanded="false" />
+            <element signature="e#13748#14251#0" expanded="false" />
+            <element signature="e#13943#14222#0" expanded="false" />
+            <element signature="e#14908#15640#0" expanded="false" />
+            <element signature="e#14908#14925#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_cpp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1005">
           <caret line="84" column="38" selection-start-line="84" selection-start-column="38" selection-end-line="84" selection-end-column="38" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
@@ -405,9 +1043,156 @@
     </entry>
     <entry file="file://$USER_HOME$/anaconda/envs/dl_py35/lib/python3.5/site-packages/gensim/models/word2vec.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda/envs/dl_py35/lib/python3.5/site-packages/gensim/models/word2vec.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="545">
           <caret line="1378" column="17" selection-start-line="1378" selection-start-column="17" selection-end-line="1378" selection-end-column="17" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_cpp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="19">
+          <caret line="20" column="4" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/yelp_rest_prod/wordvector.txt">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/yelp_rest_prod/output/6_entity_vector">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/visual.py" />
+    <entry file="file://$PROJECT_DIR$/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_s.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2351">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/yelp_rest_prod/pairentity_concrete.txt">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/yelp_rest_prod/pairentity.txt">
+      <provider selected="true" editor-type-id="LargeFileEditor">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2370">
+          <caret line="171" column="40" selection-start-line="171" selection-start-column="40" selection-end-line="171" selection-end-column="40" />
+          <folding>
+            <element signature="e#21#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2v_cpp2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1605">
+          <caret line="140" column="30" selection-start-line="142" selection-start-column="44" selection-end-line="142" selection-end-column="54" />
+          <folding>
+            <element signature="e#1024#1239#0" expanded="false" />
+            <element signature="e#1298#1534#0" expanded="false" />
+            <element signature="e#2796#3073#0" expanded="false" />
+            <element signature="e#2905#3073#0" expanded="false" />
+            <element signature="e#5988#6134#0" expanded="false" />
+            <element signature="e#8030#9230#0" expanded="false" />
+            <element signature="e#8139#8634#0" expanded="false" />
+            <element signature="e#8172#8634#0" expanded="false" />
+            <element signature="e#8211#8242#0" expanded="false" />
+            <element signature="e#8822#9209#0" expanded="false" />
+            <element signature="e#8855#9209#0" expanded="false" />
+            <element signature="e#9276#9813#0" expanded="false" />
+            <element signature="e#9432#9791#0" expanded="false" />
+            <element signature="e#9465#9791#0" expanded="false" />
+            <element signature="e#9895#10731#0" expanded="false" />
+            <element signature="e#10205#10731#0" expanded="false" />
+            <element signature="e#10246#10515#0" expanded="false" />
+            <element signature="e#10380#10459#0" expanded="false" />
+            <element signature="e#10550#10731#0" expanded="false" />
+            <element signature="e#10787#13718#0" expanded="false" />
+            <element signature="e#10819#12328#0" expanded="false" />
+            <element signature="e#11205#11338#0" expanded="false" />
+            <element signature="e#11530#11659#0" expanded="false" />
+            <element signature="e#11620#11659#0" expanded="false" />
+            <element signature="e#11760#12260#0" expanded="false" />
+            <element signature="e#12131#12162#0" expanded="false" />
+            <element signature="e#12355#13718#0" expanded="false" />
+            <element signature="e#12690#12751#0" expanded="false" />
+            <element signature="e#13036#13165#0" expanded="false" />
+            <element signature="e#13126#13165#0" expanded="false" />
+            <element signature="e#13265#13650#0" expanded="false" />
+            <element signature="e#13519#13551#0" expanded="false" />
+            <element signature="e#13748#14251#0" expanded="false" />
+            <element signature="e#13943#14222#0" expanded="false" />
+            <element signature="e#14908#15640#0" expanded="false" />
+            <element signature="e#14908#14925#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w2c_check.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="32" column="15" selection-start-line="32" selection-start-column="15" selection-end-line="32" selection-end-column="15" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lda.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#30#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/experiment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1350">
+          <caret line="107" column="28" selection-start-line="107" selection-start-column="28" selection-end-line="107" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#14#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

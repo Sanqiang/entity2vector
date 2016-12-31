@@ -8,6 +8,7 @@
 
 _Bool use_model = true;
 
+//useless
 void save_model(char * path, unsigned long long n_dataset, unsigned long long layer1_size, float * dataset){
     printf("Save model path: %s \n", path);
     FILE *fo;

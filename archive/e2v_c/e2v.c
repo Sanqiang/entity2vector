@@ -20,11 +20,11 @@ void init(){
     init_pair();
     //init net
     long long a, b;
-    a = posix_memalign((void **)&entity_vector, 128, (long long)n_prod * layer1_size * sizeof(float));
+    a = posix_memalign((void **)&entity_vector, 128, (long long)(n_prod + word_size + n_tag) * layer1_size * sizeof(float));
     if (entity_vector == NULL) {printf("entity_vector memory allocation failed\n"); exit(1);}
 
     unsigned long long next_random = 1;
-    for (a = 0; a < n_prod; a++){
+    for (a = 0; a < n_prod + word_size + n_tag; a++){
         for (b = 0; b < layer1_size; b++) {
             next_random = next_random * (unsigned long long)25214903917 + 11;
             entity_vector[a * layer1_size + b] = (((next_random & 0xFFFF) / (float)65536) - 0.5) / layer1_size;
@@ -92,20 +92,18 @@ void train_thread(void *id) {
             else g = (label - expTable[(int)((f + MAX_EXP) * (EXP_TABLE_SIZE / MAX_EXP / 2))]) * alpha;
             for (c = 0; c < layer1_size; c++) {
                 neu1e[c] += g * idx2word[target].vector[c];
-                if(idx2word[target].vector[c] > 10 || idx2word[target].vector[c] < -10){
-                    printf("neu1e at %d is %f \t current g is %f \t current vector value is %f for target %d, %s \n", c, neu1e[c], g, idx2word[target].vector[c], target, idx2word[target].word);
-
-                }
+//                if(idx2word[target].vector[c] > 10 || idx2word[target].vector[c] < -10){
+//                    printf("neu1e at %d is %f \t current g is %f \t current vector value is %f for target %d, %s \n", c, neu1e[c], g, idx2word[target].vector[c], target, idx2word[target].word);
+//                }
             }
 
 
         }
         for (c = 0; c < layer1_size; c++) {
             entity_vector[c + l1] += neu1e[c];
-            if(entity_vector[c + l1] > 10 || entity_vector[c + l1] < -10){
-                printf("warning! value \t value:\t %f alpha:\t %f \n", entity_vector[c + l1], alpha);
-
-            }
+//            if(entity_vector[c + l1] > 10 || entity_vector[c + l1] < -10){
+//                printf("warning! value \t value:\t %f alpha:\t %f \n", entity_vector[c + l1], alpha);
+//            }
         }
 
         if(pos >= pos_ed){
@@ -127,8 +125,8 @@ void conclude(int ind){
     FILE *fo;
     fo = fopen(path, "wb");
     long long a, b;
-    fprintf(fo, "%lld %lld\n", n_prod, layer1_size);
-    for (a = 0; a < n_prod; a++) {
+    fprintf(fo, "%lld %lld\n", n_prod + word_size + n_tag, layer1_size);
+    for (a = 0; a < n_prod + word_size + n_tag; a++) {
         fprintf(fo, "%s ", idx2prod[a].prod_str);
         if (0) for (b = 0; b < layer1_size; b++)
                 fwrite(&entity_vector[a * layer1_size + b], sizeof(float), 1, fo);
@@ -145,14 +143,16 @@ void train(){
     for(i = 0; i < 2147400000; i++){
         for (p = 0; p < n_thread; p++) pthread_create(&pt[p], NULL, train_thread, (void *)p);
         for (p = 0; p < n_thread; p++) pthread_join(pt[p], NULL);
-        conclude(i);
+        if(i % 10 == 0){
+            conclude(i);
+        }
 
-        //save model
-        char str[15];
-        char * path;
-        sprintf(str, "%d", i);
-        path = concat(concat(output_file, str),"_entity_vector");
-        save_model(path, n_prod, layer1_size, entity_vector);
+//        //save model
+//        char str[15];
+//        char * path;
+//        sprintf(str, "%d", i);
+//        path = concat(concat(output_file, str),"_entity_vector");
+//        save_model(path, n_prod, layer1_size, entity_vector);
     }
 }
 
