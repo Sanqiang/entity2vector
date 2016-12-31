@@ -118,14 +118,14 @@ class DataProvider:
         print("finish", "save")
 
     def load(self):
-        self.word_data = np.load("".join([self.conf.path_npy, "word_data"]))
-        self.doc_pos_data = np.load("".join([self.conf.path_npy, "doc_pos_data"]))
-        self.doc_neg_data = np.load("".join([self.conf.path_npy, "doc_neg_data"]))
-        self.word_embed = np.load("".join([self.conf.path_npy, "word_embed"]))
-        self.idx2prod = np.load("".join([self.conf.path_npy, "idx2prod"]))
-        self.idx2word = np.load("".join([self.conf.path_npy, "idx2word"]))
-        self.prod2idx = np.load("".join([self.conf.path_npy, "prod2idx"]))
-        self.word2idx = np.load("".join([self.conf.path_npy, "word2idx"]))
+        self.word_data = np.load("".join([self.conf.path_npy, "word_data.npy"]))
+        self.doc_pos_data = np.load("".join([self.conf.path_npy, "doc_pos_data.npy"]))
+        self.doc_neg_data = np.load("".join([self.conf.path_npy, "doc_neg_data.npy"]))
+        self.word_embed = np.load("".join([self.conf.path_npy, "word_embed.npy"]))
+        self.idx2prod = np.load("".join([self.conf.path_npy, "idx2prod.npy"]))
+        self.idx2word = np.load("".join([self.conf.path_npy, "idx2word.npy"]))
+        self.prod2idx = np.load("".join([self.conf.path_npy, "prod2idx.npy"]))
+        self.word2idx = np.load("".join([self.conf.path_npy, "word2idx.npy"]))
         print("finish","load")
 
 
