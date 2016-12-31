@@ -9,9 +9,9 @@ from keras.layers.embeddings import *
 from data import DataProvider
 from keras.callbacks import Callback, ModelCheckpoint
 import numpy as np
-import config
+from config import Config
 
-conf = config()
+conf = Config()
 
 # get data
 dp = DataProvider(conf)
@@ -71,7 +71,7 @@ class my_checker_point(Callback):
         self.loop_idx += 1
 
     def on_epoch_end(self, epoch, logs={}):
-        path = conf.path_weight
+        path = conf.path_weight.replace("<LOOP_IDX>", str(self.loop_idx))
         model.save_weights(path)
 
 

@@ -1,6 +1,6 @@
 import os
 import theano
-class config:
+class Config:
     def __init__(self):
         home = os.environ["HOME"]
 
@@ -12,7 +12,7 @@ class config:
         self.neg_trials = 100
 
         # for model
-        self.path_weight = "".join([home, "model/chk/weight_", str(self.loop_idx)])
+        self.path_weight = "".join([home, "model/chk/weight_", "<LOOP_IDX>"])
         if os.path.exists(self.path_weight):
             os.makedirs(self.path_weight)
         self.path_checker = "".join([home, "model/chk/checkpointweights.hdf5"])
