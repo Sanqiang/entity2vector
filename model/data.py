@@ -104,21 +104,25 @@ class DataProvider:
         print("finish", "temp_word_embedding")
 
     def save(self):
-        np.save("npy/word_data", np.array(self.word_data))
-        np.save("npy/doc_pos_data", np.array(self.doc_pos_data))
-        np.save("npy/doc_neg_data", np.array(self.doc_neg_data))
-        np.save("npy/word_embed", self.word_embed)
-        np.save("npy/idx2prod", self.idx2prod)
-        np.save("npy/idx2word", self.idx2word)
+        np.save("".join([self.conf.path_npy, "word_data"]), np.array(self.word_data))
+        np.save("".join([self.conf.path_npy, "doc_pos_data"]), np.array(self.doc_pos_data))
+        np.save("".join([self.conf.path_npy, "doc_neg_data"]), np.array(self.doc_neg_data))
+        np.save("".join([self.conf.path_npy, "word_embed"]), self.word_embed)
+        np.save("".join([self.conf.path_npy, "idx2prod"]), self.idx2prod)
+        np.save("".join([self.conf.path_npy, "idx2word"]), self.idx2word)
+        np.save("".join([self.conf.path_npy, "prod2idx"]), self.prod2idx)
+        np.save("".join([self.conf.path_npy, "word2idx"]), self.word2idx)
         print("finish", "save")
 
     def load(self):
-        self.word_data = np.load("npy/word_data.npy")
-        self.doc_pos_data = np.load("npy/doc_pos_data.npy")
-        self.doc_neg_data = np.load("npy/doc_neg_data.npy")
-        self.word_embed = np.load("npy/word_embed.npy")
-        self.idx2prod = np.load("npy/idx2prod.npy")
-        self.idx2word = np.load("npy/idx2word.npy")
+        self.word_data = np.load("".join([self.conf.path_npy, "word_data"]))
+        self.doc_pos_data = np.load("".join([self.conf.path_npy, "doc_pos_data"]))
+        self.doc_neg_data = np.load("".join([self.conf.path_npy, "doc_neg_data"]))
+        self.word_embed = np.load("".join([self.conf.path_npy, "word_embed"]))
+        self.idx2prod = np.load("".join([self.conf.path_npy, "idx2prod"]))
+        self.idx2word = np.load("".join([self.conf.path_npy, "idx2word"]))
+        self.prod2idx = np.load("".join([self.conf.path_npy, "prod2idx"]))
+        self.word2idx = np.load("".join([self.conf.path_npy, "word2idx"]))
         print("finish","load")
 
 
