@@ -9,23 +9,20 @@ from keras.layers.embeddings import *
 from data import DataProvider
 from keras.callbacks import Callback, ModelCheckpoint
 import numpy as np
-import theano
-theano.config.openmp = True
+import config
 
-home = os.environ["HOME"]
-batch_size = 100000
-n_epoch = 100000
+conf = config()
 
 # get data
-dp = DataProvider()
+dp = DataProvider(conf)
 n_terms = len(dp.idx2word)
 n_docs = len(dp.idx2prod)
-dim = dp.dim
+dim = conf.dim
 word_embed_data = np.array(dp.word_embed)
 word_data = np.array(dp.word_data)
 doc_pos_data = np.array(dp.doc_pos_data)
 doc_neg_data = np.array(dp.doc_neg_data)
-doc_embed_data = np.random.rand(len(dp.idx2prod), dp.dim)
+doc_embed_data = np.random.rand(len(dp.idx2prod), conf.dim)
 
 print("finish data processing")
 
@@ -74,13 +71,13 @@ class my_checker_point(Callback):
         self.loop_idx += 1
 
     def on_epoch_end(self, epoch, logs={}):
-        path = "".join([home, "model/chk/model_", str(self.loop_idx)])
+        path = conf.path_weight
         model.save_weights(path)
 
 
-target = np.reshape(np.array([1] * len(word_data)), (len(word_data), 1, 1))
+target = np.reshape(np.array([10] * len(word_data)), (len(word_data), 1, 1))
 model.fit(
     {"word_idx":word_data, "doc_pos_idx":doc_pos_data, "doc_neg_idx":doc_neg_data},
     {"merge_layer":target},
-    batch_size=batch_size,nb_epoch=n_epoch,validation_split = 0.1,
-    callbacks=[my_checker_point(model), ModelCheckpoint(filepath="".join([home, "model/chk/checkpointweights.hdf5"]), verbose = 1, save_best_only=True)])
+    batch_size=conf.batch_size,nb_epoch=conf.n_epoch,validation_split = 0.1,
+    callbacks=[my_checker_point(model), ModelCheckpoint(filepath=conf.path_checker, verbose = 1, save_best_only=True)])

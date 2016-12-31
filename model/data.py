@@ -5,20 +5,14 @@ home = os.environ["HOME"]
 
 
 class DataProvider:
-    def __init__(self):
-        self.dim = 200
+    def __init__(self, conf):
+        self.conf = conf
         if os.path.exists("npy/word_data.npy"):
             self.load()
         else:
             self.process()
 
     def process(self):
-        self.neg_trials = 100
-
-        self.path_data = "".join([home, "/data/yelp/review_processed_rest_interestword_DEC22.txt"])
-        # self.path_data = "".join([home, "/data/yelp/sample.txt"])
-        self.path_embed = "".join([home, "/data/glove/glove.processed.twitter.27B.200d.txt"])
-
         self.word2idx = {}
         self.idx2word = []
         self.prod2idx = {}
@@ -37,7 +31,7 @@ class DataProvider:
 
     def process_data(self):
         # process idx
-        for line in open(self.path_data, "r"):
+        for line in open(self.conf.path_data, "r"):
             items = line.split("\t")
 
             if len(items) != 3:
@@ -57,7 +51,7 @@ class DataProvider:
         print("finish", "process idx")
         # process cor-occurrence data
         self.checker = np.full(shape=(len(self.word2idx), len(self.prod2idx)), fill_value=False, dtype=np.bool)
-        for line in open(self.path_data, "r"):
+        for line in open(self.conf.path_data, "r"):
             items = line.split("\t")
 
             if len(items) != 3:
@@ -72,7 +66,7 @@ class DataProvider:
                     self.checker[word_idx, prod_idx] = True
         print("finish", "cor-occurrence data")
         # process data
-        for line in open(self.path_data, "r"):
+        for line in open(self.conf.path_data, "r"):
             items = line.split("\t")
             if len(items) != 3:
                 continue
@@ -95,7 +89,7 @@ class DataProvider:
                     self.doc_neg_data.append(neg_prod_idx)
         print("finish", "data")
         # process web embed
-        self.word_embed = np.full(shape=(len(self.word2idx), self.dim), fill_value=0, dtype=np.float64)
+        self.word_embed = np.full(shape=(len(self.word2idx), self.conf.dim), fill_value=0, dtype=np.float64)
         for word in self.idx2word:
             word_idx = self.word2idx[word]
             self.word_embed[word_idx,] = self.temp_word_embedding[word]
@@ -103,7 +97,7 @@ class DataProvider:
 
     def process_word_embed(self):
         self.temp_word_embedding = {}
-        for line in open(self.path_embed, "r"):
+        for line in open(self.conf.path_embed, "r"):
             items = line.split()
             word = items[0]
             self.temp_word_embedding[word] = [float(val) for val in items[1:]]
