@@ -12,6 +12,7 @@ class DataProvider:
             print("find npy file", npy_checker)
             self.load()
         else:
+            print("not find npy file", npy_checker)
             self.process()
 
     def process(self):
