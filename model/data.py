@@ -84,7 +84,7 @@ class DataProvider:
                     while True:
                         neg_prod_idx = random.randint(0, len(self.prod2idx) - 1)
                         trials += 1
-                        if not self.checker[word_idx, neg_prod_idx] or trials >= self.neg_trials:
+                        if not self.checker[word_idx, neg_prod_idx] or trials >= self.conf.neg_trials:
                             break
                     self.doc_neg_data.append(neg_prod_idx)
         print("finish", "data")
