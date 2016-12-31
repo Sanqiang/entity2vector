@@ -215,6 +215,8 @@ namespace entity2vec {
             pi_->addRow(* neu_vector, input, 1.0);
             w2p_->addMatrix(* neu_matrix, 1.0);
 
+            pi_->normalize(input);
+
         }
 
     }

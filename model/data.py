@@ -1,0 +1,132 @@
+import os
+import numpy as np
+import random
+home = os.environ["HOME"]
+
+
+class DataProvider:
+    def __init__(self):
+        self.dim = 200
+        if os.path.exists("npy/word_data.npy"):
+            self.load()
+        else:
+            self.process()
+
+    def process(self):
+        self.neg_trials = 100
+
+        self.path_data = "".join([home, "/data/yelp/review_processed_rest_interestword_DEC22.txt"])
+        # self.path_data = "".join([home, "/data/yelp/sample.txt"])
+        self.path_embed = "".join([home, "/data/glove/glove.processed.twitter.27B.200d.txt"])
+
+        self.word2idx = {}
+        self.idx2word = []
+        self.prod2idx = {}
+        self.idx2prod = []
+
+
+
+        self.word_data = []
+        self.doc_pos_data = []
+        self.doc_neg_data = []
+
+        self.process_word_embed()
+        self.process_data()
+
+        self.save()
+
+    def process_data(self):
+        # process idx
+        for line in open(self.path_data, "r"):
+            items = line.split("\t")
+
+            if len(items) != 3:
+                continue
+
+            prod = items[0]
+            if prod not in self.prod2idx:
+                self.prod2idx[prod] = len(self.prod2idx)
+                self.idx2prod.append(prod)
+
+            words = items[2]
+            for word in words.split():
+                if word not in self.word2idx and word in self.temp_word_embedding:
+                    self.word2idx[word] = len(self.word2idx)
+                    self.idx2word.append(word)
+
+        print("finish", "process idx")
+        # process cor-occurrence data
+        self.checker = np.full(shape=(len(self.word2idx), len(self.prod2idx)), fill_value=False, dtype=np.bool)
+        for line in open(self.path_data, "r"):
+            items = line.split("\t")
+
+            if len(items) != 3:
+                continue
+
+            prod = items[0]
+            prod_idx = self.prod2idx[prod]
+            words = items[2]
+            for word in words.split():
+                if word in self.temp_word_embedding:
+                    word_idx = self.word2idx[word]
+                    self.checker[word_idx, prod_idx] = True
+        print("finish", "cor-occurrence data")
+        # process data
+        for line in open(self.path_data, "r"):
+            items = line.split("\t")
+            if len(items) != 3:
+                continue
+
+            prod = items[0]
+            prod_idx = self.prod2idx[prod]
+            words = items[2]
+            for word in words.split():
+                if word in self.temp_word_embedding:
+                    word_idx = self.word2idx[word]
+                    self.word_data.append(word_idx)
+                    self.doc_pos_data.append(prod_idx)
+
+                    trials = 0
+                    while True:
+                        neg_prod_idx = random.randint(0, len(self.prod2idx) - 1)
+                        trials += 1
+                        if not self.checker[word_idx, neg_prod_idx] or trials >= self.neg_trials:
+                            break
+                    self.doc_neg_data.append(neg_prod_idx)
+        print("finish", "data")
+        # process web embed
+        self.word_embed = np.full(shape=(len(self.word2idx), self.dim), fill_value=0, dtype=np.float64)
+        for word in self.idx2word:
+            word_idx = self.word2idx[word]
+            self.word_embed[word_idx,] = self.temp_word_embedding[word]
+        print("finish", "web embed")
+
+    def process_word_embed(self):
+        self.temp_word_embedding = {}
+        for line in open(self.path_embed, "r"):
+            items = line.split()
+            word = items[0]
+            self.temp_word_embedding[word] = [float(val) for val in items[1:]]
+        print("finish", "temp_word_embedding")
+
+    def save(self):
+        np.save("npy/word_data", np.array(self.word_data))
+        np.save("npy/doc_pos_data", np.array(self.doc_pos_data))
+        np.save("npy/doc_neg_data", np.array(self.doc_neg_data))
+        np.save("npy/word_embed", self.word_embed)
+        np.save("npy/idx2prod", self.idx2prod)
+        np.save("npy/idx2word", self.idx2word)
+        print("finish", "save")
+
+    def load(self):
+        self.word_data = np.load("npy/word_data.npy")
+        self.doc_pos_data = np.load("npy/doc_pos_data.npy")
+        self.doc_neg_data = np.load("npy/doc_neg_data.npy")
+        self.word_embed = np.load("npy/word_embed.npy")
+        self.idx2prod = np.load("npy/idx2prod.npy")
+        self.idx2word = np.load("npy/idx2word.npy")
+        print("finish","load")
+
+
+
+

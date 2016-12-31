@@ -50,6 +50,12 @@ namespace entity2vec{
 
             model_ = std::make_shared<model>(wi_, wi_, pi_, pi_,w2p_, ti_, ti_,w2t_, args_,data_, 0);
 
+            if(args_->pretraining_flag) {
+                std::cout << "start reading pretraining file" << std::endl;
+                populate_pretraining();
+                std::cout << "finish reading pretraining file" << std::endl;
+            }
+
         }
 
         start = clock();
@@ -227,7 +233,7 @@ namespace entity2vec{
                     if(line[w + c] < 0){
                         continue;
                     }
-                    model.update(line[w], line[w + c], lr, train_mode::word2prod);
+                    //model.update(line[w], line[w + c], lr, train_mode::word2prod);
                 }
             }
             //entity embedding

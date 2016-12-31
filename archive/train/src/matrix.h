@@ -28,6 +28,8 @@ namespace entity2vec {
         void addRow(const vector& vec, int64_t i, real a);
         void addMatrix(const matrix& mat, real a);
 
+        void normalize(int64_t row_idx);
+
         void save(std::ostream& out);
         void load(std::istream& in);
 

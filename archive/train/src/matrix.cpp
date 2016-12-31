@@ -64,6 +64,20 @@ namespace entity2vec{
         }
     }
 
+    void matrix::normalize(int64_t row_idx) {
+        real norm = 0.0;
+        for (uint64_t i = 0; i < n_; i++) {
+            norm += data_[row_idx * n_ + i] * data_[row_idx * n_ + i];
+        }
+        norm = sqrt(norm);
+        for (uint64_t i = 0; i < n_; i++) {
+            data_[row_idx * n_ + i] /= norm;
+            if ( data_[row_idx * n_ + i] > 100){
+                std::cout << "Warning" << data_[row_idx * n_ + i] << std::endl;
+            }
+        }
+    }
+
     void matrix::save(std::ostream &out) {
         out.write((char*) &m_, sizeof(uint32_t));
         out.write((char*) &n_, sizeof(uint32_t));

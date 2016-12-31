@@ -12,6 +12,7 @@ namespace entity2vec {
         lr = 0.01;
         dim_w = 200;
         dim_p = 150;
+        dim_t = 100;
         ws = 5;
         epoch = 100000000000;
         minCount = 5;
@@ -50,7 +51,7 @@ namespace entity2vec {
         pretraining_flag = 1;
 
         load_model_flag = 0;
-        load_model = "all_on";
+        load_model = "ntm";
 
         memory_mode = 0;
     }
