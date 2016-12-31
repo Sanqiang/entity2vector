@@ -13,13 +13,13 @@ class Config:
 
         # for model
         self.path_weight = "".join([home, "/model/chk/weight_", "<LOOP_IDX>"])
-        if os.path.exists(self.path_weight):
+        if not os.path.exists(self.path_weight):
             os.makedirs(self.path_weight)
         self.path_checker = "".join([home, "/model/chk/checkpointweights.hdf5"])
-        if os.path.exists(self.path_checker):
+        if not os.path.exists(self.path_checker):
             os.makedirs(self.path_checker)
         self.path_npy = "".join([home, "/model/npy/"])
-        if os.path.exists(self.path_npy):
+        if not os.path.exists(self.path_npy):
             os.makedirs(self.path_npy)
         self.batch_size = 100000
         self.n_epoch = 100000
