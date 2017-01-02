@@ -21,7 +21,7 @@ if not os.path.exists(conf.path_word_w2c) and not os.path.exists(conf.path_doc_w
         batch = "".join([batch, word])
         batch = "".join([batch, " "])
 
-        for i in range(conf.dim_word):
+        for i in range(conf.dim_prod):
             batch = "".join([batch, str(doc_embed[idx][i])])
             batch = "".join([batch, " "])
 
