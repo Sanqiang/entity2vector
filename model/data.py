@@ -3,7 +3,6 @@ import numpy as np
 import random
 home = os.environ["HOME"]
 
-
 class DataProvider:
     def __init__(self, conf):
         self.conf = conf
@@ -21,8 +20,6 @@ class DataProvider:
         self.prod2idx = {}
         self.idx2prod = []
 
-
-
         self.word_data = []
         self.doc_pos_data = []
         self.doc_neg_data = []
@@ -36,7 +33,6 @@ class DataProvider:
         # process idx
         for line in open(self.conf.path_data, "r"):
             items = line.split("\t")
-
             if len(items) != 3:
                 continue
 
