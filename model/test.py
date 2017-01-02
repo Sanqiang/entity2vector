@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 conf = Config()
-if not os.path.exists(conf.path_word_w2c) and os.path.exists(conf.path_doc_w2c):
+if not os.path.exists(conf.path_word_w2c) and not os.path.exists(conf.path_doc_w2c):
     doc_embed = np.load(conf.path_doc_npy + ".npy")[0]
     dp = DataProvider(conf)
 
@@ -59,7 +59,7 @@ if not os.path.exists(conf.path_word_w2c) and os.path.exists(conf.path_doc_w2c):
     f.write(batch)
     print("finish generate")
 # test doc
-model = Word2Vec.load_word2vec_format("doc_embed.txt")
+model = Word2Vec.load_word2vec_format(conf.path_doc_w2c)
 while True:
         word = input()
         words = model.most_similar(word)
