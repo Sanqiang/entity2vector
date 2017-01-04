@@ -88,7 +88,7 @@ class DataProvider:
                     self.doc_neg_data.append(neg_prod_idx)
         print("finish", "data")
         # process web embed
-        self.word_embed = np.full(shape=(len(self.word2idx), self.conf.dim), fill_value=0, dtype=np.float64)
+        self.word_embed = np.full(shape=(len(self.word2idx), self.conf.dim_word), fill_value=0, dtype=np.float64)
         for word in self.idx2word:
             word_idx = self.word2idx[word]
             self.word_embed[word_idx,] = self.temp_word_embedding[word]

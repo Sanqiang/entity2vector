@@ -10,7 +10,7 @@ class Config:
         self.path_embed = "".join([home, "/data/glove/glove.processed.twitter.27B.200d.txt"])
 
         self.dim_word = 200
-        self.dim_prod = 200
+        self.dim_prod = 100
 
         self.neg_trials = 100
 
@@ -22,11 +22,11 @@ class Config:
         if not os.path.exists(os.path.dirname(self.path_checker)):
             os.mkdir(os.path.dirname(self.path_checker))
         self.path_npy = "".join([home, "/data/model/npy/"])
-        self.batch_size = 100000
+        self.batch_size = 10000
         self.n_epoch = 100000
 
         # for framework
-        # theano.config.openmp = True
+        theano.config.openmp = False
 
         # for save
         self.path_doc_npy = "".join([home, "/data/model/chk_",self.flag,"/doc"])
