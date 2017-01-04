@@ -6,11 +6,16 @@ from keras.layers.core import *
 from keras.layers.embeddings import *
 from model.layers import *
 from data import DataProvider
-from keras.callbacks import Callback, ModelCheckpoint
+from keras.callbacks import ModelCheckpoint
+from model.callbacks import my_checker_point
 import numpy as np
 from config import Config
+from keras.optimizers import Adagrad, Adam
+import numpy as np
+import theano.tensor as T
 
-conf = Config()
+flag = "naive_largebatch_Adagrad"
+conf = Config(flag)
 
 # get data
 dp = DataProvider(conf)
@@ -20,8 +25,10 @@ word_embed_data = np.array(dp.word_embed)
 word_data = np.array(dp.word_data)
 doc_pos_data = np.array(dp.doc_pos_data)
 doc_neg_data = np.array(dp.doc_neg_data)
-doc_embed_data = np.random.rand(len(dp.idx2prod), conf.dim_prod)
 
+doc_embed_data = np.random.rand(len(dp.idx2prod), conf.dim_prod)
+word_transfer_W = np.random.rand(conf.dim_word, conf.dim_prod)
+word_transfer_b = np.random.rand(conf.dim_prod)
 print("finish data processing")
 
 # define model
@@ -38,45 +45,49 @@ word_embed_ = word_embed(word_input)
 doc_pos_embed_ = doc_embed(doc_pos_input)
 doc_neg_embed_ = doc_embed(doc_neg_input)
 
-word_embed_ = Flatten()(word_embed_)
-word_embed_ = Dense(activation="sigmoid", output_dim=conf.dim_prod, input_dim=conf.dim_word)(word_embed_)
+word_flatten = Flatten()
+word_embed_ = word_flatten(word_embed_)
+# word_embed_ = Dense(activation="sigmoid", output_dim=conf.dim_prod, input_dim=conf.dim_word, trainable=True,
+#                     weights=[word_transfer_W, word_transfer_b], name="word_transfer")(word_embed_)
 
-doc_pos_embed_ = Flatten()(doc_pos_embed_)
-doc_neg_embed_ = Flatten()(doc_neg_embed_)
-doc_pos_embed_ = Activation(activation="softmax")(doc_pos_embed_)
-doc_neg_embed_ = Activation(activation="softmax")(doc_neg_embed_)
+doc_pos_flatten = Flatten()
+doc_neg_flatten = Flatten()
+doc_pos_embed_ = doc_pos_flatten(doc_pos_embed_)
+doc_neg_embed_ = doc_neg_flatten(doc_neg_embed_)
+# doc_pos_embed_ = Activation(activation="softmax")(doc_pos_embed_)
+# doc_neg_embed_ = Activation(activation="softmax")(doc_neg_embed_)
 
-pos_layer = Merge(mode="dot", dot_axes=-1, name="pos_layer")([word_embed_, doc_pos_embed_])
-neg_layer = Merge(mode="dot", dot_axes=-1, name="neg_layer")([word_embed_, doc_neg_embed_])
-merge_layer = Merge(mode=lambda x: .5 - x[0] + x[1], output_shape=[1], name="merge_layer")([pos_layer, neg_layer])
+pos_layer = Merge(mode="dot", dot_axes=-1, name="pos_layer")
+pos_layer_ = pos_layer([word_embed_, doc_pos_embed_])
+neg_layer = Merge(mode="dot", dot_axes=-1, name="neg_layer")
+neg_layer_ = neg_layer([word_embed_, doc_neg_embed_])
+merge_layer = Merge(mode="concat", concat_axis=-1, name="merge_layer")
+merge_layer_ = merge_layer([pos_layer_, neg_layer_])
 
-model = Model(input=[word_input, doc_pos_input, doc_neg_input], output=merge_layer)
+# move the margin loss into loss function rather than merge layer
+# merge_layer = Merge(mode=lambda x: 0.5 - x[0] + x[1], output_shape=[1], name="merge_layer")
+# merge_layer_ = merge_layer([pos_layer_, neg_layer_])
 
-def rawloss(x_train, x_test):
-    return x_test * x_train
+model = Model(input=[word_input, doc_pos_input, doc_neg_input], output=[merge_layer_])
 
-model.compile(optimizer='Adadelta', loss = {'merge_layer' : rawloss})
+def ranking_loss(y_true, y_pred):
+    pos = y_pred[0,:]
+    neg = y_pred[1,:]
+    loss = K.maximum(0.5 + neg - pos, 0.0)
+    return K.mean(loss) + 0 * y_true
+
+model.compile(optimizer=Adagrad(lr=0.1, epsilon=1e-06), loss = {'merge_layer' : ranking_loss})
 
 print("finish model compiling")
 print(model.summary())
 
-class my_checker_point(Callback):
-    def __init__(self, doc_embed, word_embed):
-        self.loop_idx = 0
-        self.doc_embed = doc_embed
-        self.word_embed = word_embed
-
-    def on_epoch_end(self, epoch, logs={}):
-        np.save(conf.path_doc_npy, self.doc_embed.get_weights())
-        np.save(conf.path_word_npy, self.word_embed.get_weights())
-
-
-
-target = np.array([1] * len(word_data))
+target = np.array([9999] * len(word_data)) # useless since loss function make it times with 0
 if os.path.exists(conf.path_checker):
     model.load_weights(conf.path_checker)
 model.fit(
     {"word_idx":word_data, "doc_pos_idx":doc_pos_data, "doc_neg_idx":doc_neg_data},
     {"merge_layer":target},
     batch_size=conf.batch_size,nb_epoch=conf.n_epoch,validation_split = 0.1,
-    callbacks=[my_checker_point(doc_embed, word_embed), ModelCheckpoint(filepath=conf.path_checker, verbose = 1, save_best_only=True)])
+    callbacks=[my_checker_point(doc_embed, word_embed, model),
+               # my_value_checker([word_embed_, doc_pos_embed_, doc_neg_embed_, pos_layer_, neg_layer_, merge_layer_]),
+               ModelCheckpoint(filepath=conf.path_checker, verbose = 1, save_best_only=True)])

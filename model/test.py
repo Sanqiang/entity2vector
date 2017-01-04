@@ -4,7 +4,9 @@ from gensim.models.word2vec import Word2Vec
 import numpy as np
 import os
 
-conf = Config()
+flag = "e2v_no_softmax"
+conf = Config(flag)
+
 if not os.path.exists(conf.path_word_w2c) and not os.path.exists(conf.path_doc_w2c):
     doc_embed = np.load(conf.path_doc_npy + ".npy")[0]
     dp = DataProvider(conf)
@@ -13,7 +15,7 @@ if not os.path.exists(conf.path_word_w2c) and not os.path.exists(conf.path_doc_w
     f = open(conf.path_doc_w2c,"w")
     f.write(str(len(dp.idx2prod)))
     f.write(" ")
-    f.write(str(conf.dim_word))
+    f.write(str(conf.dim_prod))
     f.write("\n")
     idx = 0
     batch = ""
@@ -60,6 +62,7 @@ if not os.path.exists(conf.path_word_w2c) and not os.path.exists(conf.path_doc_w
     print("finish generate")
 # test doc
 model = Word2Vec.load_word2vec_format(conf.path_doc_w2c)
+print("init")
 while True:
         word = input()
         words = model.most_similar(word)
