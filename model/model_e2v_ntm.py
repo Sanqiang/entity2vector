@@ -14,7 +14,7 @@ from keras.optimizers import Adagrad, Adam
 import numpy as np
 import theano.tensor as T
 
-flag = "naive_largebatch_Adagrad"
+flag = "naive_largebatch_Adam"
 conf = Config(flag)
 
 # get data
@@ -76,7 +76,7 @@ def ranking_loss(y_true, y_pred):
     loss = K.maximum(0.5 + neg - pos, 0.0)
     return K.mean(loss) + 0 * y_true
 
-model.compile(optimizer=Adagrad(lr=0.1, epsilon=1e-06), loss = {'merge_layer' : ranking_loss})
+model.compile(optimizer=Adam(), loss = {'merge_layer' : ranking_loss})
 
 print("finish model compiling")
 print(model.summary())
@@ -88,6 +88,6 @@ model.fit(
     {"word_idx":word_data, "doc_pos_idx":doc_pos_data, "doc_neg_idx":doc_neg_data},
     {"merge_layer":target},
     batch_size=conf.batch_size,nb_epoch=conf.n_epoch,validation_split = 0.1,
-    callbacks=[my_checker_point(doc_embed, word_embed, model),
+    callbacks=[my_checker_point(doc_embed, word_embed, model, conf),
                # my_value_checker([word_embed_, doc_pos_embed_, doc_neg_embed_, pos_layer_, neg_layer_, merge_layer_]),
                ModelCheckpoint(filepath=conf.path_checker, verbose = 1, save_best_only=True)])
