@@ -16,6 +16,7 @@ import theano.tensor as T
 
 flag = "naive_largebatch_Adam"
 conf = Config(flag)
+print(flag)
 
 # get data
 dp = DataProvider(conf)
