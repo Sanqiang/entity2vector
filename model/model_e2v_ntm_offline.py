@@ -24,7 +24,7 @@ dp = DataProvider(conf)
 n_terms = len(dp.idx2word)
 n_docs = len(dp.idx2prod)
 word_embed_data = np.array(dp.word_embed)
-# word_data = np.array(dp.word_data)
+word_data = np.array(dp.word_data)
 doc_pos_data = np.array(dp.doc_pos_data)
 doc_neg_data = np.array(dp.doc_neg_data)
 
@@ -88,20 +88,15 @@ model.compile(optimizer=Adam(lr=0.01), loss = {'merge_layer' : ranking_loss, "po
 print("finish model compiling")
 print(model.summary())
 
-# target = np.array([9999] * len(word_data)) # useless since loss function make it times with 0
+target = np.array([9999] * len(word_data)) # useless since loss function make it times with 0
 if os.path.exists(conf.path_checker):
     print("load previous checker")
     model.load_weights(conf.path_checker)
 
-# model.fit(
-#     {"word_idx": word_data, "doc_pos_idx": doc_pos_data, "doc_neg_idx": doc_neg_data},
-#     {"merge_layer": target, "pos_layer": target},
-#     batch_size=conf.batch_size, nb_epoch=conf.n_epoch, validation_split=0.1,
-#     callbacks=[my_checker_point(doc_embed, word_embed, model, conf),
-#                # my_value_checker([word_embed_, doc_pos_embed_, doc_neg_embed_, pos_layer_, neg_layer_, merge_layer_]),
-#                ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=True)])
-
-model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size),
-                    nb_epoch=conf.n_epoch, samples_per_epoch=conf.sample_per_epoch,
-                    callbacks=[my_checker_point(doc_embed, word_embed, model, conf),
-                    ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=False)])
+model.fit(
+    {"word_idx": word_data, "doc_pos_idx": doc_pos_data, "doc_neg_idx": doc_neg_data},
+    {"merge_layer": target, "pos_layer": target},
+    batch_size=conf.batch_size, nb_epoch=conf.n_epoch, validation_split=0.1,
+    callbacks=[my_checker_point(doc_embed, word_embed, model, conf),
+               # my_value_checker([word_embed_, doc_pos_embed_, doc_neg_embed_, pos_layer_, neg_layer_, merge_layer_]),
+               ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=True)])
