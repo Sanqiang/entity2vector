@@ -15,7 +15,7 @@ import numpy as np
 import theano
 
 test = True
-flag = "naive"
+flag = "naivetest"
 conf = Config(flag)
 print(flag)
 
@@ -49,15 +49,15 @@ doc_neg_embed_ = doc_embed(doc_neg_input)
 
 word_flatten = Flatten()
 word_embed_ = word_flatten(word_embed_)
-# word_embed_ = Dense(activation="sigmoid", output_dim=conf.dim_prod, input_dim=conf.dim_word, trainable=True,
-#                     weights=[word_transfer_W, word_transfer_b], name="word_transfer")(word_embed_)
+word_embed_ = Dense(activation="sigmoid", output_dim=conf.dim_prod, input_dim=conf.dim_word, trainable=True,
+                    weights=[word_transfer_W, word_transfer_b], name="word_transfer")(word_embed_)
 
 doc_pos_flatten = Flatten()
 doc_neg_flatten = Flatten()
 doc_pos_embed_ = doc_pos_flatten(doc_pos_embed_)
 doc_neg_embed_ = doc_neg_flatten(doc_neg_embed_)
-# doc_pos_embed_ = Activation(activation="softmax", name="doc_pos_act")(doc_pos_embed_)
-# doc_neg_embed_ = Activation(activation="softmax", name="doc_neg_act")(doc_neg_embed_)
+doc_pos_embed_ = Activation(activation="softmax", name="doc_pos_act")(doc_pos_embed_)
+doc_neg_embed_ = Activation(activation="softmax", name="doc_neg_act")(doc_neg_embed_)
 
 pos_layer = Merge(mode="dot", dot_axes=-1, name="pos_layer")
 pos_layer_ = pos_layer([word_embed_, doc_pos_embed_])
@@ -83,7 +83,7 @@ def dummy_loss(y_true, y_pred):
     loss = y_pred + 0 * y_true
     return loss
 
-model.compile(optimizer=Adam(lr=0.01), loss = {'merge_layer' : ranking_loss, "pos_layer": dummy_loss}, loss_weights=[1, 0])
+model.compile(optimizer=Adam(lr=0.1), loss = {'merge_layer' : ranking_loss, "pos_layer": dummy_loss}, loss_weights=[1, 0])
 
 print("finish model compiling")
 print(model.summary())
@@ -91,7 +91,7 @@ print(model.summary())
 # target = np.array([9999] * len(word_data)) # useless since loss function make it times with 0
 if os.path.exists(conf.path_checker):
     print("load previous checker")
-    model.load_weights(conf.path_checker)
+    # model.load_weights(conf.path_checker)
 
 # model.fit(
 #     {"word_idx": word_data, "doc_pos_idx": doc_pos_data, "doc_neg_idx": doc_neg_data},

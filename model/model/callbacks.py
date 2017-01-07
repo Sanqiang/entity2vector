@@ -13,7 +13,7 @@ class my_checker_point(Callback):
     def on_epoch_end(self, epoch, logs={}):
         np.save(self.conf.path_doc_npy, self.doc_embed.get_weights())
         np.save(self.conf.path_word_npy, self.word_embed.get_weights())
-        np.save(self.conf.path_word_npy, self.model.get_weights())
+        np.save(self.conf.path_model_npy, self.model.get_weights())
 
 class my_value_checker(Callback):
     def __init__(self, models):

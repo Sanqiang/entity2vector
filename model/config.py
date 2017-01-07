@@ -26,7 +26,8 @@ class Config:
             os.mkdir(os.path.dirname(self.path_npy))
         self.batch_size = 100000
         self.n_epoch = 100000
-        self.sample_per_epoch = 19200000
+        # self.sample_per_epoch = 19200000
+        self.sample_per_epoch = 1920
 
         # for framework
         theano.config.openmp = False
@@ -34,15 +35,15 @@ class Config:
         # for save
         self.path_doc_npy = "".join([home, "/data/model/chk_",self.flag,"/doc"])
         self.path_word_npy = "".join([home, "/data/model/chk_",self.flag,"/word"])
-        self.path_model = "".join([home, "/data/model/chk_",self.flag,"/model"])
+        self.path_model_npy = "".join([home, "/data/model/chk_",self.flag,"/model"])
         self.path_doc_w2c = "".join([home, "/data/model/chk_",self.flag,"/doc.txt"])
         self.path_word_w2c = "".join([home, "/data/model/chk_",self.flag,"/word.txt"])
         if not os.path.exists(os.path.dirname(self.path_doc_npy)):
             os.mkdir(os.path.dirname(self.path_doc_npy))
         if not os.path.exists(os.path.dirname(self.path_word_npy)):
             os.mkdir(os.path.dirname(self.path_word_npy))
-        if not os.path.exists(os.path.dirname(self.path_model)):
-            os.mkdir(os.path.dirname(self.path_model))
+        if not os.path.exists(os.path.dirname(self.path_model_npy)):
+            os.mkdir(os.path.dirname(self.path_model_npy))
         if not os.path.exists(os.path.dirname(self.path_doc_w2c)):
             os.mkdir(os.path.dirname(self.path_doc_w2c))
         if not os.path.exists(os.path.dirname(self.path_word_w2c)):

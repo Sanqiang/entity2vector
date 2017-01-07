@@ -144,6 +144,7 @@ class DataProvider:
         append_data = True
         batch_idx = 0
         while True:
+            print("LOOP")
             for word_idx, pos_doc_idx in zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col):
                 trials = 0
                 while True:
