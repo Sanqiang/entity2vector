@@ -15,6 +15,8 @@ class TextProcess:
 
     interested_words = set()
 
+    stem_pairs = set()
+
     @classmethod
     def initiliaze(cls, path_pretraining):
 
@@ -41,13 +43,32 @@ class TextProcess:
                 if not ch.isalpha():
                     return TextProcess.UNK
         if stem_flag:
+            origin_word = word
             word = TextProcess.stemmer.stem(word,0,len(word)-1)
+            stem_pair = (origin_word, word)
+            TextProcess.stem_pairs.add(stem_pair)
         if word not in TextProcess.interested_words:
             return TextProcess.UNK
         return word
 
     @classmethod
-    def process(cls, text, pos_filter = False, stem_flag = True, validate_flag = False, remove_stop_word = True, only_interested_words = True):
+    def generateStemPair(cls):
+        path_stempairs = "".join((home, "/data/yelp/stem_pairs.txt"))
+        f_stempairs = open(path_stempairs, "w")
+
+        batch = ""
+        for oword, nword in TextProcess.stem_pairs:
+            line = "\t".join([oword, nword])
+            line = "".join([line, "\n"])
+            batch = "".join([batch, line])
+            if len(batch) >= 1000000:
+                f_stempairs.write(batch)
+                batch = ""
+        f_stempairs.write(batch)
+
+
+    @classmethod
+    def process(cls, text, pos_filter = False, stem_flag = False, validate_flag = True, remove_stop_word = True, only_interested_words = True):
         text = text.lower().replace("\n"," ").replace("\t"," ").replace("\v"," ")
         text_processed = ""
         for sent in sent_tokenize(text):
