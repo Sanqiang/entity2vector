@@ -6,17 +6,20 @@ class TrainType(Enum):
     train_tag = 1
 
 class Config:
-    def __init__(self, flag):
+    def __init__(self, flag, train_type, dim_item):
         home = os.environ["HOME"]
-        self.train_type = TrainType.train_tag
+        if train_type == "prod":
+            self.train_type = TrainType.train_product
+        elif train_type == "tag":
+            self.train_type = TrainType.train_tag
         self.flag = flag
         # for data
         self.path_data = "".join([home, "/data/yelp/review_processed_rest_interestword_DEC22.txt"])
         # self.path_data = "".join([home, "/data/yelp/sample.txt"])
-        self.path_embed = "".join([home, "/data/glove/glove.processed.twitter.27B.200d.txt"])
+        self.path_embed = "".join([home, "/data/glove/glove.processed.840B.300d.txt"])
 
-        self.dim_word = 300
-        self.dim_item = 300
+        self.dim_word = dim_item
+        self.dim_item = dim_item
 
         self.neg_trials = 100
 
@@ -27,16 +30,16 @@ class Config:
         self.path_checker = "".join([home, "/data/model/chk_",self.flag, "/checkpointweights.hdf5"])
         if not os.path.exists(os.path.dirname(self.path_checker)):
             os.mkdir(os.path.dirname(self.path_checker))
-        self.path_npy = "".join([home, "/data/model/npy_full/"])
+        self.path_npy = "".join([home, "/data/model/npy/"])
         if not os.path.exists(os.path.dirname(self.path_npy)):
             os.mkdir(os.path.dirname(self.path_npy))
         self.batch_size = 100000
         self.n_epoch = 100000
         # self.sample_per_epoch = 19200000
-        self.sample_per_epoch = 1920
+        self.sample_per_epoch = 20000000
 
         # for framework
-        theano.config.openmp = False
+        theano.config.openmp = True
 
         # for save
         self.path_doc_npy = "".join([home, "/data/model/chk_",self.flag,"/doc"])

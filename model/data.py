@@ -103,9 +103,6 @@ class DataProvider:
         print("finish", "temp_word_embedding")
 
     def save(self):
-        # np.save("".join([self.conf.path_npy, "word_data"]), np.array(self.word_data))
-        np.save("".join([self.conf.path_npy, "doc_pos_data"]), np.array(self.doc_pos_data))
-        np.save("".join([self.conf.path_npy, "doc_neg_data"]), np.array(self.doc_neg_data))
         np.save("".join([self.conf.path_npy, "word_embed"]), self.word_embed)
         np.save("".join([self.conf.path_npy, "idx2prod"]), self.idx2prod)
         np.save("".join([self.conf.path_npy, "idx2word"]), self.idx2word)
@@ -118,9 +115,6 @@ class DataProvider:
         print("finish", "save")
 
     def load(self):
-        # self.word_data = np.load("".join([self.conf.path_npy, "word_data.npy"]))
-        self.doc_pos_data = np.load("".join([self.conf.path_npy, "doc_pos_data.npy"]))
-        self.doc_neg_data = np.load("".join([self.conf.path_npy, "doc_neg_data.npy"]))
         self.word_embed = np.load("".join([self.conf.path_npy, "word_embed.npy"]))
         self.idx2prod = np.load("".join([self.conf.path_npy, "idx2prod.npy"]))
         self.idx2word = np.load("".join([self.conf.path_npy, "idx2word.npy"]))
@@ -133,9 +127,9 @@ class DataProvider:
         print("finish","load")
 
     def get_item_size(self):
-        if self.conf.mode == TrainType.train_product:
+        if self.conf.train_type == TrainType.train_product:
             return len(self.idx2prod)
-        elif self.conf.mode == TrainType.train_tag:
+        elif self.conf.train_type == TrainType.train_tag:
             return len(self.idx2tag)
         else:
             print("mode config is wrong")
@@ -143,10 +137,13 @@ class DataProvider:
 
     def generate_data(self, batch_size):
         self.cor_smatrix = None
-        if self.conf.mode == TrainType.train_product:
+        self.cor_fmatrix = None
+        if self.conf.train_type == TrainType.train_product:
             self.cor_smatrix = coo_matrix(self.word_doc_cor_fmatrix)
-        elif self.conf.mode == TrainType.train_tag:
+            self.cor_fmatrix = self.word_doc_cor_fmatrix
+        elif self.conf.train_type == TrainType.train_tag:
             self.cor_smatrix = coo_matrix(self.word_tag_cor_fmatrix)
+            self.cor_fmatrix = self.word_tag_cor_fmatrix
         else:
             print("mode config is wrong")
             return
@@ -157,37 +154,41 @@ class DataProvider:
         labels = np.zeros((batch_size, 1))
         append_data = True
         batch_idx = 0
+        it = zip(self.cor_smatrix.row, self.cor_smatrix.col)
         while True:
             # process idx
-            for word_idx, pos_item_idx in zip(self.cor_smatrix.row, self.cor_smatrix.col):
-                trials = 0
-                while True:
-                    neg_item_idx = -1
-                    if self.conf.mode == TrainType.train_product:
-                        neg_item_idx = rd.randint(0, len(self.idx2prod) - 1)
-                    elif self.conf.mode == TrainType.train_tag:
-                        neg_item_idx = rd.randint(0, len(self.idx2tag) - 1)
+            if not any(it):
+                it = zip(self.cor_smatrix.row, self.cor_smatrix.col)
+            word_idx, pos_item_idx = next(it)
 
-                    trials += 1
-                    if trials >= self.conf.neg_trials:
-                        append_data = False
-                        break
-                    if not self.cor_smatrix[word_idx, neg_item_idx]:
-                        append_data = True
-                        break
-                if append_data:
-                    word_idxs[batch_idx, 0] = word_idx
-                    item_pos_idxs[batch_idx, 0] = pos_item_idx
-                    item_neg_idxs[batch_idx, 0] = neg_item_idx
-                    batch_idx += 1
-                if batch_idx == batch_size:
-                    yield ({'word_idx': word_idxs, 'item_pos_idx': item_pos_idxs, "item_neg_idx": item_neg_idxs},
-                        {'merge_layer': labels, "pos_layer": labels})
-                    word_idxs = np.zeros((batch_size, 1))
-                    item_pos_idxs = np.zeros((batch_size, 1))
-                    item_neg_idxs = np.zeros((batch_size, 1))
-                    labels = np.zeros((batch_size, 1))
-                    batch_idx = 0
+            trials = 0
+            while True:
+                neg_item_idx = -1
+                if self.conf.train_type == TrainType.train_product:
+                    neg_item_idx = rd.randint(0, len(self.idx2prod) - 1)
+                elif self.conf.train_type == TrainType.train_tag:
+                    neg_item_idx = rd.randint(0, len(self.idx2tag) - 1)
+
+                trials += 1
+                if trials >= self.conf.neg_trials:
+                    append_data = False
+                    break
+                if not self.cor_fmatrix[word_idx, neg_item_idx]:
+                    append_data = True
+                    break
+            if append_data:
+                word_idxs[batch_idx, 0] = word_idx
+                item_pos_idxs[batch_idx, 0] = pos_item_idx
+                item_neg_idxs[batch_idx, 0] = neg_item_idx
+                batch_idx += 1
+            if batch_idx == batch_size:
+                yield ({'word_idx': word_idxs, 'item_pos_idx': item_pos_idxs, "item_neg_idx": item_neg_idxs},
+                    {'merge_layer': labels, "pos_layer": labels})
+                word_idxs = np.zeros((batch_size, 1))
+                item_pos_idxs = np.zeros((batch_size, 1))
+                item_neg_idxs = np.zeros((batch_size, 1))
+                labels = np.zeros((batch_size, 1))
+                batch_idx = 0
 
 
 

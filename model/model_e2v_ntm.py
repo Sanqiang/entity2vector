@@ -13,18 +13,25 @@ from config import Config
 from keras.optimizers import *
 import numpy as np
 import theano
+import sys
 
-test = True
-flag = "Adam_300"
-conf = Config(flag)
+args = sys.argv
+if len(args) <= 1:
+    args = [args[0], "prod", "prod", "300", "4"]
+print(args)
+
+flag = args[1]
+n_processer = int(args[4])
+conf = Config(flag, args[2], int(args[3]))
 print(flag)
+print(theano.config.openmp)
 
 # get data
 dp = DataProvider(conf)
 n_terms = len(dp.idx2word)
 word_embed_data = np.array(dp.word_embed)
 
-item_embed_data = np.random.rand(len(dp.get_item_size()), conf.dim_item)
+item_embed_data = np.random.rand(dp.get_item_size(), conf.dim_item)
 word_transfer_W = np.random.rand(conf.dim_word, conf.dim_item)
 word_transfer_b = np.random.rand(conf.dim_item)
 print("finish data processing")
@@ -78,7 +85,7 @@ def dummy_loss(y_true, y_pred):
     loss = y_pred + 0 * y_true
     return loss
 
-model.compile(optimizer=Adam(lr=0.01), loss = {'merge_layer' : ranking_loss, "pos_layer": dummy_loss}, loss_weights=[1, 0])
+model.compile(optimizer=Adam(lr=0.001), loss = {'merge_layer' : ranking_loss, "pos_layer": dummy_loss}, loss_weights=[1, 0])
 
 print("finish model compiling")
 print(model.summary())
@@ -96,7 +103,9 @@ if os.path.exists(conf.path_checker):
 #                # my_value_checker([word_embed_, item_pos_embed_, item_neg_embed_, pos_layer_, neg_layer_, merge_layer_]),
 #                ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=True)])
 
-model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size),
+model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size), nb_worker=n_processer,
                     nb_epoch=conf.n_epoch, samples_per_epoch=conf.sample_per_epoch,
-                    callbacks=[my_checker_point(item_embed, word_embed, model, conf),
-                    ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=False)])
+                    callbacks=[
+                        my_checker_point(item_embed, word_embed, model, conf),
+                        ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=False)
+                    ])
