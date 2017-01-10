@@ -4,6 +4,9 @@ import random as rd
 from scipy.sparse import *
 from scipy.io import mmread, mmwrite
 from config import *
+import threading
+
+
 home = os.environ["HOME"]
 
 class DataProvider:
@@ -135,7 +138,7 @@ class DataProvider:
             print("mode config is wrong")
             return
 
-    def generate_data(self, batch_size):
+    def generate_init(self):
         self.cor_smatrix = None
         self.cor_fmatrix = None
         if self.conf.train_type == TrainType.train_product:
@@ -148,6 +151,7 @@ class DataProvider:
             print("mode config is wrong")
             return
 
+    def generate_data(self, batch_size):
         word_idxs = np.zeros((batch_size, 1))
         item_pos_idxs = np.zeros((batch_size, 1))
         item_neg_idxs = np.zeros((batch_size, 1))
@@ -157,6 +161,7 @@ class DataProvider:
         it = zip(self.cor_smatrix.row, self.cor_smatrix.col)
         while True:
             # process idx
+
             if not any(it):
                 it = zip(self.cor_smatrix.row, self.cor_smatrix.col)
             word_idx, pos_item_idx = next(it)

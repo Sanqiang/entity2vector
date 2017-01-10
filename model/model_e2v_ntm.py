@@ -103,7 +103,8 @@ if os.path.exists(conf.path_checker):
 #                # my_value_checker([word_embed_, item_pos_embed_, item_neg_embed_, pos_layer_, neg_layer_, merge_layer_]),
 #                ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=True)])
 
-model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size), nb_worker=n_processer,
+dp.generate_init()
+model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size), nb_worker=n_processer, pickle_safe=True,
                     nb_epoch=conf.n_epoch, samples_per_epoch=conf.sample_per_epoch,
                     callbacks=[
                         my_checker_point(item_embed, word_embed, model, conf),
