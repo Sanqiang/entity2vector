@@ -5,7 +5,7 @@ from util.text_process import TextProcess
 
 home = os.environ["HOME"]
 path = "".join((home, "/data/yelp/review.json"))
-path_processed = "".join((home, "/data/yelp/review_processed_rest_interestword_Jan7_alltrue_nostem.txt"))
+path_processed = "".join((home, "/data/yelp/review_processed_rest_interestword_Jan7_alltrue2.txt"))
 path_pretraining = "".join((home, "/data/glove/glove.processed.twitter.27B.200d.txt"))
 
 filter_rest = True
@@ -49,5 +49,5 @@ for line in f:
             batch = ""
 f_processed.write(batch)
 f_processed.write("\n")
-# TextProcess.generateStemPair()
+TextProcess.generateStemPair()
 

@@ -53,6 +53,7 @@ class TextProcess:
 
     @classmethod
     def generateStemPair(cls):
+        home = os.environ["HOME"]
         path_stempairs = "".join((home, "/data/yelp/stem_pairs.txt"))
         f_stempairs = open(path_stempairs, "w")
 

@@ -15,7 +15,7 @@ if not os.path.exists(conf.path_word_w2c) and not os.path.exists(conf.path_doc_w
     f = open(conf.path_doc_w2c,"w")
     f.write(str(len(dp.idx2prod)))
     f.write(" ")
-    f.write(str(conf.dim_prod))
+    f.write(str(conf.dim_item))
     f.write("\n")
     idx = 0
     batch = ""
@@ -23,7 +23,7 @@ if not os.path.exists(conf.path_word_w2c) and not os.path.exists(conf.path_doc_w
         batch = "".join([batch, word])
         batch = "".join([batch, " "])
 
-        for i in range(conf.dim_prod):
+        for i in range(conf.dim_item):
             batch = "".join([batch, str(doc_embed[idx][i])])
             batch = "".join([batch, " "])
 

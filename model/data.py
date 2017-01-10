@@ -3,6 +3,7 @@ import numpy as np
 import random as rd
 from scipy.sparse import *
 from scipy.io import mmread, mmwrite
+from config import *
 home = os.environ["HOME"]
 
 class DataProvider:
@@ -22,10 +23,8 @@ class DataProvider:
         self.idx2word = []
         self.prod2idx = {}
         self.idx2prod = []
-
-        self.word_data = []
-        self.doc_pos_data = []
-        self.doc_neg_data = []
+        self.tag2idx = {}
+        self.idx2tag = []
 
         self.process_word_embed()
         self.process_data()
@@ -41,18 +40,26 @@ class DataProvider:
 
             prod = items[0]
             if prod not in self.prod2idx:
-                self.prod2idx[prod] = len(self.prod2idx)
+                self.prod2idx[prod] = len(self.idx2prod)
                 self.idx2prod.append(prod)
+
+            tags = items[1]
+            for tag in tags.split():
+                if tag not in self.tag2idx:
+                    self.tag2idx[tag] = len(self.idx2tag)
+                    self.idx2tag.append(tag)
 
             words = items[2]
             for word in words.split():
                 if word not in self.word2idx and word in self.temp_word_embedding:
-                    self.word2idx[word] = len(self.word2idx)
+                    self.word2idx[word] = len(self.idx2word)
                     self.idx2word.append(word)
 
         print("finish", "process idx")
         # process cor-occurrence data
-        self.word_doc_cor_fmatrix = np.full(shape=(len(self.word2idx), len(self.prod2idx)), fill_value=False, dtype=np.bool)
+        self.word_doc_cor_fmatrix = np.full(shape=(len(self.idx2word), len(self.idx2prod)), fill_value=False, dtype=np.bool)
+        self.word_tag_cor_fmatrix = np.full(shape=(len(self.idx2word), len(self.idx2tag)), fill_value=False, dtype=np.bool)
+        self.doc_tag_cor_fmatrix = np.full(shape=(len(self.idx2prod), len(self.idx2tag)), fill_value=False, dtype=np.bool)
         for line in open(self.conf.path_data, "r"):
             items = line.split("\t")
 
@@ -61,36 +68,24 @@ class DataProvider:
 
             prod = items[0]
             prod_idx = self.prod2idx[prod]
-            words = items[2]
-            for word in words.split():
+
+            tags = items[1].split()
+            words = items[2].split()
+
+            for tag in tags:
+                tag_idx = self.tag2idx[tag]
+                self.doc_tag_cor_fmatrix[prod_idx, tag_idx] = True
+
+                for word in words:
+                    if word in self.temp_word_embedding:
+                        word_idx = self.word2idx[word]
+                        self.word_tag_cor_fmatrix[word_idx, tag_idx] = True
+
+            for word in words:
                 if word in self.temp_word_embedding:
                     word_idx = self.word2idx[word]
                     self.word_doc_cor_fmatrix[word_idx, prod_idx] = True
         print("finish", "cor-occurrence data")
-
-        # # process data
-        # for line in open(self.conf.path_data, "r"):
-        #     items = line.split("\t")
-        #     if len(items) != 3:
-        #         continue
-        #
-        #     prod = items[0]
-        #     prod_idx = self.prod2idx[prod]
-        #     words = items[2]
-        #     for word in words.split():
-        #         if word in self.temp_word_embedding:
-        #             word_idx = self.word2idx[word]
-        #             self.word_data.append(word_idx)
-        #             self.doc_pos_data.append(prod_idx)
-        #
-        #             trials = 0
-        #             while True:
-        #                 neg_prod_idx = random.randint(0, len(self.prod2idx) - 1)
-        #                 trials += 1
-        #                 if not self.word_doc_cor_fmatrix[word_idx, neg_prod_idx] or trials >= self.conf.neg_trials:
-        #                     break
-        #             self.doc_neg_data.append(neg_prod_idx)
-        # print("finish", "data")
 
         # process web embed
         self.word_embed = np.full(shape=(len(self.word2idx), self.conf.dim_word), fill_value=0, dtype=np.float64)
@@ -114,9 +109,10 @@ class DataProvider:
         np.save("".join([self.conf.path_npy, "word_embed"]), self.word_embed)
         np.save("".join([self.conf.path_npy, "idx2prod"]), self.idx2prod)
         np.save("".join([self.conf.path_npy, "idx2word"]), self.idx2word)
-        np.save("".join([self.conf.path_npy, "prod2idx"]), self.prod2idx)
-        np.save("".join([self.conf.path_npy, "word2idx"]), self.word2idx)
+        np.save("".join([self.conf.path_npy, "idx2tag"]), self.idx2tag)
         np.save("".join([self.conf.path_npy, "word_doc_cor_fmatrix"]), self.word_doc_cor_fmatrix)
+        np.save("".join([self.conf.path_npy, "word_tag_cor_fmatrix"]), self.word_tag_cor_fmatrix)
+        np.save("".join([self.conf.path_npy, "doc_tag_cor_fmatrix"]), self.doc_tag_cor_fmatrix)
         # np.save(, self.word_doc_cor_smatrix)
         # mmwrite("".join([self.conf.path_npy, "word_doc_cor_smatrix"]), self.word_doc_cor_smatrix, field="integer")
         print("finish", "save")
@@ -128,48 +124,68 @@ class DataProvider:
         self.word_embed = np.load("".join([self.conf.path_npy, "word_embed.npy"]))
         self.idx2prod = np.load("".join([self.conf.path_npy, "idx2prod.npy"]))
         self.idx2word = np.load("".join([self.conf.path_npy, "idx2word.npy"]))
-        self.prod2idx = np.load("".join([self.conf.path_npy, "prod2idx.npy"]))
-        self.word2idx = np.load("".join([self.conf.path_npy, "word2idx.npy"]))
+        self.idx2tag = np.load("".join([self.conf.path_npy, "idx2tag.npy"]))
         self.word_doc_cor_fmatrix = np.load("".join([self.conf.path_npy, "word_doc_cor_fmatrix.npy"]))
+        self.word_tag_cor_fmatrix = np.load("".join([self.conf.path_npy, "word_tag_cor_fmatrix.npy"]))
+        self.doc_tag_cor_fmatrix = np.load("".join([self.conf.path_npy, "doc_tag_cor_fmatrix.npy"]))
         # self.word_doc_cor_smatrix = np.load("".join([self.conf.path_npy, "word_doc_cor_smatrix.npy"]))
         # self.word_doc_cor_smatrix = mmread("".join([self.conf.path_npy, "word_doc_cor_smatrix.mtx"])).todok()
         print("finish","load")
 
+    def get_item_size(self):
+        if self.conf.mode == TrainType.train_product:
+            return len(self.idx2prod)
+        elif self.conf.mode == TrainType.train_tag:
+            return len(self.idx2tag)
+        else:
+            print("mode config is wrong")
+            return
+
     def generate_data(self, batch_size):
-        self.word_doc_cor_smatrix = coo_matrix(self.word_doc_cor_fmatrix)
+        self.cor_smatrix = None
+        if self.conf.mode == TrainType.train_product:
+            self.cor_smatrix = coo_matrix(self.word_doc_cor_fmatrix)
+        elif self.conf.mode == TrainType.train_tag:
+            self.cor_smatrix = coo_matrix(self.word_tag_cor_fmatrix)
+        else:
+            print("mode config is wrong")
+            return
+
         word_idxs = np.zeros((batch_size, 1))
-        doc_pos_idxs = np.zeros((batch_size, 1))
-        doc_neg_idxs = np.zeros((batch_size, 1))
+        item_pos_idxs = np.zeros((batch_size, 1))
+        item_neg_idxs = np.zeros((batch_size, 1))
         labels = np.zeros((batch_size, 1))
         append_data = True
         batch_idx = 0
         while True:
-            print("LOOP")
-            for word_idx, pos_doc_idx in zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col):
+            # process idx
+            for word_idx, pos_item_idx in zip(self.cor_smatrix.row, self.cor_smatrix.col):
                 trials = 0
                 while True:
-                    neg_prod_idx = rd.randint(0, len(self.idx2prod) - 1)
+                    neg_item_idx = -1
+                    if self.conf.mode == TrainType.train_product:
+                        neg_item_idx = rd.randint(0, len(self.idx2prod) - 1)
+                    elif self.conf.mode == TrainType.train_tag:
+                        neg_item_idx = rd.randint(0, len(self.idx2tag) - 1)
+
                     trials += 1
                     if trials >= self.conf.neg_trials:
-                        # print("trials warning", str(self.idx2word[word_idx]), str(self.idx2prod[pos_doc_idx]))
-                        log = "".join(["trials warning", str(self.idx2word[word_idx]), str(self.idx2prod[pos_doc_idx])])
-                        self.f_log.write(log)
                         append_data = False
                         break
-                    if not self.word_doc_cor_fmatrix[word_idx, neg_prod_idx]:
+                    if not self.cor_smatrix[word_idx, neg_item_idx]:
                         append_data = True
                         break
                 if append_data:
                     word_idxs[batch_idx, 0] = word_idx
-                    doc_pos_idxs[batch_idx, 0] = pos_doc_idx
-                    doc_neg_idxs[batch_idx, 0] = neg_prod_idx
+                    item_pos_idxs[batch_idx, 0] = pos_item_idx
+                    item_neg_idxs[batch_idx, 0] = neg_item_idx
                     batch_idx += 1
                 if batch_idx == batch_size:
-                    yield ({'word_idx': word_idxs, 'doc_pos_idx': doc_pos_idxs, "doc_neg_idx": doc_neg_idxs},
+                    yield ({'word_idx': word_idxs, 'item_pos_idx': item_pos_idxs, "item_neg_idx": item_neg_idxs},
                         {'merge_layer': labels, "pos_layer": labels})
                     word_idxs = np.zeros((batch_size, 1))
-                    doc_pos_idxs = np.zeros((batch_size, 1))
-                    doc_neg_idxs = np.zeros((batch_size, 1))
+                    item_pos_idxs = np.zeros((batch_size, 1))
+                    item_neg_idxs = np.zeros((batch_size, 1))
                     labels = np.zeros((batch_size, 1))
                     batch_idx = 0
 

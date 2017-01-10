@@ -1,16 +1,22 @@
 import os
 import theano
+from enum import Enum
+class TrainType(Enum):
+    train_product = 0
+    train_tag = 1
+
 class Config:
     def __init__(self, flag):
         home = os.environ["HOME"]
+        self.train_type = TrainType.train_tag
         self.flag = flag
         # for data
         self.path_data = "".join([home, "/data/yelp/review_processed_rest_interestword_DEC22.txt"])
         # self.path_data = "".join([home, "/data/yelp/sample.txt"])
         self.path_embed = "".join([home, "/data/glove/glove.processed.twitter.27B.200d.txt"])
 
-        self.dim_word = 200
-        self.dim_prod = 200
+        self.dim_word = 300
+        self.dim_item = 300
 
         self.neg_trials = 100
 
@@ -21,7 +27,7 @@ class Config:
         self.path_checker = "".join([home, "/data/model/chk_",self.flag, "/checkpointweights.hdf5"])
         if not os.path.exists(os.path.dirname(self.path_checker)):
             os.mkdir(os.path.dirname(self.path_checker))
-        self.path_npy = "".join([home, "/data/model/npy/"])
+        self.path_npy = "".join([home, "/data/model/npy_full/"])
         if not os.path.exists(os.path.dirname(self.path_npy)):
             os.mkdir(os.path.dirname(self.path_npy))
         self.batch_size = 100000

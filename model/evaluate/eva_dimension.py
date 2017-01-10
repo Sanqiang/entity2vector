@@ -19,7 +19,7 @@ dp = DataProvider(conf)
 weight = np.dot(word_embed, transfer_w)
 weight = logistic.cdf(np.add(weight, transfer_b))
 
-for topic_id in range(conf.dim_prod):
+for topic_id in range(conf.dim_item):
     word_ids = weight[:,topic_id]
     word_ids = np.argsort(word_ids)[::-1][:50]
     words = [(dp.idx2word[word_id], weight[word_id, topic_id]) for word_id in word_ids if weight[word_id, topic_id] > .9]
