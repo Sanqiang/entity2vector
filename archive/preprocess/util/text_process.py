@@ -2,6 +2,7 @@ from nltk.tokenize import TweetTokenizer, sent_tokenize
 from nltk.corpus import stopwords
 from util.porter_stemmer import PorterStemmer
 import nltk
+import os
 
 
 class TextProcess:
