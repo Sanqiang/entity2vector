@@ -30,7 +30,7 @@ class Config:
         self.path_checker = "".join([home, "/data/model/chk_",self.flag, "/checkpointweights.hdf5"])
         if not os.path.exists(os.path.dirname(self.path_checker)):
             os.mkdir(os.path.dirname(self.path_checker))
-        self.path_npy = "".join([home, "/data/model/npy/"])
+        self.path_npy = "".join([home, "/data/model/npy_full/"])
         if not os.path.exists(os.path.dirname(self.path_npy)):
             os.mkdir(os.path.dirname(self.path_npy))
         self.batch_size = 100000

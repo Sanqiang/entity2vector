@@ -19,9 +19,15 @@ args = sys.argv
 if len(args) <= 1:
     args = [args[0], "prod", "prod", "300", "4"]
 print(args)
-
 flag = args[1]
 n_processer = int(args[4])
+
+os.environ['MKL_NUM_THREADS'] = n_processer
+os.environ['GOTO_NUM_THREADS'] = n_processer
+os.environ['OMP_NUM_THREADS'] = n_processer
+os.environ['THEANO_FLAGS'] = 'device=cpu,blas.ldflags=-lblas -lgfortran'
+
+
 conf = Config(flag, args[2], int(args[3]))
 print(flag)
 print(theano.config.openmp)
