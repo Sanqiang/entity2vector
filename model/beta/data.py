@@ -152,18 +152,19 @@ class DataProvider:
 
         labels = np.zeros((batch_size, 1))
         append_data = True
-        batch_idx = 0
 
-        it_wd = zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col)
-        it_wt = zip(self.word_tag_cor_smatrix.row, self.word_tag_cor_smatrix.col)
-        it_dt = zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col)
+        it_wd = (zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col))
+        it_wt = (zip(self.word_tag_cor_smatrix.row, self.word_tag_cor_smatrix.col))
+        it_dt = (zip(self.doc_tag_cor_smatrix.row, self.doc_tag_cor_smatrix.col))
         while True:
 
-            batch_idx == 0
+            batch_idx = 0
             while batch_idx < batch_size:
-                if not any(it_wd):
+                try:
+                    word_idx, pos_doc_idx = next(it_wd)
+                except StopIteration:
                     it_wd = zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col)
-                word_idx, pos_doc_idx = next(it_wd)
+                    word_idx, pos_doc_idx = next(it_wd)
                 trials = 0
                 while True:
                     neg_doc_idx = rd.randint(0, len(self.idx2prod) - 1)
@@ -181,11 +182,13 @@ class DataProvider:
                     batch_idx += 1
             wd_data = {"wd_word_idx": wd_word_idx, "wd_pos_doc_idx":wd_pos_doc_idx, "wd_neg_doc_idx": wd_neg_doc_idx}
 
-            batch_idx == 0
+            batch_idx = 0
             while batch_idx < batch_size:
-                if not any(it_wt):
+                try:
+                    word_idx, pos_tag_idx = next(it_wt)
+                except StopIteration:
                     it_wt = zip(self.word_tag_cor_smatrix.row, self.word_tag_cor_smatrix.col)
-                word_idx, pos_tag_idx = next(it_wt)
+                    word_idx, pos_tag_idx = next(it_wt)
                 trials = 0
                 while True:
                     neg_tag_idx = rd.randint(0, len(self.idx2tag) - 1)
@@ -196,18 +199,20 @@ class DataProvider:
                     if not self.word_tag_cor_fmatrix[word_idx, neg_tag_idx]:
                         append_data = True
                         break
-                    if append_data:
-                        wt_word_idx[batch_idx, 0] = word_idx
-                        wt_pos_tag_idx[batch_idx, 0] = pos_tag_idx
-                        wt_neg_tag_idx[batch_idx, 0] = neg_tag_idx
-                        batch_idx += 1
+                if append_data:
+                    wt_word_idx[batch_idx, 0] = word_idx
+                    wt_pos_tag_idx[batch_idx, 0] = pos_tag_idx
+                    wt_neg_tag_idx[batch_idx, 0] = neg_tag_idx
+                    batch_idx += 1
             wt_data = {"wt_word_idx": wt_word_idx, "wt_pos_tag_idx": wt_pos_tag_idx, "wt_neg_tag_idx": wt_neg_tag_idx}
 
-            batch_idx == 0
+            batch_idx = 0
             while batch_idx < batch_size:
-                if not any(it_dt):
+                try:
+                    pos_doc_idx, pos_tag_idx = next(it_dt)
+                except StopIteration:
                     it_dt = zip(self.doc_tag_cor_smatrix.row, self.doc_tag_cor_smatrix.col)
-                pos_doc_idx, pos_tag_idx = next(it_dt)
+                    pos_doc_idx, pos_tag_idx = next(it_dt)
                 trials = 0
                 while True:
                     neg_doc_idx = rd.randint(0, len(self.idx2prod) - 1)
