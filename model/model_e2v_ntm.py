@@ -60,7 +60,7 @@ word_flatten = Flatten()
 word_embed_ = word_flatten(word_embed_)
 word_embed_ = Dense(activation="sigmoid", output_dim=conf.dim_item, input_dim=conf.dim_word, trainable=True,
                     weights=[word_transfer_W, word_transfer_b], name="word_transfer")(word_embed_)
-
+word_embed_ = Activation(activation="softmax", name="word_act")(word_embed_)
 
 item_pos_embed_ = Flatten()(item_pos_embed_)
 item_neg_embed_ = Flatten()(item_neg_embed_)

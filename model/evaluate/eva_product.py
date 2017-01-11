@@ -4,8 +4,8 @@ from gensim.models.word2vec import Word2Vec
 import numpy as np
 import os
 
-flag = "Adam"
-conf = Config(flag)
+flag = "tag"
+conf = Config(flag, "tag" , 300)
 
 if not os.path.exists(conf.path_word_w2c) and not os.path.exists(conf.path_doc_w2c):
     doc_embed = np.load(conf.path_doc_npy + ".npy")[0]

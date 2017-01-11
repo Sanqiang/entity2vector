@@ -129,67 +129,130 @@ class DataProvider:
         # self.word_doc_cor_smatrix = mmread("".join([self.conf.path_npy, "word_doc_cor_smatrix.mtx"])).todok()
         print("finish","load")
 
-    def get_item_size(self):
-        if self.conf.train_type == TrainType.train_product:
-            return len(self.idx2prod)
-        elif self.conf.train_type == TrainType.train_tag:
-            return len(self.idx2tag)
-        else:
-            print("mode config is wrong")
-            return
-
     def generate_init(self):
-        self.cor_smatrix = None
-        self.cor_fmatrix = None
-        if self.conf.train_type == TrainType.train_product:
-            self.cor_smatrix = coo_matrix(self.word_doc_cor_fmatrix)
-            self.cor_fmatrix = self.word_doc_cor_fmatrix
-        elif self.conf.train_type == TrainType.train_tag:
-            self.cor_smatrix = coo_matrix(self.word_tag_cor_fmatrix)
-            self.cor_fmatrix = self.word_tag_cor_fmatrix
-        else:
-            print("mode config is wrong")
-            return
+        self.word_doc_cor_smatrix = coo_matrix(self.word_doc_cor_fmatrix)
+        self.word_tag_cor_smatrix = coo_matrix(self.word_tag_cor_fmatrix)
+        self.doc_tag_cor_smatrix = coo_matrix(self.doc_tag_cor_fmatrix)
+
 
     def generate_data(self, batch_size):
-        word_idxs = np.zeros((batch_size, 1))
-        item_pos_idxs = np.zeros((batch_size, 1))
-        item_neg_idxs = np.zeros((batch_size, 1))
+        wd_word_idx = np.zeros((batch_size, 1))
+        wd_pos_doc_idx = np.zeros((batch_size, 1))
+        wd_neg_doc_idx = np.zeros((batch_size, 1))
+
+        wt_word_idx = np.zeros((batch_size, 1))
+        wt_pos_tag_idx = np.zeros((batch_size, 1))
+        wt_neg_tag_idx = np.zeros((batch_size, 1))
+
+        dt_pos_doc_idx = np.zeros((batch_size, 1))
+        dt_pos_tag_idx = np.zeros((batch_size, 1))
+        dt_neg_doc_idx = np.zeros((batch_size, 1))
+        dt_neg_tag_idx = np.zeros((batch_size, 1))
+
+
         labels = np.zeros((batch_size, 1))
         append_data = True
         batch_idx = 0
-        # it = zip(self.cor_smatrix.row, self.cor_smatrix.col)
+
+        it_wd = zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col)
+        it_wt = zip(self.word_tag_cor_smatrix.row, self.word_tag_cor_smatrix.col)
+        it_dt = zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col)
         while True:
-            # process idx
-            # if not any(it):
-            #     it = zip(self.cor_smatrix.row, self.cor_smatrix.col)
-            # word_idx, pos_item_idx = next(it)
-            for word_idx, pos_item_idx in zip(self.cor_smatrix.row, self.cor_smatrix.col):
+
+            batch_idx == 0
+            while batch_idx < batch_size:
+                if not any(it_wd):
+                    it_wd = zip(self.word_doc_cor_smatrix.row, self.word_doc_cor_smatrix.col)
+                word_idx, pos_doc_idx = next(it_wd)
                 trials = 0
                 while True:
-                    neg_item_idx = -1
-                    if self.conf.train_type == TrainType.train_product:
-                        neg_item_idx = rd.randint(0, len(self.idx2prod) - 1)
-                    elif self.conf.train_type == TrainType.train_tag:
-                        neg_item_idx = rd.randint(0, len(self.idx2tag) - 1)
-
+                    neg_doc_idx = rd.randint(0, len(self.idx2prod) - 1)
                     trials += 1
                     if trials >= self.conf.neg_trials:
                         append_data = False
                         break
-                    if not self.cor_fmatrix[word_idx, neg_item_idx]:
+                    if not self.word_doc_cor_fmatrix[word_idx, neg_doc_idx]:
                         append_data = True
                         break
                 if append_data:
-                    word_idxs[batch_idx, 0] = word_idx
-                    item_pos_idxs[batch_idx, 0] = pos_item_idx
-                    item_neg_idxs[batch_idx, 0] = neg_item_idx
+                    wd_word_idx[batch_idx, 0] = word_idx
+                    wd_pos_doc_idx[batch_idx, 0] = pos_doc_idx
+                    wd_neg_doc_idx[batch_idx, 0] = neg_doc_idx
                     batch_idx += 1
-                if batch_idx == batch_size:
-                    yield ({'word_idx': word_idxs, 'item_pos_idx': item_pos_idxs, "item_neg_idx": item_neg_idxs},
-                        {'merge_layer': labels, "pos_layer": labels})
-                    word_idxs = np.zeros((batch_size, 1))
-                    item_pos_idxs = np.zeros((batch_size, 1))
-                    item_neg_idxs = np.zeros((batch_size, 1))
-                    labels = np.zeros((batch_size, 1))
-                    batch_idx = 0
+            wd_data = {"wd_word_idx": wd_word_idx, "wd_pos_doc_idx":wd_pos_doc_idx, "wd_neg_doc_idx": wd_neg_doc_idx}
+
+            batch_idx == 0
+            while batch_idx < batch_size:
+                if not any(it_wt):
+                    it_wt = zip(self.word_tag_cor_smatrix.row, self.word_tag_cor_smatrix.col)
+                word_idx, pos_tag_idx = next(it_wt)
+                trials = 0
+                while True:
+                    neg_tag_idx = rd.randint(0, len(self.idx2tag) - 1)
+                    trials += 1
+                    if trials >= self.conf.neg_trials:
+                        append_data = False
+                        break
+                    if not self.word_tag_cor_fmatrix[word_idx, neg_tag_idx]:
+                        append_data = True
+                        break
+                    if append_data:
+                        wt_word_idx[batch_idx, 0] = word_idx
+                        wt_pos_tag_idx[batch_idx, 0] = pos_tag_idx
+                        wt_neg_tag_idx[batch_idx, 0] = neg_tag_idx
+                        batch_idx += 1
+            wt_data = {"wt_word_idx": wt_word_idx, "wt_pos_tag_idx": wt_pos_tag_idx, "wt_neg_tag_idx": wt_neg_tag_idx}
+
+            batch_idx == 0
+            while batch_idx < batch_size:
+                if not any(it_dt):
+                    it_dt = zip(self.doc_tag_cor_smatrix.row, self.doc_tag_cor_smatrix.col)
+                pos_doc_idx, pos_tag_idx = next(it_dt)
+                trials = 0
+                while True:
+                    neg_doc_idx = rd.randint(0, len(self.idx2prod) - 1)
+                    trials += 1
+                    if trials >= self.conf.neg_trials:
+                        append_data = False
+                        break
+                    if not self.doc_tag_cor_fmatrix[neg_doc_idx, pos_tag_idx]:
+                        append_data = True
+                        break
+                trials = 0
+                while True:
+                    neg_tag_idx = rd.randint(0, len(self.idx2tag) - 1)
+                    trials += 1
+                    if trials >= self.conf.neg_trials:
+                        append_data = False
+                        break
+                    if not self.doc_tag_cor_fmatrix[pos_doc_idx, neg_tag_idx]:
+                        append_data = True
+                        break
+                if append_data:
+                    dt_pos_doc_idx[batch_idx, 0] = pos_doc_idx
+                    dt_pos_tag_idx[batch_idx, 0] = pos_tag_idx
+                    dt_neg_doc_idx[batch_idx, 0] = neg_doc_idx
+                    dt_neg_tag_idx[batch_idx, 0] = neg_tag_idx
+                    batch_idx += 1
+
+            dt_data = {"dt_pos_doc_idx":dt_pos_doc_idx, "dt_pos_tag_idx": dt_pos_tag_idx, "dt_neg_doc_idx":dt_neg_doc_idx, "dt_neg_tag_idx":dt_neg_tag_idx}
+            if not append_data:
+                continue
+            yield ({**wd_data, **wt_data, **dt_data},
+                   {"final_merge": labels})
+
+            wd_word_idx = np.zeros((batch_size, 1))
+            wd_pos_doc_idx = np.zeros((batch_size, 1))
+            wd_neg_doc_idx = np.zeros((batch_size, 1))
+
+            wt_word_idx = np.zeros((batch_size, 1))
+            wt_pos_tag_idx = np.zeros((batch_size, 1))
+            wt_neg_tag_idx = np.zeros((batch_size, 1))
+
+            dt_pos_doc_idx = np.zeros((batch_size, 1))
+            dt_pos_tag_idx = np.zeros((batch_size, 1))
+            dt_neg_doc_idx = np.zeros((batch_size, 1))
+            dt_neg_tag_idx = np.zeros((batch_size, 1))
+
+
+
