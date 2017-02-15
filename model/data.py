@@ -13,7 +13,7 @@ class DataProvider:
     def __init__(self, conf):
         self.conf = conf
         npy_checker = "".join([self.conf.path_npy, "idx2word.npy"])
-        self.f_log = open(conf.path_logs, "w")
+        self.f_log = open(conf.path_logs, "w", encoding="utf-8")
         if os.path.exists(npy_checker):
             print("find npy file", npy_checker)
             self.load()
@@ -36,7 +36,7 @@ class DataProvider:
 
     def process_data(self):
         # process idx
-        for line in open(self.conf.path_data, "r"):
+        for line in open(self.conf.path_data, "r", encoding="utf-8"):
             items = line.split("\t")
             if len(items) != 3:
                 continue
@@ -63,7 +63,7 @@ class DataProvider:
         self.word_doc_cor_fmatrix = np.full(shape=(len(self.idx2word), len(self.idx2prod)), fill_value=False, dtype=np.bool)
         self.word_tag_cor_fmatrix = np.full(shape=(len(self.idx2word), len(self.idx2tag)), fill_value=False, dtype=np.bool)
         self.doc_tag_cor_fmatrix = np.full(shape=(len(self.idx2prod), len(self.idx2tag)), fill_value=False, dtype=np.bool)
-        for line in open(self.conf.path_data, "r"):
+        for line in open(self.conf.path_data, "r", encoding="utf-8"):
             items = line.split("\t")
 
             if len(items) != 3:
@@ -99,7 +99,7 @@ class DataProvider:
 
     def process_word_embed(self):
         self.temp_word_embedding = {}
-        for line in open(self.conf.path_embed, "r"):
+        for line in open(self.conf.path_embed, "r", encoding="utf-8"):
             items = line.split()
             word = items[0]
             self.temp_word_embedding[word] = [float(val) for val in items[1:]]

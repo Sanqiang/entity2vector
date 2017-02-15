@@ -17,7 +17,7 @@ import sys
 
 args = sys.argv
 if len(args) <= 1:
-    args = [args[0], "prodx", "prod", "300", "4"]
+    args = [args[0], "prodx", "tag", "300", "4"]
 print(args)
 flag = args[1]
 n_processer = int(args[4])
