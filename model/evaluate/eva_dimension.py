@@ -5,8 +5,8 @@ import numpy as np
 import os
 from scipy.stats import logistic
 
-flag = "tag"
-conf = Config(flag, "tag" , 300)
+flag = "prod"
+conf = Config(flag, "prod" , 300)
 
 model = np.load(conf.path_model_npy + ".npy")
 word_embed = model[0]

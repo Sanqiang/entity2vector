@@ -17,6 +17,7 @@ class Config:
         self.path_data = "".join([home, "/data/yelp/review_processed_rest_interestword_DEC22.txt"])
         # self.path_data = "".join([home, "/data/yelp/sample.txt"])
         self.path_embed = "".join([home, "/data/glove/glove.processed.840B.300d.txt"])
+        self.path_raw_data = "".join([home, "/data/yelp/review.json"])
 
         self.dim_word = 300
         self.dim_item = dim_item
@@ -39,8 +40,7 @@ class Config:
         self.sample_per_epoch = 20000000
 
         # for framework
-        theano.config.openmp = True
-
+        theano.config.openmp = False
         # for save
         self.path_doc_npy = "".join([home, "/data/model/chk_",self.flag,"/doc"])
         self.path_word_npy = "".join([home, "/data/model/chk_",self.flag,"/word"])

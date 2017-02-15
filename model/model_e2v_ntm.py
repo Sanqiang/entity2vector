@@ -17,7 +17,7 @@ import sys
 
 args = sys.argv
 if len(args) <= 1:
-    args = [args[0], "prod", "prod", "300", "4"]
+    args = [args[0], "prodx", "prod", "300", "4"]
 print(args)
 flag = args[1]
 n_processer = int(args[4])
@@ -25,12 +25,13 @@ n_processer = int(args[4])
 os.environ['MKL_NUM_THREADS'] = str(n_processer)
 os.environ['GOTO_NUM_THREADS'] = str(n_processer)
 os.environ['OMP_NUM_THREADS'] = str(n_processer)
-os.environ['THEANO_FLAGS'] = 'device=cpu,blas.ldflags=-lblas -lgfortran'
-
+# os.environ['THEANO_FLAGS'] = 'device=gpu,blas.ldflags=-lblas -lgfortran'
+os.environ['THEANO_FLAGS'] = 'device=gpu'
 
 conf = Config(flag, args[2], int(args[3]))
 print(flag)
 print(theano.config.openmp)
+print(theano.config.device)
 
 # get data
 dp = DataProvider(conf)
@@ -113,6 +114,6 @@ dp.generate_init()
 model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size), nb_worker=n_processer, pickle_safe=True,
                     nb_epoch=conf.n_epoch, samples_per_epoch=conf.sample_per_epoch,
                     callbacks=[
-                        my_checker_point(item_embed, word_embed, model, conf),
+                        # my_checker_point(item_embed, word_embed, model, conf),
                         ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=False)
                     ])
