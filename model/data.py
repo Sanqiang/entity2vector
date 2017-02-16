@@ -151,20 +151,41 @@ class DataProvider:
             print("mode config is wrong")
             return
 
-    def generate_data(self, batch_size):
+    def generate_data(self, batch_size, is_val):
         word_idxs = np.zeros((batch_size, 1))
         item_pos_idxs = np.zeros((batch_size, 1))
         item_neg_idxs = np.zeros((batch_size, 1))
         labels = np.zeros((batch_size, 1))
         append_data = True
         batch_idx = 0
-        # it = zip(self.cor_smatrix.row, self.cor_smatrix.col)
+
+        data_len = len(self.cor_smatrix.row)
+        idx = random.sample(range(len(data_len)), len(data_len))
+        data_set_row = self.cor_smatrix.row[idx]
+        data_set_col = self.cor_smatrix.col[idx]
+
+        train_len = round(data_len * 0.9)
+        val_len = data_len - train_len
+
+        train_set_row = data_set_row[:data_len]
+        train_set_col = data_set_col[:data_len]
+        val_set_row = data_set_row[data_len:]
+        val_set_col = data_set_col[data_len:]
+
+        idx_val = 0
+        idx_train = 0
+
         while True:
-            # process idx
-            # if not any(it):
-            #     it = zip(self.cor_smatrix.row, self.cor_smatrix.col)
-            # word_idx, pos_item_idx = next(it)
-            for word_idx, pos_item_idx in zip(self.cor_smatrix.row, self.cor_smatrix.col):
+
+            if is_val:
+                word_idx = val_set_row[idx_val % val_len]
+                pos_item_idx = val_set_col[idx_val % val_len]
+                idx_val += 1
+            else:
+                word_idx = train_set_row[idx_train % train_len]
+                pos_item_idx = train_set_col[idx_train % train_len]
+                idx_train += 1
+
                 trials = 0
                 while True:
                     neg_item_idx = -1
@@ -187,7 +208,7 @@ class DataProvider:
                     batch_idx += 1
                 if batch_idx == batch_size:
                     yield ({'word_idx': word_idxs, 'item_pos_idx': item_pos_idxs, "item_neg_idx": item_neg_idxs},
-                        {'merge_layer': labels, "pos_layer": labels})
+                           {'merge_layer': labels, "pos_layer": labels})
                     word_idxs = np.zeros((batch_size, 1))
                     item_pos_idxs = np.zeros((batch_size, 1))
                     item_neg_idxs = np.zeros((batch_size, 1))
