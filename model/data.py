@@ -167,10 +167,10 @@ class DataProvider:
         train_len = round(data_len * 0.9)
         val_len = data_len - train_len
 
-        train_set_row = data_set_row[:data_len]
-        train_set_col = data_set_col[:data_len]
-        val_set_row = data_set_row[data_len:]
-        val_set_col = data_set_col[data_len:]
+        train_set_row = data_set_row[:train_len]
+        train_set_col = data_set_col[:train_len]
+        val_set_row = data_set_row[train_len:]
+        val_set_col = data_set_col[train_len:]
 
         idx_val = 0
         idx_train = 0
