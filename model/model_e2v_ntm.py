@@ -14,10 +14,11 @@ from keras.optimizers import *
 import numpy as np
 import theano
 import sys
+import tensorflow as tf
 
 args = sys.argv
 if len(args) <= 1:
-    args = [args[0], "prodx", "tag", "300", "4"]
+    args = [args[0], "prodx", "prod", "300", "4"]
 print(args)
 flag = args[1]
 n_processer = int(args[4])
@@ -28,10 +29,13 @@ os.environ['OMP_NUM_THREADS'] = str(n_processer)
 # os.environ['THEANO_FLAGS'] = 'device=gpu,blas.ldflags=-lblas -lgfortran'
 os.environ['THEANO_FLAGS'] = 'device=gpu'
 
+config = tf.ConfigProto(log_device_placement=True, allow_soft_placement=True)
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
+K.set_session(session)
+
 conf = Config(flag, args[2], int(args[3]))
 print(flag)
-print(theano.config.openmp)
-print(theano.config.device)
 
 # get data
 dp = DataProvider(conf)
@@ -44,9 +48,9 @@ word_transfer_b = np.random.rand(conf.dim_item)
 print("finish data processing")
 
 # define model
-word_input = Input(shape=(1,), dtype ="int64", name ="word_idx")
-item_pos_input = Input(shape=(1,), dtype ="int64", name ="item_pos_idx")
-item_neg_input = Input(shape=(1,), dtype ="int64", name ="item_neg_idx")
+word_input = Input(shape=(1,), dtype ="int32", name ="word_idx")
+item_pos_input = Input(shape=(1,), dtype ="int32", name ="item_pos_idx")
+item_neg_input = Input(shape=(1,), dtype ="int32", name ="item_neg_idx")
 
 word_embed = Embedding(output_dim=conf.dim_word, input_dim=n_terms, input_length=1, name="word_embed",
                        weights=[word_embed_data], trainable=False)
@@ -65,8 +69,8 @@ word_embed_ = Activation(activation="softmax", name="word_act")(word_embed_)
 
 item_pos_embed_ = Flatten()(item_pos_embed_)
 item_neg_embed_ = Flatten()(item_neg_embed_)
-item_pos_embed_ = Activation(activation="softmax", name="item_pos_act")(item_pos_embed_)
-item_neg_embed_ = Activation(activation="softmax", name="item_neg_act")(item_neg_embed_)
+item_pos_embed_ = Activation(activation="relu_max", name="item_pos_act")(item_pos_embed_)
+item_neg_embed_ = Activation(activation="relu_max", name="item_neg_act")(item_neg_embed_)
 
 pos_layer = Merge(mode="dot", dot_axes=-1, name="pos_layer")
 pos_layer_ = pos_layer([word_embed_, item_pos_embed_])
