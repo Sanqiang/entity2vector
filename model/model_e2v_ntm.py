@@ -115,9 +115,9 @@ if os.path.exists(conf.path_checker):
 #                ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=True)])
 
 dp.generate_init()
-model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size, is_val=False), nb_worker=4, pickle_safe=True,
+model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size, is_val=False), nb_worker=1, pickle_safe=True,
                     nb_epoch=conf.n_epoch, samples_per_epoch=conf.sample_per_epoch,
-                    fit_generator = dp.generate_data(batch_size=conf.batch_size, is_val=True), nb_val_samples=1913599,
+                    validation_data = dp.generate_data(batch_size=conf.batch_size, is_val=True), nb_val_samples=1913599,
                     verbose=2,
                     callbacks=[
                         # my_checker_point(item_embed, word_embed, model, conf),

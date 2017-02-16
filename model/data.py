@@ -160,7 +160,7 @@ class DataProvider:
         batch_idx = 0
 
         data_len = len(self.cor_smatrix.row)
-        idx = random.sample(range(len(data_len)), len(data_len))
+        idx = rd.sample(range(data_len), data_len)
         data_set_row = self.cor_smatrix.row[idx]
         data_set_col = self.cor_smatrix.col[idx]
 
