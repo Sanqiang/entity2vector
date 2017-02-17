@@ -186,31 +186,31 @@ class DataProvider:
                 pos_item_idx = train_set_col[idx_train % train_len]
                 idx_train += 1
 
-                trials = 0
-                while True:
-                    neg_item_idx = -1
-                    if self.conf.train_type == TrainType.train_product:
-                        neg_item_idx = rd.randint(0, len(self.idx2prod) - 1)
-                    elif self.conf.train_type == TrainType.train_tag:
-                        neg_item_idx = rd.randint(0, len(self.idx2tag) - 1)
+            trials = 0
+            while True:
+                neg_item_idx = -1
+                if self.conf.train_type == TrainType.train_product:
+                    neg_item_idx = rd.randint(0, len(self.idx2prod) - 1)
+                elif self.conf.train_type == TrainType.train_tag:
+                    neg_item_idx = rd.randint(0, len(self.idx2tag) - 1)
 
-                    trials += 1
-                    if trials >= self.conf.neg_trials:
-                        append_data = False
-                        break
-                    if not self.cor_fmatrix[word_idx, neg_item_idx]:
-                        append_data = True
-                        break
-                if append_data:
-                    word_idxs[batch_idx, 0] = word_idx
-                    item_pos_idxs[batch_idx, 0] = pos_item_idx
-                    item_neg_idxs[batch_idx, 0] = neg_item_idx
-                    batch_idx += 1
-                if batch_idx == batch_size:
-                    yield ({'word_idx': word_idxs, 'item_pos_idx': item_pos_idxs, "item_neg_idx": item_neg_idxs},
-                           {'merge_layer': labels, "pos_layer": labels})
-                    word_idxs = np.zeros((batch_size, 1))
-                    item_pos_idxs = np.zeros((batch_size, 1))
-                    item_neg_idxs = np.zeros((batch_size, 1))
-                    labels = np.zeros((batch_size, 1))
-                    batch_idx = 0
+                trials += 1
+                if trials >= self.conf.neg_trials:
+                    append_data = False
+                    break
+                if not self.cor_fmatrix[word_idx, neg_item_idx]:
+                    append_data = True
+                    break
+            if append_data:
+                word_idxs[batch_idx, 0] = word_idx
+                item_pos_idxs[batch_idx, 0] = pos_item_idx
+                item_neg_idxs[batch_idx, 0] = neg_item_idx
+                batch_idx += 1
+            if batch_idx == batch_size:
+                yield ({'word_idx': word_idxs, 'item_pos_idx': item_pos_idxs, "item_neg_idx": item_neg_idxs},
+                       {'merge_layer': labels, "pos_layer": labels})
+                word_idxs = np.zeros((batch_size, 1))
+                item_pos_idxs = np.zeros((batch_size, 1))
+                item_neg_idxs = np.zeros((batch_size, 1))
+                labels = np.zeros((batch_size, 1))
+                batch_idx = 0
