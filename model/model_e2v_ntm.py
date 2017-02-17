@@ -18,7 +18,7 @@ import tensorflow as tf
 
 args = sys.argv
 if len(args) <= 1:
-    args = [args[0], "prodx", "prod", "300", "4"]
+    args = [args[0], "prodx", "prod", "200", "4"]
 print(args)
 flag = args[1]
 n_processer = int(args[4])
@@ -69,8 +69,8 @@ word_embed_ = Activation(activation="softmax", name="word_act")(word_embed_)
 
 item_pos_embed_ = Flatten()(item_pos_embed_)
 item_neg_embed_ = Flatten()(item_neg_embed_)
-item_pos_embed_ = Activation(activation="relu_max", name="item_pos_act")(item_pos_embed_)
-item_neg_embed_ = Activation(activation="relu_max", name="item_neg_act")(item_neg_embed_)
+item_pos_embed_ = Activation(activation="relu", name="item_pos_act")(item_pos_embed_)
+item_neg_embed_ = Activation(activation="relu", name="item_neg_act")(item_neg_embed_)
 
 pos_layer = Merge(mode="dot", dot_axes=-1, name="pos_layer")
 pos_layer_ = pos_layer([word_embed_, item_pos_embed_])
@@ -118,8 +118,8 @@ dp.generate_init()
 model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size, is_val=False), nb_worker=1, pickle_safe=True,
                     nb_epoch=conf.n_epoch, samples_per_epoch=conf.sample_per_epoch,
                     validation_data = dp.generate_data(batch_size=conf.batch_size, is_val=True), nb_val_samples=1913599,
-                    verbose=2,
+                    verbose=1,
                     callbacks=[
                         # my_checker_point(item_embed, word_embed, model, conf),
-                        ModelCheckpoint(filepath=conf.path_checker, verbose=2, save_best_only=True)
+                        ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=True)
                     ])
