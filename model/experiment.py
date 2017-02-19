@@ -1,104 +1,180 @@
-from data import DataProvider
-from config import Config
+import os.path
+import pickle
+import random as rd
+import sys
+from collections import defaultdict, Counter, deque
+from math import sqrt
+import math
+
 import numpy as np
+#import tensorflow as tf
+from sklearn.neighbors import NearestNeighbors
 from scipy.sparse import dok_matrix
+#from stemmer import PorterStemmer
+from gensim.models import Word2Vec
 import json
-import heapq
+from collections import OrderedDict
 import time
 import datetime
-from gensim.models import Word2Vec
+from data import DataProvider
+from config import Config
 
-conf = Config("prod", "prod", 200)
-dp = DataProvider(conf)
+home = os.environ["HOME"]
 
-model = np.load(conf.path_model_npy + ".npy")
-word_embed = model[0]
-prod_embed = model[1]
-transfer_w = model[2]
-transfer_b = model[3]
+class Exp():
 
-# prepare prod file
-dp.prod2idx = {}
-batch = ""
-f_prod = open("prod_embed", "w")
-f_prod.write(str(len(dp.idx2prod)))
-f_prod.write(" ")
-f_prod.write(str(300))
-for prod_idx in range(len(dp.idx2prod)):
-    prod = dp.idx2prod[prod_idx]
-    dp.prod2idx[prod] = prod_idx
+    def __init__(self, k = 10):
+        flag = "prodx_sigmoid_softmax"
+        conf = Config(flag, "prod", 200)
+        print(flag)
+        print(k)
 
-    line = " ".join([prod] + [str(v) for v in prod_embed[prod_idx,]])
-    batch = "\n".join([batch, line])
-    if len(batch) > 100000:
-        f_prod.write(batch)
-        batch = ""
-f_prod.write(batch)
 
-# process data
-h = []
-datas = []
-usr2idx = {}
-idx2usr = []
-with open(conf.path_raw_data, "r") as ins:
-    for line in ins:
-        obj = json.loads(line)
-        business_id = obj["business_id"]
-        if business_id not in dp.prod2idx:
-            continue
+        self.k = k
+        self.data_path = "".join((home, "/data/yelp/review_rest.json"))
+        self.train_path = "train80p1.json"
+        self.test_path = "test80p1.json"
+        self.prod_vector = conf.path_doc_w2c
+        self.prod2idx = {}
+        self.idx2prod = []
+        self.user2idx = {}
+        self.idx2user = []
 
-        usr = obj["user_id"]
-        if usr not in usr2idx:
-            usr2idx[usr] = len(usr2idx)
-            idx2usr.append(usr)
-        rating = obj["stars"]
+    def split(self):
+        import json
+        import heapq
+        h = []
 
-        unixReviewTime = time.mktime(datetime.datetime.strptime(obj["date"], "%Y-%m-%d").timetuple()) #int(obj["date"])
-        datas.append((usr, business_id, rating, unixReviewTime))
-        heapq.heappush(h, unixReviewTime)
-split = int(len(h) * 0.8)
-datas_train = []
-datas_test = []
-for entry in datas:
-    unixReviewTime = entry[3]
-    if unixReviewTime < split:
-        datas_train.append(entry)
-    else:
-        datas_test.append(entry)
-del datas
+        with open(self.data_path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                date = obj["date"]
+                unixReviewTime = time.mktime(datetime.datetime.strptime(date, "%Y-%m-%d").timetuple())
+                # heapq.heappush(h, unixReviewTime)
+                h.append(unixReviewTime)
+        h = sorted(h)
+        split = h[int(len(h) * 0.8)]
 
-train_mat = dok_matrix((len(idx2usr), len(dp.idx2prod)), dtype=np.float)
-for entry in datas_train:
-    train_mat[usr2idx[entry[0]], dp.prod2idx[entry[1]]] = entry[2]
+        f_train = open(self.train_path, "w")
+        f_test = open(self.test_path, "w")
+        train_cnt = 0
+        test_cnt = 0
+        with open(self.data_path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                date = obj["date"]
+                unixReviewTime = time.mktime(datetime.datetime.strptime(date, "%Y-%m-%d").timetuple())
+                if unixReviewTime < split: # go to train
+                    f_train.write(line)
+                    train_cnt+=1
+                else:
+                    f_test.write(line)
+                    test_cnt+=1
+        print(train_cnt, test_cnt)
+        return split
 
-test_mat = dok_matrix((len(idx2usr), len(dp.idx2prod)), dtype=np.float)
-for entry in datas_test:
-    test_mat[usr2idx[entry[0]], dp.prod2idx[entry[1]]] = entry[2]
+    def initlize(self):
+        #process syn0 with prod2idx
+        f = open(self.prod_vector, "r")
+        line = f.readline()
+        vocab_size, self.vector_size = map(int, line.split())
+        self.syn0 = np.zeros((vocab_size, self.vector_size), dtype=float)
 
-#populate entry matrix
-entity_model = Word2Vec.load_word2vec_format("prod_embed")
+        def add_prod(prod, weights):
+            if prod not in self.prod2idx:
+                #process word2idx & idx2word
+                self.prod2idx[prod] = len(self.idx2prod)
+                self.idx2prod.append(prod)
+                #process syn0
+                self.syn0[self.prod2idx[prod]] = weights
 
-rmse = []
-for usr_idx, prod_idx in test_mat.keys():
-    true_rating = test_mat[usr_idx, prod_idx]
+        for line_no, line in enumerate(f):
+            parts = line.split()
+            if len(parts) != self.vector_size+1:
+                raise ValueError("invalid vector on line %s (is this really the text format?)" % (line_no))
+            prod, weights = parts[0], list(map(float, parts[1:]))
+            add_prod(prod, weights)
 
-    #predict
-    inds = (train_mat[usr_idx, :] > 0).indices
-    inds = [dp.idx2prod[ind] for ind in inds]
-    list = entity_model.most_similar(dp.idx2prod[prod_idx], topn=7, restrict_vocab=inds)
+        #process user2idx
+        with open(self.data_path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                user_id = obj["user_id"]
+                if user_id not in self.user2idx:
+                    self.user2idx[user_id] = len(self.idx2user)
+                    self.idx2user.append(user_id)
 
-    preidct_rating = 0
-    denom = 1
-    for pair in list:
-        pair_ent = pair[0]
-        prod = pair_ent[0:pair_ent.rindex("_")]
-        prod_id = pair_ent[1+pair_ent.rindex("_"):]
-        dist = pair[1]
-        rating = train_mat[usr_idx, prod_idx]
-        preidct_rating += rating * dist
-        denom += dist
-    preidct_rating /= denom
+        #process rating matrix
+        self.train_score_matrix = dok_matrix((len(self.user2idx), len(self.prod2idx)), dtype=np.float)
+        with open(self.train_path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                user_id = obj["user_id"]
+                review_id = obj["review_id"]
+                business_id = obj["business_id"]
+                stars = obj["stars"]
+                user_idx = self.user2idx[user_id]
+                prod_idx = self.prod2idx[business_id]
+                self.train_score_matrix[user_idx, prod_idx] = stars
 
-    rmse.append((true_rating - preidct_rating) ** 2)
-print(np.mean(rmse))
+        self.test_score_matrix = dok_matrix((len(self.user2idx), len(self.prod2idx)), dtype=np.float)
+        with open(self.test_path, "r") as ins:
+            for line in ins:
+                obj = json.loads(line)
+                user_id = obj["user_id"]
+                review_id = obj["review_id"]
+                business_id = obj["business_id"]
+                stars = obj["stars"]
+                user_idx = self.user2idx[user_id]
+                prod_idx = self.prod2idx[business_id]
 
+                self.test_score_matrix[user_idx, prod_idx] = stars
+
+    def most_similar(self, query_prod_id, restrict_inds = None, k = 10):
+        if restrict_inds is None:
+            dists = np.dot(self.syn0[query_prod_id,], self.syn0.T)
+        else:
+            dists = np.dot(self.syn0[query_prod_id,], self.syn0[restrict_inds,].T)
+        best_idxs = np.argsort(dists)[::-1][:k]
+        best = [restrict_inds[best_idx] for best_idx in best_idxs]
+        return zip(best,dists[best_idxs])
+
+    def predict(self, product_idx, user_idx):
+        #find similar prod (which user already rate)
+        inds = (self.train_score_matrix[user_idx,:] > 0).indices
+        if len(inds) == 0:
+            return -1
+        pairs = self.most_similar(product_idx, restrict_inds=inds, k=self.k)
+
+        preidct_score = 0
+        denom = 0
+        for prod_id,dist in pairs:
+            rating = self.train_score_matrix[user_idx, prod_id]
+            preidct_score += rating * 1
+            denom += 1
+        preidct_score /= denom
+        if math.isnan(preidct_score) or preidct_score < 1:
+            return -1
+        return preidct_score
+
+    def test(self):
+        rmse = []
+        for user_idx,prod_idx in self.test_score_matrix.keys():
+            truth_score = self.test_score_matrix[user_idx, prod_idx]
+            preidct_score = self.predict(prod_idx, user_idx)
+            if preidct_score == -1:
+                continue
+            se = (truth_score - preidct_score)**2
+            if se > 16:
+                print("error")
+            rmse.append(se)
+        print(math.sqrt(np.mean(rmse)))
+
+
+
+
+if __name__ == '__main__':
+    exp = Exp(k=7)
+    # exp.split()
+    exp.initlize()
+    exp.test()
