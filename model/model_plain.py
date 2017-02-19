@@ -42,9 +42,7 @@ dp = DataProvider(conf)
 n_terms = len(dp.idx2word)
 word_embed_data = np.array(dp.word_embed)
 
-item_embed_data = np.random.rand(dp.get_item_size(), conf.dim_item)
-word_transfer_W = np.random.rand(conf.dim_word, conf.dim_item)
-word_transfer_b = np.random.rand(conf.dim_item)
+item_embed_data = np.random.rand(dp.get_item_size(), conf.dim_word)
 print("finish data processing")
 
 # define model
@@ -54,7 +52,7 @@ item_neg_input = Input(shape=(1,), dtype ="int32", name ="item_neg_idx")
 
 word_embed = Embedding(output_dim=conf.dim_word, input_dim=n_terms, input_length=1, name="word_embed",
                        weights=[word_embed_data], trainable=False)
-item_embed = Embedding(output_dim=conf.dim_item, input_dim=dp.get_item_size(), input_length=1, name="item_embed",
+item_embed = Embedding(output_dim=conf.dim_word, input_dim=dp.get_item_size(), input_length=1, name="item_embed",
                        weights=[item_embed_data], trainable=True)
 
 word_embed_ = word_embed(word_input)
@@ -63,7 +61,7 @@ item_neg_embed_ = item_embed(item_neg_input)
 
 word_flatten = Flatten()
 word_embed_ = word_flatten(word_embed_)
-# word_embed_ = Dense(activation="sigmoid", output_dim=conf.dim_item, input_dim=conf.dim_word, trainable=True,
+# word_embed_ = Dense(activation="sigmoid", output_dim=conf.dim_word, input_dim=conf.dim_word, trainable=True,
 #                     weights=[word_transfer_W, word_transfer_b], name="word_transfer")(word_embed_)
 
 item_pos_embed_ = Flatten()(item_pos_embed_)
