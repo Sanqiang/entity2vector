@@ -17,8 +17,8 @@ import sys
 import tensorflow as tf
 
 args = sys.argv
-if len(args) <= 1:
-    args = [args[0], "prodx", "prod", "200", "4"]
+if len(args) <= 10:
+    args = [args[0], "prodx_sigmoid_softmax", "prod", "200", "1"]
 print(args)
 flag = args[1]
 n_processer = int(args[4])
@@ -65,12 +65,11 @@ word_flatten = Flatten()
 word_embed_ = word_flatten(word_embed_)
 word_embed_ = Dense(activation="sigmoid", output_dim=conf.dim_item, input_dim=conf.dim_word, trainable=True,
                     weights=[word_transfer_W, word_transfer_b], name="word_transfer")(word_embed_)
-word_embed_ = Activation(activation="softmax", name="word_act")(word_embed_)
 
 item_pos_embed_ = Flatten()(item_pos_embed_)
 item_neg_embed_ = Flatten()(item_neg_embed_)
-item_pos_embed_ = Activation(activation="relu", name="item_pos_act")(item_pos_embed_)
-item_neg_embed_ = Activation(activation="relu", name="item_neg_act")(item_neg_embed_)
+item_pos_embed_ = Activation(activation="softmax", name="item_pos_act")(item_pos_embed_)
+item_neg_embed_ = Activation(activation="softmax", name="item_neg_act")(item_neg_embed_)
 
 pos_layer = Merge(mode="dot", dot_axes=-1, name="pos_layer")
 pos_layer_ = pos_layer([word_embed_, item_pos_embed_])
@@ -115,11 +114,11 @@ if os.path.exists(conf.path_checker):
 #                ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=True)])
 
 dp.generate_init()
-model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size, is_val=False), nb_worker=1, pickle_safe=True,
+model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size, is_val=False), nb_worker=1, pickle_safe=False,
                     nb_epoch=conf.n_epoch, samples_per_epoch=conf.sample_per_epoch,
                     validation_data = dp.generate_data(batch_size=conf.batch_size, is_val=True), nb_val_samples=1913599,
                     verbose=1,
                     callbacks=[
-                        # my_checker_point(item_embed, word_embed, model, conf),
+                        my_checker_point(item_embed, word_embed, model, conf),
                         ModelCheckpoint(filepath=conf.path_checker, verbose=1, save_best_only=True)
                     ])

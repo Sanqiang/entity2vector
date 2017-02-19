@@ -34,8 +34,8 @@ class Config:
         self.path_npy = "".join([home, "/data/model/npy/"])
         if not os.path.exists(os.path.dirname(self.path_npy)):
             os.mkdir(os.path.dirname(self.path_npy))
-        self.batch_size = 19135
-        self.n_epoch = 100000
+        self.batch_size = 61729
+        self.n_epoch = 500
         self.sample_per_epoch = 19135990
 
         # for framework
