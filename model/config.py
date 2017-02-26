@@ -34,9 +34,9 @@ class Config:
         self.path_npy = "".join([home, "/data/model/npy/"])
         if not os.path.exists(os.path.dirname(self.path_npy)):
             os.mkdir(os.path.dirname(self.path_npy))
-        self.batch_size = 61729
+        self.batch_size = 117200
         self.n_epoch = 500
-        self.sample_per_epoch = 19135990
+        self.sample_per_epoch = 19135900
 
         # for framework
         theano.config.openmp = False

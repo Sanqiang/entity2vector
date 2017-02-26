@@ -29,6 +29,10 @@ os.environ['OMP_NUM_THREADS'] = str(n_processer)
 # os.environ['THEANO_FLAGS'] = 'device=gpu,blas.ldflags=-lblas -lgfortran'
 os.environ['THEANO_FLAGS'] = 'device=gpu'
 
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
+
 config = tf.ConfigProto(log_device_placement=True, allow_soft_placement=True)
 config.gpu_options.allow_growth = True
 session = tf.Session(config=config)

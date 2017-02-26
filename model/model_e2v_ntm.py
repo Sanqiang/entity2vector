@@ -18,7 +18,7 @@ import tensorflow as tf
 
 args = sys.argv
 if len(args) <= 10:
-    args = [args[0], "prodx_sigmoid_softmax", "prod", "200", "1"]
+    args = [args[0], "prodx_sigmoid_softmax", "prod", "200", "3"]
 print(args)
 flag = args[1]
 n_processer = int(args[4])
@@ -29,7 +29,11 @@ os.environ['OMP_NUM_THREADS'] = str(n_processer)
 # os.environ['THEANO_FLAGS'] = 'device=gpu,blas.ldflags=-lblas -lgfortran'
 os.environ['THEANO_FLAGS'] = 'device=gpu'
 
-config = tf.ConfigProto(log_device_placement=True, allow_soft_placement=True)
+import os
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"]="3"
+
+config = tf.ConfigProto(log_device_placement=False, allow_soft_placement=True)
 config.gpu_options.allow_growth = True
 session = tf.Session(config=config)
 K.set_session(session)
@@ -116,7 +120,7 @@ if os.path.exists(conf.path_checker):
 dp.generate_init()
 model.fit_generator(generator=dp.generate_data(batch_size=conf.batch_size, is_val=False), nb_worker=1, pickle_safe=False,
                     nb_epoch=conf.n_epoch, samples_per_epoch=conf.sample_per_epoch,
-                    validation_data = dp.generate_data(batch_size=conf.batch_size, is_val=True), nb_val_samples=1913599,
+                    #validation_data = dp.generate_data(batch_size=conf.batch_size, is_val=True), nb_val_samples=1913599,
                     verbose=1,
                     callbacks=[
                         my_checker_point(item_embed, word_embed, model, conf),
